@@ -1,0 +1,24 @@
+{
+  "name": "convergencia",
+  "productName": "Convergência",
+  "version": "1.2.0",
+  "description": "Convergência: o Torneio de Uno",
+  "author": "Bruno Ramanery",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "release": "electron-builder --win nsis --publish always"
+  },
+  "build": {
+    "appId": "br.ramanery.convergencia",
+    "productName": "Convergência",
+    "artifactName": "Convergencia-Setup-${version}.${ext}",
+    "files": ["main.js", "app/**/*"],
+    "win": { "target": "nsis", "signAndEditExecutable": false },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Convergência" },
+    "publish": [{ "provider": "github", "owner": "BrunoRamanery", "repo": "convergente-" }]
+  },
+  "dependencies": { "electron-updater": "^6.6.2" },
+  "devDependencies": { "electron": "38.2.0", "electron-builder": "^26.0.12" }
+}

@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convergência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Plano: tela de arena noturna. Cartas em grade; luta em duas colunas com o registro no meio. Tema único escuro por escolha. */
+:root{
+  --bg:#101219; --panel:#191c26; --panel2:#222634; --line:#2e3344;
+  --ink:#eceae4; --muted:#9097ab; --accent:#e2483d; --gold:#e8b54a; --good:#46b97a; --blue:#4c8ef0;
+  --display:"Teko","Arial Narrow",sans-serif; --body:"Barlow",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+a{color:var(--gold)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 16px 60px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+h1{font-family:var(--display);font-weight:600;font-size:46px;line-height:.9;margin:0;letter-spacing:.5px;text-wrap:balance}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:4px 0 0}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:8px 14px;border-radius:6px;font-weight:600}
+nav button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
+section{display:none;padding-top:16px}
+section.on{display:block}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.btn{background:var(--accent);color:#fff;border:0;padding:9px 16px;border-radius:6px;font-weight:700}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:4px 10px;border-radius:999px;font-size:13px}
+.chip[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.slots{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.slot{min-width:150px;padding:6px 10px;border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
+.slot.full{border-style:solid;color:var(--ink);border-color:var(--gold)}
+.vs{font-family:var(--display);font-size:28px;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .12s,border-color .12s}
+.card:hover{transform:translateY(-2px)}
+.card.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.art{position:relative;overflow:hidden;aspect-ratio:4/5;background:linear-gradient(135deg,var(--u) 0%,color-mix(in srgb,var(--u) 35%,#0b0c11) 100%);display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.art>span{position:relative;z-index:2}
+.art .mono{z-index:0}
+.art .badge{position:absolute;top:8px;right:8px;text-align:right;z-index:2}
+.art .badge small{background:rgba(0,0,0,.55);padding:2px 6px;border-radius:4px}
+.mono{font-family:var(--display);font-size:58px;line-height:1;color:rgba(255,255,255,.92);text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.art .tier{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;background:rgba(0,0,0,.35);padding:3px 8px;border-radius:4px}
+.tier.L{color:var(--gold)} .tier.E{color:#d6a4ff} .tier.F{color:#9fd0ff} .tier.C{color:#cfd3dd}
+.cbody{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;flex:1}
+.cbody h3{font-family:var(--display);font-weight:600;font-size:28px;line-height:.9;margin:0}
+.uni{color:var(--muted);font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11.5px;padding:2px 7px;border-radius:4px;background:var(--panel2);border:1px solid var(--line)}
+.tag.boss{border-color:var(--accent);color:#ff9d95}
+.tag.pat{border-color:var(--gold);color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:3px 8px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.stats div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:1px 0}
+.stats span{color:var(--muted)}
+.abs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.abs li{font-size:12.5px}
+.abs b{font-weight:700}
+.abs em{font-style:normal;font-size:11px;color:var(--muted);margin-left:4px}
+.abs p{margin:1px 0 0;color:#c6c9d4}
+.imglink{font-size:12px;margin-top:auto}
+/* Arena */
+.arena{display:grid;grid-template-columns:minmax(220px,1fr) minmax(280px,1.4fr) minmax(220px,1fr);gap:14px;align-items:start}
+.fpanel{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.fpanel .art{aspect-ratio:4/5}
+.fpanel .cbody h3{font-size:32px}
+.meter{height:14px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;transition:width .25s}
+.hp i{background:var(--good)} .hp.mid i{background:var(--gold)} .hp.low i{background:var(--accent)}
+.en i{background:var(--blue)}
+.mlabel{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sts{display:flex;flex-wrap:wrap;gap:4px;min-height:24px}
+.st{font-size:11.5px;padding:2px 7px;border-radius:4px;font-weight:600}
+.st.burn{background:#5a2617;color:#ffb38f} .st.slow{background:#1d3a55;color:#9fd0ff} .st.weak{background:#4a3a14;color:#ffd77a}
+.st.skip{background:#4b1b3a;color:#ffa6db} .st.buff{background:#183f2c;color:#8ff0b8}
+.logbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;max-height:560px}
+.logctl{display:flex;flex-wrap:wrap;gap:6px;padding:10px;border-bottom:1px solid var(--line);align-items:center}
+.log{overflow-y:auto;padding:10px 12px;font-size:13.5px;flex:1;min-height:300px}
+.log p{margin:0 0 4px}
+.log .round{color:var(--muted);font-family:var(--display);font-size:20px;margin-top:8px}
+.log .skill{color:var(--gold)} .log .dmg{color:var(--ink)} .log .miss{color:#9fd0ff} .log .status{color:#ffa6db} .log .ko{color:var(--accent);font-family:var(--display);font-size:26px}
+.result{font-family:var(--display);font-size:30px;padding:8px 12px;border-top:1px solid var(--line);color:var(--gold);min-height:48px}
+select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}
+/* Torneio */
+.bracket{margin:16px 0}
+.phase{font-family:var(--display);font-size:26px;font-weight:600;margin:18px 0 8px;color:var(--gold)}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:10px}
+.gtab{width:100%;border-collapse:collapse;font-size:13px}.gtab th,.gtab td{padding:3px 4px;text-align:left;border-bottom:1px solid var(--line)}
+.gtab th{color:var(--muted);font-weight:600}.gtab tr.q td{color:var(--ink)}.gtab tr.q td:first-child{box-shadow:inset 3px 0 var(--good)}.gtab tr.x td{color:var(--muted);text-decoration:line-through}
+.match.now{border-color:var(--gold)}.match .mt{display:block;font-size:11.5px}.match .lost{color:var(--muted)}
+.picker{display:none;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:14px}.picker.on{display:block}
+.tnow{margin:4px 0 12px}.rules{max-width:900px}.report{margin-bottom:18px}.podium{display:flex;gap:12px;margin:8px 0 14px;flex-wrap:wrap}.pod{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}.pod b{font-size:22px;color:var(--gold)}.pod.p1{border-color:var(--gold)}.kr{font-weight:600;font-size:12.5px}.kr-h{color:#4fc3f7}.kr-a{color:#f2b84b}.kr-v{color:#e74c3c}.conqs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}.conqc{display:flex;gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);opacity:.55}.conqc.on{opacity:1;border-color:var(--gold)}.ci{font-size:24px}.rules li{margin:6px 0;line-height:1.5}.mode.off{opacity:.45}.mode{display:flex;align-items:center;gap:6px;cursor:pointer}.conq{display:inline-block;margin-left:8px;padding:2px 8px;border:1px solid var(--gold);border-radius:6px;color:var(--gold);font-weight:600}.card.form{cursor:default}.how{padding:0 14px 14px;font-size:13px;color:var(--muted)}.how b{color:var(--gold)}#tArena.off{display:none}.champ{color:var(--gold);font-family:var(--display);font-size:24px}
+.bround{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}
+.bround h4{font-family:var(--display);font-size:22px;margin:0 0 6px;font-weight:600}
+.match{border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin-bottom:6px;font-size:13.5px}
+.match .w{color:var(--gold);font-weight:700}
+.match .dead{color:var(--muted);text-decoration:line-through}
+.choice{background:var(--panel);border:1px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:14px;display:none}
+.choice.on{display:block}
+.choice .chips{margin-top:8px}
+/* Equilíbrio */
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+td.wr{width:40%}
+.wbar{height:10px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.wbar i{display:block;height:100%;background:var(--accent)}
+.tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px}
+.note{color:var(--muted);font-size:13px;max-width:70ch}
+@media (max-width:900px){.arena{grid-template-columns:1fr 1fr}.logbox{grid-column:1/-1;order:3}}
+@media (max-width:520px){.arena{grid-template-columns:1fr}h1{font-size:38px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== v1.2: tela inicial, menu, criar torneio, personagens, sininho, Modo Você Luta ===== */
+@font-face{font-family:"Bungee";src:url(data:font/woff2;base64,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) format("woff2");font-display:swap}
+:root{--logo:"Bungee","Teko",Impact,sans-serif}
+[hidden]{display:none!important}
+#topbar{display:flex;align-items:center;justify-content:flex-start;gap:14px;border-bottom:1px solid var(--line);padding:6px 56px 12px 0}
+#topbar h2{font-family:var(--logo);font-weight:400;font-size:26px;margin:0;letter-spacing:.5px}
+#btnBack{background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:7px 14px;border-radius:6px;font-weight:700}
+#btnBack:hover{border-color:var(--gold)}
+/* sininho */
+#bell{position:fixed;top:14px;right:18px;z-index:40;width:44px;height:44px;border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--ink);display:grid;place-items:center}
+#bell:hover{border-color:var(--gold)}
+#bell svg{width:22px;height:22px}
+#bell .dot{position:absolute;top:7px;right:8px;width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--bg)}
+/* janelas */
+.modal{position:fixed;inset:0;background:rgba(5,6,10,.72);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:18px 20px;position:relative}
+.mbox h2{font-family:var(--logo);font-weight:400;font-size:30px;margin:0 0 8px}
+.mclose{position:absolute;top:10px;right:12px;background:none;border:0;color:var(--muted);font-size:26px;line-height:1}
+.tabs{display:flex;gap:6px;margin:6px 0 12px}
+.tabs button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:6px 12px;border-radius:6px;font-weight:600}
+.tabs button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.news li{margin-bottom:8px}
+.news b{color:var(--gold)}
+/* tela inicial */
+#v-splash.on,#v-menu.on{display:flex}
+#v-splash{min-height:calc(100vh - 80px);align-items:center;justify-content:center;flex-direction:column;gap:30px}
+.logo{display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--logo);text-align:center;user-select:none}
+.logo .l1,.logo .l2{font-size:clamp(34px,6vw,74px);line-height:1;color:transparent;-webkit-text-stroke:2px var(--ink);letter-spacing:2px;text-shadow:0 0 30px rgba(226,72,61,.25)}
+.logo .l2{-webkit-text-stroke:2px var(--gold)}
+.unoC{width:clamp(150px,20vw,230px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle at 50% 45%,#2a1220 0%,#140c18 60%,#0b0b12 100%);border:3px solid var(--accent);
+  box-shadow:0 0 0 6px rgba(226,72,61,.12),0 0 60px rgba(226,72,61,.35),inset 0 0 40px rgba(232,181,74,.15);animation:pulse 4s ease-in-out infinite}
+.unoC::before{content:"";position:absolute;inset:12px;border-radius:50%;border:1px dashed rgba(232,181,74,.45);animation:spin 40s linear infinite}
+.unoC span{font-family:var(--logo);font-size:clamp(42px,6vw,66px);color:var(--ink);letter-spacing:3px;text-shadow:0 0 18px rgba(232,181,74,.6)}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(226,72,61,.08),0 0 80px rgba(226,72,61,.45),inset 0 0 40px rgba(232,181,74,.2)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.play{font-family:var(--logo);font-weight:400;font-size:28px;padding:12px 56px;border-radius:10px;letter-spacing:2px}
+.ver{color:var(--muted);font-size:13px;margin:0}
+/* menu */
+#v-menu{min-height:calc(100vh - 80px);align-items:center;justify-content:center;gap:clamp(30px,7vw,110px);flex-wrap:wrap}
+#v-menu .unoC{width:clamp(200px,26vw,320px)}
+#v-menu .unoC span{font-size:clamp(54px,7vw,84px)}
+.mside{display:flex;flex-direction:column;gap:14px;min-width:min(380px,90vw)}
+.mside h1{font-family:var(--logo);font-weight:400;font-size:40px;margin:0 0 6px;color:transparent;-webkit-text-stroke:1.5px var(--gold)}
+.mb{font-family:var(--logo);font-weight:400;font-size:24px;letter-spacing:1px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:14px 20px;text-align:left;transition:transform .12s,border-color .12s}
+.mb:hover{transform:translateX(4px);border-color:var(--gold)}
+.mb.main{background:var(--accent);border-color:var(--accent);color:#fff}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mextra{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+/* criar torneio */
+.cstep{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.cstep>h3{font-family:var(--logo);font-weight:400;font-size:20px;margin:0 0 10px;letter-spacing:.5px}
+.modepick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mcard{background:var(--panel2);border:2px solid var(--line);border-radius:10px;color:var(--ink);text-align:left;padding:14px;display:flex;flex-direction:column;gap:4px}
+.mcard b{font-family:var(--logo);font-weight:400;font-size:22px}
+.mcard span{color:var(--muted);font-size:13.5px}
+.mcard[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,181,74,.15)}
+.mepick{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:10px;max-height:420px;overflow:auto;padding:2px}
+.me{background:var(--panel2);border:2px solid var(--line);border-radius:8px;padding:0;overflow:hidden;color:var(--ink);text-align:center;font-size:12px;position:relative}
+.me .art{aspect-ratio:1}
+.me .mono{font-size:30px}
+.me div.nm{padding:4px 3px;line-height:1.15;min-height:30px}
+.me[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.me:disabled{opacity:.35;cursor:not-allowed;filter:grayscale(1)}
+.me .bt{position:absolute;top:4px;left:4px;z-index:3;font-size:10px;font-weight:700;background:rgba(0,0,0,.7);color:#ff9d95;padding:1px 5px;border-radius:3px}
+.tip{position:relative}
+.tip[data-tip]:hover::after,.tip[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 8px);z-index:30;width:max-content;max-width:340px;white-space:normal;
+  background:#0c0e14;color:var(--ink);border:1px solid var(--gold);border-radius:8px;padding:8px 10px;font-size:12.5px;font-weight:500;line-height:1.4;text-align:left;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none}
+.big{font-size:18px;padding:12px 28px}
+/* personagens */
+.unis{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.unit{background:linear-gradient(135deg,color-mix(in srgb,var(--u) 70%,#000) 0%,color-mix(in srgb,var(--u) 18%,#0b0c11) 100%);border:1px solid var(--line);border-radius:12px;padding:16px;color:#fff;text-align:left;min-height:120px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
+.unit:hover{border-color:var(--gold)}
+.unit b{font-family:var(--logo);font-weight:400;font-size:20px;line-height:1.1}
+.unit span{font-size:12.5px;opacity:.85}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.pc{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;padding:0;color:var(--ink);text-align:left}
+.pc:hover{border-color:var(--gold)}
+.pc .art{aspect-ratio:4/5}
+.pc .pn{padding:7px 9px}
+.pc .pn b{display:block;font-family:var(--display);font-weight:600;font-size:22px;line-height:.95}
+.pc .pn span{font-size:11.5px;color:var(--muted)}
+.pc.lock{cursor:not-allowed}
+.pc.lock .art img{filter:brightness(0) drop-shadow(0 0 1px rgba(255,255,255,.35));opacity:.9}
+.pc.lock .art{background:radial-gradient(circle at 50% 40%,#4a5068 0%,#1a1d27 70%)}
+.pc.lock .mono{color:#2b2f3c}
+.qq{position:absolute;inset:0;display:grid;place-items:center;z-index:3;font-family:var(--logo);font-size:46px;color:rgba(232,181,74,.85);text-shadow:0 0 14px rgba(0,0,0,.9)}
+.search{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:9px 12px;border-radius:8px;min-width:min(340px,100%);font:inherit}
+.search:focus{outline:2px solid var(--gold);outline-offset:1px}
+.detail{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px}
+.detail .art{aspect-ratio:4/5;border-radius:10px}
+.detail .cbody{padding:0}
+.detail .stats{grid-template-columns:repeat(2,1fr);font-size:14px}
+@media (max-width:700px){.detail{grid-template-columns:1fr}.modepick,.mrow{grid-template-columns:1fr}}
+/* Modo Você Luta */
+.fpanel.you{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.fpanel.you .cbody h3::after{content:" (você)";font-size:18px;color:var(--gold)}
+.actions{border-top:1px solid var(--line);padding:10px;display:flex;flex-wrap:wrap;gap:6px}
+.actions:empty{display:none}
+.actions .who{width:100%;font-weight:700;color:var(--gold)}
+.act{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;text-align:left;font-size:13px;line-height:1.25}
+.act small{display:block;color:var(--muted);font-size:11.5px}
+.act:hover:not(:disabled){border-color:var(--gold)}
+.act:disabled{opacity:.4;cursor:not-allowed}
+.act.kill{border-color:var(--accent)}.act.spare{border-color:var(--good)}
+.meanwhile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:12px;max-height:240px;overflow:auto}
+.meanwhile:empty{display:none}
+.meanwhile h4{margin:0 0 6px;font-family:var(--logo);font-weight:400;font-size:17px}
+.meanwhile p{margin:0 0 3px;font-size:13px}
+.meanwhile .dead{color:#ff9d95}
+.youbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.overbox{text-align:center}
+.overbox .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<button id="bell" aria-label="Novidades" title="Novidades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="dot" id="bellDot" hidden></span></button>
+<header id="topbar" hidden>
+  <button id="btnBack">← Menu</button>
+  <h2 id="scrTitle"></h2>
+</header>
+
+<section id="v-splash" class="on">
+  <div class="logo" aria-label="Torneio de Uno: Convergência">
+    <div class="l1">TORNEIO</div>
+    <div class="unoC"><span>UNO</span></div>
+    <div class="l2">CONVERGÊNCIA</div>
+  </div>
+  <button class="btn play" id="btnPlay">Jogar</button>
+  <p class="ver" id="verTxt"></p>
+</section>
+
+<section id="v-menu">
+  <div class="unoC"><span>UNO</span></div>
+  <div class="mside">
+    <h1>CONVERGÊNCIA</h1>
+    <button class="mb main" data-go="criar">Criar Torneio</button>
+    <button class="mb" data-go="continuar" id="btnCont" hidden>Continuar torneio</button>
+    <button class="mb" data-go="regras">Regras</button>
+    <div class="mrow"><button class="mb" data-go="personagens">Personagens</button><button class="mb" data-go="conquistas">Conquistas</button></div>
+    <div class="mextra"><button class="chip" data-go="cartas">Luta 1 contra 1</button><button class="chip" data-go="equilibrio">Equilíbrio</button></div>
+  </div>
+</section>
+
+<section id="v-criar">
+  <div class="cstep">
+    <h3>1. Como você quer jogar</h3>
+    <div class="modepick">
+      <button class="mcard" data-play="livre" aria-pressed="true"><b>Modo Livre</b><span>Você assiste ao torneio. O Uno sorteia as lutas e o jogo luta por todos; você só escolhe as recompensas.</span></button>
+      <button class="mcard" data-play="voce" aria-pressed="false"><b>Modo Você Luta</b><span>Você escolhe um lutador e controla cada turno dele. As outras lutas acontecem ao mesmo tempo. Perdeu, morreu.</span></button>
+    </div>
+  </div>
+  <div class="cstep" id="voceBox" hidden>
+    <h3>Seu lutador</h3>
+    <div class="bar">
+      <span class="note">Dificuldade:</span>
+      <button class="chip tip" data-diff="normal" aria-pressed="true" data-tip="Normal: chefes e sub-chefes ficam bloqueados para você. Os rivais lutam com os atributos de sempre.">Normal</button>
+      <button class="chip tip" data-diff="divina" aria-pressed="false" data-tip="Divina: libera chefes e sub-chefes, mas o Uno fortalece todos os seus rivais conforme o seu patamar (comum, sub-chefe ou chefe), para cada luta ficar perto de 50%.">Divina</button>
+      <button class="btn ghost" id="meRand">Aleatório</button>
+      <span id="meName" class="note"></span>
+    </div>
+    <div class="mepick" id="meList"></div>
+  </div>
+  <div class="cstep">
+    <h3>2. Formato e modos</h3>
+    <div class="bar">
+      <span class="note">Formato:</span>
+      <div class="chips" id="fmtChips">
+        <button class="chip tip" data-fmt="copa" aria-pressed="true" data-tip="Copa do Mundo: a cada fase, novo sorteio de grupos de 4. Em cada grupo, 2 lutas; os 2 vencedores passam.">Copa do Mundo</button>
+        <button class="chip tip" data-fmt="mata" aria-pressed="false" data-tip="Mata-mata: chave sorteada no começo. Perdeu, saiu.">Mata-mata</button>
+        <button class="chip tip" data-fmt="rei" aria-pressed="false" data-tip="Rei do Morro: o vencedor fica e enfrenta o próximo desafiante, recuperando só +50 de Vida.">Rei do Morro</button>
+      </div>
+      <select id="tFmt" hidden><option value="copa">Copa do Mundo (grupos)</option><option value="mata">Mata-mata</option><option value="rei">Rei do Morro</option></select>
+      <label class="note" for="tSize">Lutadores</label>
+      <select id="tSize"></select>
+    </div>
+    <div class="bar">
+      <span class="note">Modos do Uno:</span>
+      <label class="note mode tip" id="lAlien" data-tip="Modo Alien (Copa ou Mata-mata, 16+): o Alien e o Predador entram. Quem perde para um Alien vira hospedeiro e nasce outro Alien. Se o primeiro Alien vencer, chega o Super Predador."><input type="checkbox" id="tAlien"> Modo Alien</label>
+      <label class="note mode tip" id="lAmuleto" data-tip="Modo Amuleto de Shinnok (8+): o Quan Chi entra e um lutador recebe o amuleto (+6 Poder Mág. e Res. Mág.). Quem vence o portador fica com ele. Se o Quan Chi pegar o amuleto, sai com a Conquista do Quan Chi."><input type="checkbox" id="tAmuleto"> Modo Amuleto de Shinnok</label>
+    </div>
+    <p class="note" id="fmtInfo"></p>
+    <div class="picker" id="picker">
+      <div class="bar"><b id="pickCount">0 escolhidos</b><button class="chip" id="pickAll">Todos</button><button class="chip" id="pickNone">Limpar</button><button class="chip" id="pickRand">Sortear 8</button></div>
+      <div class="chips" id="pickList"></div>
+    </div>
+    <p class="note" id="criarInfo"></p>
+    <button class="btn big" id="btnTour">Começar torneio</button>
+  </div>
+</section>
+
+<section id="v-personagens">
+  <div class="bar">
+    <input class="search" id="pSearch" type="search" placeholder="Buscar personagem..." aria-label="Buscar personagem">
+    <button class="chip" id="pUnis" hidden>← Todos os universos</button>
+    <span class="note" id="pCount"></span>
+  </div>
+  <div id="pBody"></div>
+</section>
+
+<div class="modal" id="mDetail" role="dialog" aria-modal="true"><div class="mbox" style="max-width:860px"><button class="mclose" data-close aria-label="Fechar">×</button><div id="detailBody"></div></div></div>
+<div class="modal" id="mNews" role="dialog" aria-modal="true"><div class="mbox"><button class="mclose" data-close aria-label="Fechar">×</button>
+  <h2>Novidades</h2>
+  <div class="tabs"><button data-nt="novas" aria-pressed="true">Novidades desta versão</button><button data-nt="breve" aria-pressed="false">Em breve</button></div>
+  <div id="newsBody" class="news"></div></div></div>
+<div class="modal" id="mOver" role="dialog" aria-modal="true"><div class="mbox overbox"><h2 id="overT"></h2><p id="overX"></p>
+  <div class="btns"><button class="btn" id="overWatch">Assistir o resto</button><button class="btn ghost" id="overReport">Ver relatório</button><button class="btn ghost" id="overHome">Voltar ao início</button></div></div></div>
+
+<section id="v-cartas">
+  <div class="slots">
+    <div class="slot" id="slotA">Clique numa carta</div>
+    <span class="vs">VS</span>
+    <div class="slot" id="slotB">e depois em outra</div>
+    <button class="btn" id="btnFight" disabled>Lutar</button>
+    <button class="btn ghost" id="btnShuffle">Embaralhar e lutar</button>
+    <button class="btn ghost" id="btnClear">Limpar</button>
+  </div>
+  <div class="bar"><div class="chips" id="filters"></div></div>
+  <div class="grid" id="grid"></div>
+  <h3 class="phase">Formas especiais</h3>
+  <p class="note">Cartas que só aparecem no torneio, quando a condição acontece. Cada uma tem classe, atributos e habilidades próprios.</p>
+  <div class="grid" id="forms"></div>
+  <h3 class="phase">Itens</h3>
+  <div class="grid" id="items"><article class="card form"><div class="art"><img src="img/amuleto-de-shinnok.jpg" alt="Amuleto de Shinnok" loading="lazy"></div><div class="cbody"><h3>Amuleto de Shinnok</h3><div class="uni">Mortal Kombat · item</div><ul class="abs"><li><b>+6 Poder Mágico e +6 Res. Mágica</b> para quem estiver com ele.</li><li>Quem vence o portador fica com o amuleto.</li><li>Se o Quan Chi vencer o portador, leva o amuleto e sai do torneio (Conquista do Quan Chi).</li></ul></div><div class="how"><b>Como surge:</b> Modo Amuleto de Shinnok: o Uno entrega a um lutador sorteado (nunca o Quan Chi, o Alien ou o Predador).</div></article></div>
+</section>
+
+<section id="v-luta">
+  <div class="arena">
+    <div class="fpanel" id="pA"></div>
+    <div class="logbox">
+      <div class="logctl">
+        <label for="speed" class="note">Velocidade</label>
+        <select id="speed"><option value="700">Lenta</option><option value="380" selected>Normal</option><option value="120">Rápida</option></select>
+        <button class="btn ghost" id="btnSkip">Pular para o fim</button>
+        <button class="btn ghost" id="btnRematch">Revanche</button>
+        <button class="btn" id="btnRandom">Nova luta aleatória</button>
+      </div>
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="result" id="result"></div>
+    </div>
+    <div class="fpanel" id="pB"></div>
+  </div>
+</section>
+
+<section id="v-torneio">
+  <div class="youbar" id="vlBar" hidden><button class="btn" id="vlNext">Próxima luta</button><span id="vlInfo" class="note"></span></div>
+  <div class="bar" id="livreBar">
+    <button class="btn ghost" id="btnNext" disabled>Jogar próxima luta</button>
+    <button class="btn ghost" id="btnPhase" disabled>Simular a fase</button>
+    <button class="btn ghost" id="btnAll" disabled>Simular até o fim</button>
+  </div>
+  <p class="note" id="tourInfo">Escolha o formato e comece. Quem perde sai do torneio: no fim da luta, o vencedor pode matar (Herói 10%, Anti-herói 35%, Vilão 60%) ou só nocautear.</p>
+  <div class="meanwhile" id="meanwhile"></div>
+  <div class="choice" id="choice"><b id="choiceTitle"></b><div class="chips" id="choiceOpts"></div></div>
+  <div class="tnow" id="tnow"></div>
+  <div class="arena off" id="tArena">
+    <div class="fpanel" id="tA"></div>
+    <div class="logbox">
+      <div class="logctl">
+        <label for="tspeed" class="note">Velocidade</label>
+        <select id="tspeed"><option value="700">Lenta</option><option value="380" selected>Normal</option><option value="120">Rápida</option></select>
+        <button class="btn ghost" id="tSkip">Pular para o fim</button>
+      </div>
+      <div class="log" id="tlog" aria-live="polite"></div>
+      <div class="actions" id="actions"></div>
+      <div class="result" id="tresult"></div>
+    </div>
+    <div class="fpanel" id="tB"></div>
+  </div>
+  <div class="bracket" id="bracket"></div>
+</section>
+
+<section id="v-conquistas">
+  <p class="note" id="conqCount"></p>
+  <div class="conqs" id="conqList"></div>
+</section>
+<section id="v-regras">
+  <div class="rules">
+  <h3 class="phase">Modos de jogo</h3>
+  <ul>
+    <li><b>Modo Livre:</b> você assiste. O Uno sorteia as lutas e o jogo controla todos os lutadores. Você pode ver luta por luta, simular a fase ou simular até o fim, e escolhe as recompensas (Colecionador do Rugal, prêmios de quem vence Evil Ryu, Violent Ken e Killer Bee).</li>
+    <li><b>Modo Você Luta:</b> você escolhe um lutador (ou sorteia) e controla cada turno dele: ataque físico, especial, mágico ou uma habilidade. As outras lutas acontecem ao mesmo tempo e aparecem no "Enquanto isso...". As formas que fogem do controle (Evil Ryu) e os capturados pelo Bison lutam sozinhos.</li>
+    <li><b>Perdeu, morreu:</b> no Modo Você Luta, perder a luta é morrer. Depois você escolhe assistir o resto do torneio ou voltar ao início.</li>
+    <li><b>Matar ou Poupar:</b> quando você vence, decide o destino do rival. A escolha fica travada quando a regra manda: Shao Kahn e Kratos contra deuses só matam, rivalidades mortais só matam, amizades só poupam, Alien derrotado sempre morre. Matar ou poupar mexe no seu carma (veja Carma abaixo).</li>
+    <li><b>Restrições:</b> no Modo Alien você não pode ser o Alien nem o Predador. No Modo Amuleto de Shinnok você começa com o amuleto, ou escolhe ser o Quan Chi e caçá-lo.</li>
+    <li><b>Dificuldade Normal:</b> chefes e sub-chefes ficam bloqueados para você. Os rivais lutam com os atributos de sempre.</li>
+    <li><b>Dificuldade Divina:</b> libera chefes e sub-chefes. Em compensação, o Uno fortalece cada rival seu conforme o seu patamar: comum +3%, sub-chefe +5%, chefe +12% em todos os atributos e na Vida (calibrado para cada luta ficar perto de 50%).</li>
+  </ul>
+  <h3 class="phase">Formatos</h3>
+  <ul>
+    <li><b>Copa do Mundo:</b> a cada fase, novo sorteio de grupos de 4 por potes de Força. Em cada grupo, 2 lutas; os 2 vencedores passam. Repescagem quando a conta não fecha. No fim, semifinal, disputa de 3º lugar e final.</li>
+    <li><b>Mata-mata:</b> chave sorteada no começo e que não muda. Perdeu, saiu. Com 20, 40 ou mais lutadores, uma Repescagem fecha a chave.</li>
+    <li><b>Rei do Morro:</b> o vencedor fica no morro e enfrenta o próximo desafiante, recuperando só +50 de Vida entre as lutas. Quem estiver no morro no fim é o campeão.</li>
+  </ul>
+  <h3 class="phase">Combate</h3>
+  <ul>
+    <li><b>Ordem:</b> quem tem mais Velocidade ataca primeiro. Empate: dado.</li>
+    <li><b>Golpes:</b> físico (0 de Energia), especial (10) ou mágico (25), ou uma habilidade. Todos ganham +10 de Energia por turno.</li>
+    <li><b>Dano:</b> Ataque × 2 − Defesa do alvo (mínimo 5), com variação de ±10%. Especial usa Atq. Esp. contra Def. Esp.; mágico usa Poder Mágico contra Res. Mágica.</li>
+    <li><b>Golpes de assinatura:</b> habilidades de ataque usam o maior atributo de ataque do lutador; o alvo se defende com a defesa do tipo do golpe.</li>
+    <li><b>Velocidade:</b> com o dobro da Velocidade do rival, rola um dado; 4 ou mais, ataca de novo. Cada ponto acima do rival dá +2% de esquiva (até 20%; esquiva total até 35%).</li>
+    <li><b>Estados:</b> Queimado (−10 de Vida por turno, 2 turnos) · Congelado e Atordoado (perde 1 turno e fica imune a perder o seguinte) · Lento (−3 Velocidade, 2 turnos) · Enfraquecido (−3 Defesa, 2 turnos).</li>
+  </ul>
+  <h3 class="phase">Torneio</h3>
+  <ul>
+    <li><b>Copa do Mundo:</b> a cada fase, novo sorteio de grupos de 4 por potes de Força. Em cada grupo, 2 lutas; os 2 vencedores passam. Repescagem quando a conta não fecha. No fim, semifinal e final.</li>
+    <li><b>Mata-mata:</b> chave sorteada no começo. Com 20, 40 ou mais, uma Repescagem fecha a chave.</li>
+    <li><b>Rei do Morro:</b> o vencedor fica e enfrenta o próximo; recupera só +50 de Vida entre lutas.</li>
+    <li><b>Nocaute ou Morte:</b> no fim da luta, o vencedor mata com chance de Herói 10%, Anti-herói 35%, Vilão 60%. O Shao Kahn mata 100%. O Kratos sempre mata Deuses, Semideuses e Titãs. Se não matar, é nocaute: sai do torneio vivo.</li>
+    <li><b>Rivalidades:</b> Scorpion × Sub-Zero, Kazuya × Heihachi, Jin × Heihachi, Chun-Li × M. Bison, Kitana × Shao Kahn, Orchid × Fulgore e Predador × Alien sempre se matam. A Cammy sempre mata o Bison, mas o Bison nunca mata a Cammy. Quan Chi × Scorpion: 80% de chance de um matar o outro.</li>
+    <li><b>Amizades (nunca se matam):</b> Ryu × Ken, Ryu × Sagat, Ryu × Chun-Li, Chun-Li × Cammy, Sophitia × Cassandra, Sonya × Kitana, Sub-Zero × Sonya, Terry × Mai.</li>
+    <li><b>Lutas não oficiais:</b> invasões de Alien, chegada do Super Predador e capturados lutando antes do Bison. Quem vence recupera 40% da Vida e entra na luta oficial com essa Vida.</li>
+    <li><b>Carma:</b> todos têm carma de −10 a +10 (Herói começa em +6, Anti-herói em 0, Vilão em −6). +4 ou mais = Herói; −3 a +3 = Anti-herói; −4 ou menos = Vilão. Matar um herói −3, um anti-herói −2, um vilão −1; morte por rivalidade −1; matar em forma demoníaca −3; poupar +1 (poupar um vilão +2). O papel atual define a chance de matar. Shao Kahn, Orochi, Gargos e os Aliens não mudam. Formas e capturados (Violent Ken, Killer Bee, Evil Ryu...) mexem no carma do personagem original. Ryu com carma ruim tem mais chance de virar Evil Ryu.</li>
+    <li><b>Disputa de 3º lugar:</b> os dois perdedores da semifinal disputam o 3º lugar se estiverem vivos (luta normal, pode haver morte). Se só um estiver vivo, ele fica em 3º.</li>
+    <li><b>Quando alguém sai no meio da fase,</b> o Uno refaz o sorteio das lutas que faltam (sem W.O.).</li>
+  </ul>
+  <h3 class="phase">Progresso no torneio</h3>
+  <ul>
+    <li><b>Ryu:</b> +1 de Ataque por vitória (até +5). Com menos de 30% de Vida pode virar Evil Ryu (20% + 5% por vitória). Se o Evil Ryu cair, o Ryu se levanta com 50 de Vida e o oponente recupera 40.</li>
+    <li><b>Jin:</b> com menos de 10% de Vida, 50% de chance de virar Devil Jin (volta com 30%). Contra o Kazuya, os dois viram demônio no começo. Contra o True Devil Kazuya, vira Angel Jin.</li>
+    <li><b>Kazuya:</b> pontos do demônio: 1 por vitória, 2 por vencer o Jin, 0 se venceu com Despertar. Com 5 (torneios de 20+), 4 (16) ou 3 (8), vira True Devil Kazuya até o fim.</li>
+    <li><b>Rugal:</b> ao vencer, escolhe uma habilidade do derrotado. Se vencer o Orochi, vira Omega Rugal até o fim (perde 5 de Vida por turno).</li>
+    <li><b>Kratos:</b> ao matar um deus, ganha uma habilidade dele até o fim.</li>
+    <li><b>Predador:</b> +1 de Ataque por lutador que matar (troféu); no Modo Alien, +2 por Alien morto.</li>
+    <li><b>M. Bison:</b> se vencer o Ken sem matar, ele vira Violent Ken. Se vencer a Cammy, ela vira Killer Bee. Os capturados viram vilões e lutam pelo Bison: na luta seguinte dele, um capturado sorteado (50/50 se houver dois) entra primeiro. Se vencer, o Bison avança. Se perder, o adversário recupera 40% da Vida e enfrenta o Bison; o outro capturado continua com ele. Derrotada, a Killer Bee liberta a Cammy, que sai do torneio. Derrotado, o Violent Ken liberta o Ken, que volta ao torneio na fase seguinte (rival do Ryu). Se o Bison sair, todos se libertam.</li>
+    <li><b>Recompensas (o jogador escolhe):</b> quem vence o Evil Ryu: Intenção Assassina (+25% de chance de matar) ou Eco do Raging Demon · quem vence o Violent Ken: Mente Inquebrável ou Chama do Shoryuken · quem vence a Killer Bee: Mente Inquebrável ou Tática Militar.</li>
+  </ul>
+  <h3 class="phase">Modos do Uno</h3>
+  <ul>
+    <li><b>Modo Alien</b> (Copa ou Mata-mata, 16 lutadores ou mais): o Alien e o Predador sempre entram, e o primeiro Alien começa com +10 em Ataque, Defesa, Atq. Esp., Def. Esp., Poder Mág., Res. Mág., Vida e Energia.
+      Quem perde para um Alien morre ou vira hospedeiro; nasce um novo Alien com uma habilidade da vítima, que invade a fase seguinte. Todo Alien derrotado morre; quem o mata ganha Sobrevivente (Predadores ganham +2 de Ataque por troféu).
+      Se o primeiro Alien vencer, chega o Super Predador. Se um Alien vencer um Predador sem matar, nasce o Predalien.
+      <b>Conquista dos Aliens:</b> só sobram Aliens. <b>Conquista do Predador:</b> todos os Aliens mortos por Predadores. Quando os Aliens acabam, os Predadores vão embora.</li>
+    <li><b>Modo Amuleto de Shinnok</b> (qualquer formato, 8 lutadores ou mais): o Quan Chi sempre entra e um lutador sorteado recebe o amuleto (+6 Poder Mágico, +6 Res. Mágica). Nunca o Quan Chi, o Alien ou o Predador.
+      Quem vence o portador fica com o amuleto. Se o Quan Chi vencer o portador, pega o amuleto e sai do torneio: <b>Conquista do Quan Chi</b>.</li>
+  </ul>
+  </div>
+</section>
+
+<section id="v-equilibrio">
+  <p class="note" style="margin:0 0 12px">Regras de combate: golpes de habilidade usam o maior atributo de ataque do lutador (Ataque, Ataque Especial ou Poder Mágico), mas o alvo se defende com a defesa do tipo do golpe. Quem tem o dobro da Velocidade rola um dado: 4 ou mais, ataca de novo. Cada ponto de Velocidade acima do rival dá 2% de esquiva (até 20%).</p>
+  <div class="bar">
+    <button class="btn" id="btnBal">Simular todos contra todos</button>
+    <span class="note" id="balInfo">Cada dupla luta 20 vezes (15.600 lutas). Mostra quem vence mais, para achar quem está forte ou fraco demais.</span>
+  </div>
+  <div class="tablewrap"><table><thead><tr><th>#</th><th>Lutador</th><th>Universo</th><th>Força</th><th>Vitórias</th><th class="wr"></th></tr></thead><tbody id="balBody"><tr><td colspan="6" class="note">Clique em "Simular todos contra todos".</td></tr></tbody></table></div>
+</section>
+</div>
+
+<script>
+// ===================== DADOS =====================
+const UNI={MK:{n:'Mortal Kombat',c:'#b8322a'},SF:{n:'Street Fighter',c:'#2b62c4'},TK:{n:'Tekken',c:'#7c46c2'},KOF:{n:'The King of Fighters',c:'#d06d17'},DOA:{n:'Dead or Alive',c:'#c23a80'},SC:{n:'Soulcalibur',c:'#b48f1f'},GG:{n:'Guilty Gear',c:'#1a958c'},KI:{n:'Killer Instinct',c:'#378f33'},GST:{n:'Convidados',c:'#6b7286'}};
+// nome|uni|origem|classe|subclasse|raça|família|patamar|título|vida|energia|atq|def|atqEsp|defEsp|pMag|resMag|vel|habilidades
+const RAW=`Scorpion|MK||Assassino|Ninja|Espectro (ex-humano)|Espectro|Mortal||180|100|11|9|13|9|9|18|17|venha,fogoInf
+Sub-Zero|MK||Atirador|Controlador|Criomante|Humano|Mortal||200|120|10|11|17|10|9|15|10|congela,clone
+Kitana|MK||Assassino|Agente|Edeniana|Raça de outro reino|Mortal||200|100|10|11|15|9|9|11|19|leque
+Sonya Blade|MK||Atirador|Soldado|Humana|Humano|Mortal||200|120|13|11|18|10|4|13|13|tatica,aneis
+Shang Tsung|MK||Mago|Sombrio|Humano (feiticeiro)|Humano|Mortal|Sub-chefe|250|120|3|10|13|12|26|16|8|roubo,metamorfose
+Shao Kahn|MK||Tanque|Colosso|Exoterrano|Raça de outro reino|Semideus|Chefe|310|110|19|21|14|14|13|15|10|martelo,imperador,ego
+Ryu|SF||Guerreiro|Monge|Humano|Humano|Mortal||200|135|18|12|13|10|5|13|9|hadouken,caminho
+Ken Masters|SF||Guerreiro|Berserker|Humano|Humano|Mortal||220|120|16|11|12|9|5|16|12|hadouken,shoryuF
+Chun-Li|SF||Assassino|Agente|Humana|Humano|Mortal||200|120|14|12|11|9|5|11|20|chute
+Cammy White|SF||Atirador|Soldado|Clone (criada pela Shadaloo)|Humano|Mortal||200|120|18|10|13|9|4|13|15|spiral,tatica,cannonSpike
+Sagat|SF||Guerreiro|Berserker|Humano|Humano|Mortal|Sub-chefe|250|120|23|15|13|11|5|14|8|tiger,muayThai
+M. Bison|SF||Mago|Psíquico|Humano (Psycho Power)|Humano|Mortal|Chefe|260|130|14|14|18|13|22|17|8|psychoCrusher,psychoPower,ego
+Jin Kazama|TK||Guerreiro|Lutador|Humano com Gene Demoníaco|Meio-demônio|Mortal|Sub-chefe|230|100|23|11|12|11|11|14|10|punho,gene
+Kazuya Mishima|TK||Guerreiro|Berserker|Humano com Gene Demoníaco|Meio-demônio|Mortal|Chefe|280|110|25|11|12|11|13|15|8|punho,semMis,despertar
+Heihachi Mishima|TK||Tanque|Colosso|Humano|Humano|Mortal|Chefe|290|130|16|21|12|12|6|16|9|punho,naoMorre
+King|TK||Tanque|Agarrador|Humano|Humano|Mortal||200|120|18|19|8|11|3|12|11|agarrao
+Terry Bogard|KOF||Guerreiro|Lutador|Humano|Humano|Mortal||200|120|19|12|12|10|5|12|12|geyser
+Mai Shiranui|KOF||Assassino|Ninja|Humana|Humano|Mortal||200|120|10|9|12|9|9|16|17|lequeFlam,graca
+Rugal Bernstein|KOF||Atirador|Artilheiro|Humano|Humano|Mortal|Chefe|260|145|15|14|22|12|9|14|7|barreira,colecionador
+Orochi|KOF||Mago|Feiticeiro|Orochi (deus serpente)|Primordial|Titã|Chefe|320|125|12|14|16|15|29|18|7|juizo,vontade
+Kasumi|DOA||Assassino|Ninja|Humana|Humano|Mortal||200|120|9|9|18|9|9|10|18|contra,teleporte
+Tina Armstrong|DOA||Tanque|Agarrador|Humana|Humano|Mortal||200|120|19|18|9|10|3|11|12|contra,estrela
+Sophitia|SC||Tanque|Guardião|Humana (escolhida de Hefesto)|Humano|Escolhido||210|120|19|18|11|13|7|13|11|gi,bencao
+Cassandra|SC||Guerreiro|Espadachim|Humana (escolhida de Hefesto)|Humano|Escolhido||210|120|20|14|10|10|6|14|13|gi,irmas
+Ivy Valentine|SC||Atirador|Controlador|Humana (alquimista)|Humano|Mortal||200|120|10|9|19|9|11|13|11|chicote
+Taki|SC||Assassino|Ninja|Humana (ninja Fu-Ma)|Humano|Mortal||200|120|10|9|17|9|8|11|18|exorcista,bombaFumaca
+Voldo|SC||Assassino|Fera|Humano (deformado)|Humano|Mortal||200|120|15|10|10|9|6|12|20|contorcao,imprev
+Faust|GG||Mago|Místico|Humano (médico)|Humano|Mortal||200|120|10|11|11|10|21|13|6|oqueEh,cirurgia
+I-No|GG||Mago|Feiticeiro|Ser artificial|Demônio|Semideus|Chefe|300|125|9|10|15|13|27|15|10|acorde,musica
+Orchid|KI||Assassino|Agente|Humana|Humano|Mortal||200|120|10|13|16|9|6|10|18|combo,infiltrada
+Sabrewulf|KI||Assassino|Fera|Lobisomem|Fera|Mortal||200|100|19|10|9|9|0|14|23|combo,uivo
+Spinal|KI||Guerreiro|Espadachim|Esqueleto (pirata ressuscitado)|Morto-vivo|Mortal||240|100|22|14|9|10|10|10|5|escudo,investidaPirata
+Fulgore|KI||Tanque|Máquina|Ciborgue Ultratech|Ciborgue|Mortal||200|100|18|21|11|11|4|11|8|reator,laserOcular
+Gargos|KI||Tanque|Colosso|Demônio do Reino das Sombras|Demônio|Semideus|Chefe|330|110|18|20|14|13|16|10|7|gargulas,senhor
+Kratos|GST|God of War|Guerreiro|Berserker|Espartano, filho de Zeus|Humano|Deus||260|120|25|15|14|12|11|16|11|furia,laminas,matadorDeuses
+Freddy Krueger|GST|A Hora do Pesadelo|Mago|Sombrio|Demônio dos sonhos|Demônio|Mortal||240|100|10|8|10|9|23|12|8|pesadelo,mundoSonhos
+Predador|GST|Predador|Atirador|Soldado|Yautja|Alienígena|Mortal||200|100|17|13|19|10|3|12|10|camo,cacador
+Alien (Xenomorfo)|GST|Alien|Assassino|Fera|Xenomorfo|Alienígena|Mortal||200|100|13|12|10|9|2|17|21|acido,mandibula,colmeia
+Omni-Man|GST|Invencível|Tanque|Colosso|Viltrumita|Alienígena|Mortal||230|100|18|20|9|12|4|12|12|investida,resistV
+Homelander|GST|The Boys|Atirador|Artilheiro|Super-humano (Composto V)|Humano|Mortal||200|135|16|14|24|12|4|13|12|laser,ego
+Quan Chi|MK||Mago|Sombrio|Osh-Tekk (feiticeiro do Netherrealm)|Raça de outro reino|Mortal|Sub-chefe|240|120|6|11|14|12|24|16|9|caveiraVerde,buscaAmuleto`;
+function parseCard(l,i){const p=l.split('|');const n=v=>+v;
+  const c={i,n:p[0],u:p[1],orig:p[2]||UNI[p[1]].n,cls:p[3],sub:p[4],race:p[5],fam:p[6],pat:p[7],tit:p[8],hp:n(p[9]),en:n(p[10]),
+  st:{atk:n(p[11]),def:n(p[12]),sat:n(p[13]),sdef:n(p[14]),mag:n(p[15]),res:n(p[16]),spd:n(p[17])},ab:p[18].split(',')};
+  c.forca=Object.values(c.st).reduce((a,b)=>a+b,0);return c;}
+const CARDS=RAW.trim().split('\n').map((l,i)=>parseCard(l,i));
+const NB=CARDS.length; // lutadores do elenco (as cartas temporárias do torneio vêm depois)
+CARDS.find(c=>c.n==='Alien (Xenomorfo)').alien=true;
+// formas especiais: cartas próprias (chave|imagem|como surge|carta)
+const FORM_RAW=`evilRyu|evil-ryu|Ryu com menos de 30% de Vida perde o controle (20% + 5% por vitória no torneio). Se o Evil Ryu cair, o Ryu se levanta com 50 de Vida.|Evil Ryu|SF|Street Fighter (Satsui no Hado)|Guerreiro|Berserker|Humano tomado pelo Satsui no Hado|Meio-demônio|Mortal||200|135|23|11|17|9|8|12|11|metsu,shunGoku
+devilJin|devil-jin|Jin com menos de 10% de Vida: 50% de chance. Volta com 30% da Vida. Contra o Kazuya, no começo da luta.|Devil Jin|TK|Tekken (Gene Demoníaco)|Guerreiro|Berserker|Demônio do Gene Demoníaco|Meio-demônio|Mortal|Sub-chefe|250|100|26|14|15|11|14|14|12|punho,laserDevil
+devilKaz|devil-kazuya|Kazuya usa Despertar do Demônio (paga metade da Vida, só naquela luta). Contra o Jin, os dois se transformam no começo da luta.|Devil Kazuya|TK|Tekken (Gene Demoníaco)|Guerreiro|Berserker|Demônio do Gene Demoníaco|Meio-demônio|Mortal|Chefe|280|110|27|14|13|11|17|15|10|punho,semMis,laserDevil
+omegaRugal|omega-rugal|Rugal vence o Orochi no torneio e absorve o poder dele. Fica assim até o fim do torneio.|Omega Rugal|KOF|The King of Fighters (poder de Orochi)|Atirador|Artilheiro|Humano com o poder de Orochi|Humano|Semideus|Chefe|260|145|21|20|28|18|15|20|7|barreira,poderOrochi,corpoOmega
+trueDevilKaz|true-devil-kazuya|Kazuya junta os pontos do demônio no torneio (5 em torneios de 20 ou mais, 4 em 16, 3 em 8). Cada vitória vale 1 ponto, vencer o Jin vale 2, e vitória com Despertar do Demônio não vale ponto. Fica assim até o fim do torneio.|True Devil Kazuya|TK|Tekken (forma demoníaca máxima)|Guerreiro|Berserker|Demônio absoluto do Gene Demoníaco|Meio-demônio|Semideus|Chefe|265|120|29|14|14|12|19|15|10|punho,semMis,laserDevil,asasDemonio
+angelJin|angel-jin|Só quando o Jin enfrenta o True Devil Kazuya: em vez do demônio, desperta o anjo (a luz da mãe, Jun Kazama).|Angel Jin|TK|Tekken (a luz dos Kazama)|Guerreiro|Lutador|Anjo que venceu o Gene Demoníaco|Meio-demônio|Semideus|Sub-chefe|275|120|27|15|18|14|20|18|12|punho,luzKazama,purificacao
+superPred|super-predador|Modo Alien: só chega se o primeiro Alien vencer uma luta. Invade o torneio caçando um Alien.|Super Predador|GST|Predadores (os caçadores de elite)|Atirador|Soldado|Yautja de elite (Super Predador)|Alienígena|Mortal|Sub-chefe|250|110|20|15|21|12|3|13|13|camo,cacador,cacadaElite
+killerBee|killer-bee|M. Bison vence a Cammy: ele nunca a mata, a captura e a transforma de volta em boneca da Shadaloo. Luta pelo Bison, antes dele.|Killer Bee|SF|Street Fighter (boneca da Shadaloo)|Assassino|Agente|Clone sob controle da Shadaloo|Humano|Mortal||200|120|20|11|13|9|4|13|17|spiral,bonecaShadaloo
+vken|violent-ken|M. Bison vence o Ken sem matar e o captura. Luta primeiro nas lutas do Bison.|Violent Ken|SF|Street Fighter (controlado pelo M. Bison)|Guerreiro|Berserker|Humano sob lavagem cerebral|Humano|Mortal||220|120|18|11|12|9|5|16|13|shoryuF,psychoKen
+predalien|predalien|Modo Alien: um Alien vence um Predador sem matar. O Predador vira hospedeiro e nasce o Predalien, um sub-chefe.|Predalien|GST|Alien vs. Predador|Assassino|Fera|Xenomorfo nascido de um Predador|Alienígena|Mortal|Sub-chefe|220|100|18|14|10|10|2|15|18|acido,mandibula,urro,colmeia`;
+const FORMS={};FORM_RAW.trim().split('\n').forEach(l=>{const p=l.split('|');const c=parseCard(p.slice(3).join('|'),'f_'+p[0]);c.key=p[0];c.img=p[1];c.how=p[2];c.form=true;FORMS[p[0]]=c;});
+FORMS.predalien.alien=true;FORMS.superPred.pred=true;CARDS.find(c=>c.n==='Predador').pred=true;
+const tierOf=f=>f>=104?['Lendário','L']:f>=94?['Elite','E']:f>=88?['Forte','F']:['Comum','C'];
+
+// habilidades: n nome, t A/P, c custo, d dano, k tipo de uso, x efeito
+const AB={
+venha:{n:'Venha Aqui!',t:'A',c:25,d:'esp',k:'off',x:'Puxa o oponente com a lança. Se acertar, ataca de novo no mesmo turno.'},
+fogoInf:{n:'Fogo do Inferno',t:'P',x:'Todo golpe especial tem 30% de chance de deixar o alvo Queimado.'},
+congela:{n:'Congelamento',t:'A',c:30,d:'esp',k:'off',x:'Deixa o alvo Congelado: ele perde o próximo turno.'},
+clone:{n:'Clone de Gelo',t:'A',c:20,k:'def',x:'O próximo golpe físico que receber não causa dano.'},
+leque:{n:'Leque no Ar',t:'A',c:25,d:'fis',k:'off',x:'Lança o oponente para o alto: o próximo golpe dela causa +50% de dano.'},
+tatica:{n:'Tática Militar',t:'P',x:'Na primeira vez que a Vida cai abaixo de 30%, recupera 30 de Energia.'},
+roubo:{n:'Roubo de Alma',t:'A',c:35,d:'mag',k:'off',x:'Ataque mágico que cura metade do dano causado.'},
+metamorfose:{n:'Metamorfose',t:'A',c:40,k:'meta',x:'Copia a última habilidade ativa que o oponente usou e a usa contra ele.'},
+martelo:{n:'Martelo da Ira',t:'A',c:35,d:'fis',k:'off',x:'+50% de dano. Se o alvo tiver menos de 50% de Vida, fica Atordoado.'},
+imperador:{n:'Imperador de Exoterra',t:'P',x:'Na primeira vez que a Vida cai abaixo de 50%, ganha +3 de Ataque e +3 de Defesa.'},
+ego:{n:'Ego Inflado',t:'P',x:'Com mais Vida que o oponente, ganha +3 no atributo principal. Com menos, perde 2 de Defesa.'},
+hadouken:{n:'Hadouken',t:'A',c:20,d:'esp',k:'off',x:'O próximo golpe físico do oponente causa metade do dano.'},
+caminho:{n:'Caminho do Guerreiro',t:'P',x:'Cada golpe que acerta dá +1 de Ataque nesta luta (até +3). No torneio, cada vitória dá +1 de Ataque (até +5). Com menos de 30% de Vida pode perder o controle e virar Evil Ryu.'},
+shoryuF:{n:'Shoryuken Flamejante',t:'A',c:30,d:'fis',k:'off',m:1.3,x:'+30% de dano e 50% de chance de deixar o alvo Queimado.'},
+chute:{n:'Chute Relâmpago',t:'A',c:25,d:'fis',k:'off',x:'Ataca 3 vezes no mesmo turno, cada chute com metade do dano.'},
+spiral:{n:'Spiral Arrow',t:'P',x:'Quando é mais rápida que o oponente, todos os golpes causam +30% de dano.'},
+tiger:{n:'Tiger Uppercut',t:'A',c:35,d:'fis',k:'off',x:'+50% de dano. Se o alvo estiver com menos de 30% de Vida, o dano dobra.'},
+muayThai:{n:'Rei do Muay Thai',t:'P',x:'Imune a Atordoado.'},
+psychoCrusher:{n:'Psycho Crusher',t:'A',c:35,d:'mag',k:'off',x:'Ignora metade da Resistência Mágica do alvo.'},
+psychoPower:{n:'Psycho Power',t:'P',x:'Todo dano mágico rouba 10 de Energia do alvo.'},
+punho:{n:'Punho do Deus do Vento',t:'A',c:25,d:'fis',k:'off',x:'No próximo turno, age primeiro, não importa a Velocidade.'},
+gene:{n:'Gene Demoníaco',t:'P',x:'Com menos de 10% de Vida, rola o dado: 50% de chance de virar Devil Jin e voltar com 30% da Vida. Contra o Kazuya, os dois viram demônio no começo; contra o True Devil Kazuya, vira Angel Jin.'},
+despertar:{n:'Despertar do Demônio',t:'A',c:0,k:'trans',x:'Perde metade da Vida atual e vira Devil Kazuya só nesta luta (vitória com Despertar não vale ponto do demônio). No torneio, junta pontos do demônio para virar True Devil Kazuya.'},
+poderOrochi:{n:'Poder de Orochi',t:'A',c:30,d:'mag',k:'off',x:'Golpe mágico que ignora metade da Res. Mágica e deixa o alvo Enfraquecido.'},
+corpoOmega:{n:'Corpo em Colapso',t:'P',x:'O corpo não aguenta o poder de Orochi: perde 5 de Vida no começo de cada turno.'},
+metsu:{n:'Metsu Hadouken',t:'A',c:25,d:'esp',k:'off',x:'Hadouken do Satsui no Hado: ignora metade da Def. Especial do alvo.'},
+shunGoku:{n:'Raging Demon',t:'A',c:40,d:'fis',k:'fin',x:'Uma vez por luta: se o oponente estiver com menos de 20% de Vida, cai na hora.'},
+laserDevil:{n:'Laser Demoníaco',t:'A',c:25,d:'mag',k:'off',x:'Laser dos olhos do demônio: ignora metade da Res. Mágica do alvo.'},
+asasDemonio:{n:'Asas do Demônio',t:'P',x:'Voa acima da luta: 15% de chance de esquivar de golpes físicos e recupera 5 de Vida no começo de cada turno.'},
+luzKazama:{n:'Luz dos Kazama',t:'A',c:25,d:'mag',k:'off',x:'Luz sagrada: ignora metade da Res. Mágica; +50% de dano contra demônios.'},
+purificacao:{n:'Purificação',t:'P',x:'Imune a Queimado e Enfraquecido. Os golpes do anjo causam +20% de dano em formas demoníacas.'},
+cacadaElite:{n:'Caçada de Elite',t:'P',x:'+30% de dano contra Aliens e imune ao Sangue Ácido.'},
+sobrevivente:{n:'Sobrevivente',t:'P',x:'Modo Alien: recompensa por matar um Alien. Imune ao Sangue Ácido e +20% de dano contra Aliens até o fim do torneio.'},
+bombaFumaca:{n:'Bomba de Fumaça',t:'A',c:20,k:'def',x:'Ninjutsu Fu-Ma: some na fumaça. O próximo ataque contra ela erra e o golpe seguinte dela causa +30% de dano.'},
+cannonSpike:{n:'Cannon Spike',t:'A',c:25,d:'fis',k:'off',x:'+10% de dano. Se ela for mais rápida que o alvo, 15% de chance de deixá-lo Atordoado.'},
+aneis:{n:'Anéis de Energia',t:'A',c:20,d:'esp',k:'off',m:1.3,x:'Dois disparos seguidos de 65% do dano cada. Cada um tem 20% de chance de deixar o alvo Lento.'},
+investidaPirata:{n:'Investida do Pirata',t:'A',c:25,d:'fis',k:'off',x:'+20% de dano e ignora 20% da Defesa do alvo.'},
+caveiraVerde:{n:'Crânio Verde',t:'A',c:25,d:'mag',k:'off',x:'Arremessa um crânio de energia do Netherrealm: 30% de chance de deixar o alvo Enfraquecido.'},
+buscaAmuleto:{n:'Busca pelo Amuleto',t:'P',x:'+20% de dano contra quem está com o Amuleto de Shinnok. No Modo Amuleto, se vencer quem está com ele, pega o amuleto e sai do torneio: missão cumprida.'},
+bonecaShadaloo:{n:'Boneca da Shadaloo',t:'P',x:'Controlada pelo M. Bison: imune a Atordoado.'},
+amuleto:{n:'Amuleto de Shinnok',t:'P',x:'Item: +6 de Poder Mágico e +6 de Resistência Mágica enquanto estiver com o amuleto.'},
+matadorDeuses:{n:'Matador de Deuses',t:'P',x:'No torneio, sempre mata Deuses, Semideuses e Titãs, e toma o poder deles: ganha uma habilidade do deus derrotado até o fim do torneio.'},
+urro:{n:'Urro do Predalien',t:'A',c:25,d:'fis',k:'off',x:'40% de chance de deixar o alvo Atordoado.'},
+intencao:{n:'Intenção Assassina',t:'P',x:'Recompensa por derrotar o Evil Ryu: +25% de chance de matar no fim das lutas.'},
+eco:{n:'Eco do Raging Demon',t:'A',c:30,d:'fis',k:'fin',x:'Recompensa por derrotar o Evil Ryu. Uma vez por luta: se o oponente estiver com menos de 15% de Vida, cai na hora.'},
+mente:{n:'Mente Inquebrável',t:'P',x:'Recompensa por derrotar o Violent Ken: imune a Atordoado e Congelado, e +20% de dano no M. Bison.'},
+chamaShoryu:{n:'Chama do Shoryuken',t:'P',x:'Recompensa por derrotar o Violent Ken: golpes físicos têm 25% de chance de deixar o alvo Queimado.'},
+psychoKen:{n:'Controle Psíquico',t:'P',x:'Controlado pelo Psycho Power do M. Bison: imune a Atordoado.'},
+semMis:{n:'Sem Misericórdia',t:'P',x:'Golpes contra alvos Atordoados ou Congelados causam +50% de dano.'},
+naoMorre:{n:'O Homem que Não Morre',t:'P',x:'Uma vez por luta, sobrevive a um golpe fatal com 1 de Vida.'},
+agarrao:{n:'Agarrão Gigante',t:'A',c:30,d:'fis',k:'off',x:'Ignora proteções do alvo e tem 30% de chance de Atordoar.'},
+geyser:{n:'Power Geyser',t:'A',c:30,d:'esp',k:'off',x:'Deixa o alvo Enfraquecido.'},
+lequeFlam:{n:'Leque Flamejante',t:'A',c:20,d:'esp',k:'off',x:'50% de chance de deixar o alvo Queimado.'},
+graca:{n:'Graça Shiranui',t:'P',x:'15% de chance de esquivar de qualquer golpe.'},
+barreira:{n:'Barreira Sombria',t:'A',c:25,k:'def',x:'Reflete o próximo ataque especial de volta para quem atacou.'},
+colecionador:{n:'Colecionador',t:'P',x:'No torneio, ao vencer, escolhe uma habilidade do derrotado para as próximas lutas. Se vencer o Orochi, vira Omega Rugal.'},
+juizo:{n:'Juízo da Terra',t:'A',c:45,d:'mag',k:'off',x:'Remove todos os bônus e proteções ativos do alvo.'},
+vontade:{n:'Vontade da Terra',t:'P',x:'Recupera 15 de Vida no começo de cada turno.'},
+contra:{n:'Contra-golpe',t:'A',c:20,k:'def',x:'Se o oponente usar ataque físico, anula o golpe e devolve o dano.'},
+teleporte:{n:'Teleporte Sakura',t:'A',c:25,k:'clean',x:'Remove os estados negativos dela.'},
+estrela:{n:'Estrela do Ringue',t:'P',x:'Golpes físicos ignoram 30% da Defesa do alvo.'},
+gi:{n:'Guard Impact',t:'A',c:20,k:'def',x:'Anula o próximo ataque físico ou especial, e o próximo golpe dela causa +30%.'},
+bencao:{n:'Bênção de Hefesto',t:'P',x:'Recebe 20% a menos de dano de Demônios, Morto-vivos e Espectros.'},
+irmas:{n:'Irmãs de Hefesto',t:'P',x:'No torneio, enquanto a Sophitia estiver viva, luta com +2 de Ataque.'},
+chicote:{n:'Chicote Serpente',t:'A',c:25,d:'esp',k:'off',x:'Deixa o alvo Lento.'},
+exorcista:{n:'Lâminas Exorcistas',t:'P',x:'+30% de dano contra Demônios, Morto-vivos e Espectros.'},
+contorcao:{n:'Contorção',t:'P',x:'20% de chance de esquivar de qualquer golpe.'},
+imprev:{n:'Ataque Imprevisível',t:'A',c:25,d:'fis',k:'off',x:'Não pode ser esquivado, contra-golpeado nem rebatido por Guard Impact.'},
+oqueEh:{n:'O Que Será Isso?',t:'A',c:20,d:'var',k:'off',x:'Golpe físico ou especial que deixa o alvo com um estado aleatório.'},
+cirurgia:{n:'Cirurgia de Emergência',t:'A',c:30,k:'heal',x:'Cura 40 de Vida.'},
+acorde:{n:'Acorde do Caos',t:'A',c:35,d:'mag',k:'off',x:'Ataque mágico que deixa o alvo com um estado aleatório.'},
+musica:{n:'Música do Caos',t:'P',x:'Cada habilidade usada dá +1 de Poder Mágico (até +5).'},
+combo:{n:'Combo Breaker',t:'A',c:20,k:'def',x:'Cancela a próxima habilidade ativa de ataque do oponente, que leva o dano.'},
+infiltrada:{n:'Agente Infiltrada',t:'P',x:'No primeiro turno de toda luta, age primeiro.'},
+uivo:{n:'Uivo',t:'A',c:20,k:'buff',x:'Ganha +3 de Ataque por 2 turnos.'},
+escudo:{n:'Escudo de Crânios',t:'P',x:'O primeiro ataque especial recebido em cada luta não causa dano e dá +20 de Energia.'},
+reator:{n:'Reator Ultratech',t:'P',x:'Recupera 10 de Energia a mais por turno.'},
+gargulas:{n:'Invocar Gárgulas',t:'A',c:40,d:'mag',k:'off',x:'Ataque mágico, e o alvo leva 15 de dano extra nos próximos 2 turnos.'},
+senhor:{n:'Senhor das Sombras',t:'P',x:'Imune a Atordoado e Congelado.'},
+furia:{n:'Fúria Espartana',t:'A',c:30,k:'buff',x:'Por 3 turnos, golpes físicos causam +50% e fica imune a Atordoado.'},
+laminas:{n:'Lâminas do Caos',t:'A',c:25,d:'esp',k:'off',x:'50% de chance de deixar o alvo Queimado.'},
+pesadelo:{n:'Pesadelo',t:'A',c:30,d:'mag',k:'off',x:'Faz o alvo dormir: fica Atordoado.'},
+mundoSonhos:{n:'Mundo dos Sonhos',t:'P',x:'Toda vez que o oponente perde um turno, recupera 20 de Vida.'},
+camo:{n:'Camuflagem',t:'A',c:20,k:'def',x:'Fica invisível: o próximo ataque contra ele erra.'},
+cacador:{n:'Caçador de Troféus',t:'P',x:'+20% de dano contra lutadores de Força Elite ou Lendário. No torneio, ganha +1 de Ataque por lutador que matar e +2 por Alien morto (troféus).'},
+acido:{n:'Sangue Ácido',t:'P',x:'Quem acerta um golpe físico nele leva 10 de dano.'},
+colmeia:{n:'Colmeia',t:'P',x:'Só no Modo Alien: quem perde para um Alien nunca sobrevive (morre ou vira hospedeiro), e um novo Alien nasce dele e invade a próxima fase com uma habilidade da vítima. Todo Alien derrotado morre.'},
+mandibula:{n:'Mandíbula Interna',t:'A',c:25,d:'fis',k:'off',x:'Ignora metade da Defesa do alvo.'},
+investida:{n:'Investida Supersônica',t:'A',c:30,d:'fis',k:'off',x:'+50% de dano. Se o alvo for mais lento, fica Atordoado.'},
+resistV:{n:'Resistência Viltrumita',t:'P',x:'Recebe 20% a menos de dano físico.'},
+modoCombate:{n:'Modo de Combate',t:'A',c:30,k:'buff',x:'Por 2 turnos, ganha +4 de Ataque e +4 de Ataque Especial.'},
+laserOcular:{n:'Laser Ocular',t:'A',c:25,d:'esp',k:'off',x:'Ataque especial que sempre acerta: ignora esquiva e camuflagem.'},
+laminaPlasma:{n:'Lâmina de Plasma',t:'A',c:25,d:'fis',k:'off',x:'Ataca 2 vezes no mesmo turno, cada golpe com 60% do dano.'},
+laser:{n:'Visão Laser',t:'A',c:30,d:'esp',k:'off',x:'Ignora metade da Defesa Especial do alvo.'}
+};
+const EGO={'Shao Kahn':'atk','M. Bison':'mag','Homelander':'sat'};
+const EVIL=['Demônio','Morto-vivo','Espectro'];
+const KS={fis:'atk',esp:'sat',mag:'mag'}, DS={fis:'def',esp:'sdef',mag:'res'};
+const KN={fis:'físico',esp:'especial',mag:'mágico'};
+const COST={fis:0,esp:10,mag:25};
+const TUNE={vLo:.9,vHi:1.1,crit:0,critM:1.5,ryuLuta:true,ratio:false,dgPer:.02,dgCap:.2,xRoll:4,sig:true,smart:true};
+const BASE=(A,D)=>TUNE.ratio?2*A*A/(A+Math.max(1,D)):Math.max(5,A*2-D);
+const SN={atk:'Ataque',def:'Defesa',sat:'Atq. Esp.',sdef:'Def. Esp.',mag:'Poder Mág.',res:'Res. Mág.',spd:'Velocidade'};
+
+// ===================== MOTOR DE LUTA =====================
+function fight(cA,cB,opt){const g=fightG(cA,cB,opt);let r=g.next();while(!r.done)r=g.next(r.value.ai);return r.value;}
+// motor como gerador: quando o lado controlado pelo jogador age, a luta pausa e espera a escolha
+function* fightG(cA,cB,opt){
+  opt=opt||{};const quiet=!!opt.quiet;const frames=[];
+  const R=Math.random;
+  const mk=(c,t)=>{t=t||{};const ph=t.plusHp||0,pe=t.plusEn||0;return {c,name:c.n,maxhp:c.hp+ph,hp:(t.hp!=null?t.hp:c.hp+ph),maxen:c.en+pe,en:c.en+pe,base:{...c.st},perm:{atk:0,def:0,sat:0,sdef:0,mag:0,res:0,spd:0},
+    mods:[],st:{burn:0,slow:0,weak:0,skip:null,imm:false},abs:[...c.ab,...(t.extras||[]),...(t.extra?[t.extra]:[])],fl:{},t,form:null,ryuW:t.ryuW||0,prep:null,last:null,garg:0,
+    half:false,clone:false,camo:false,barrier:false,gib:false,leque:false,prio:false,fury:0,mus:0,ryu:t.ryu||0,irmas:!!t.irmas};};
+  const A=mk(cA,opt.ta),B=mk(cB,opt.tb);A.o=B;B.o=A;let evilBy=null;
+  for(const f of [A,B]){f.abs0=[...f.abs];const b=f.t.bonusSt;if(b)for(const k in b)f.base[k]+=b[k];}
+  // troca de carta durante a luta (as transformações são cartas próprias)
+  function transform(f,form){(f.seen=f.seen||[]).push(form.key);const ex=f.abs0.filter(id=>!f.c.ab.includes(id));f.form=form;f.name=form.n;f.base={...form.st};const b=f.t.bonusSt;if(b)for(const k in b)f.base[k]+=b[k];
+    f.abs=[...form.ab,...ex.filter(id=>!form.ab.includes(id))];const r=f.hp/f.maxhp;f.maxhp=form.hp;f.hp=Math.max(1,Math.round(r*form.hp));f.maxen=form.en;f.en=Math.min(f.en,f.maxen);}
+  function revert(f){f.form=null;f.name=f.c.n;f.base={...f.c.st};const b=f.t.bonusSt;if(b)for(const k in b)f.base[k]+=b[k];f.abs=[...f.abs0];f.maxhp=f.c.hp+(f.t.plusHp||0);f.maxen=f.c.en+(f.t.plusEn||0);f.en=Math.min(f.en,f.maxen);}
+  for(const f of [A,B])if(f.t.omega)transform(f,FORMS.omegaRugal);
+  const has=(f,id)=>f.abs.includes(id);
+  const snap=f=>({nm:f.name,fc:f.form,abs:[...f.abs],hp:Math.max(0,f.hp),maxhp:f.maxhp,en:f.en,maxen:f.maxen,burn:f.st.burn,slow:f.st.slow,weak:f.st.weak,skip:f.st.skip,
+    clone:f.clone,camo:f.camo,barrier:f.barrier,prep:f.prep,fury:f.fury,buff:f.mods.length>0,perm:f.perm.atk+f.perm.def+f.perm.mag>0});
+  const L=quiet?()=>{}:(t,k)=>frames.push({t,k:k||'',s:[snap(A),snap(B)]});
+  function stat(f,s){let v=f.base[s]+f.perm[s];for(const m of f.mods)if(m.s===s)v+=m.v;
+    if(s==='spd'&&f.st.slow>0)v-=3; if(s==='def'&&f.st.weak>0)v-=3;
+    if(s==='atk'){v+=f.ryu;if(f.irmas)v+=2;}
+    if(has(f,'ego')){const es=EGO[f.c.n]||'atk';if(f.hp>f.o.hp){if(s===es)v+=3;}else if(f.hp<f.o.hp){if(s==='def')v-=2;}}
+    return Math.max(0,v);}
+  const ATK=(a,k)=>TUNE.sig&&a.sig?Math.max(stat(a,'atk'),stat(a,'sat'),stat(a,'mag')):stat(a,KS[k]);
+  const raw=(a,d,k,m,ign)=>Math.round(BASE(stat(a,KS[k]),stat(d,DS[k])*(1-(ign||0)))*m);
+  function heal(f,v){const b=f.hp;f.hp=Math.min(f.maxhp,f.hp+v);return f.hp-b;}
+  function thresh(f){if(f.hp<=0)return;const p=f.hp/f.maxhp;
+    if(has(f,'tatica')&&!f.fl.tat&&p<.3){f.fl.tat=1;f.en=Math.min(f.maxen,f.en+30);L(`${f.name}: Tática Militar! +30 de Energia.`,'skill');}
+    if(has(f,'imperador')&&!f.fl.imp&&p<.5){f.fl.imp=1;f.perm.atk+=3;f.perm.def+=3;L(`${f.name}: Imperador de Exoterra! +3 Ataque e +3 Defesa.`,'skill');}
+}
+  function devilJin(f,heal){f.fl.gene=1;transform(f,FORMS.devilJin);if(heal)f.hp=Math.max(f.hp,Math.round(f.maxhp*.3));L(`O Gene Demoníaco desperta: ${f.c.n} vira Devil Jin!${heal?` Volta com ${f.hp} de Vida.`:''}`,'skill');}
+  function devilKaz(f,pay,why){if(pay){f.hp=Math.ceil(f.hp/2);f.fl.desp=1;}transform(f,FORMS.devilKaz);L(why||`${f.c.n} aceita o demônio e vira Devil Kazuya!${pay?` Paga o preço: fica com ${f.hp} de Vida.`:''}`,'skill');}
+  function hurt(f,v){f.hp-=v;
+    if(f.form===FORMS.evilRyu&&f.hp<=0){revert(f);f.hp=50;f.st.burn=0;f.st.skip=null;const o=f.o;const h=heal(o,40);evilBy=o;
+      L(`O Evil Ryu cai! O Satsui no Hado se apaga e o Ryu se levanta com 50 de Vida. ${o.name} recupera ${h} de Vida.`,'skill');return;}
+    if(f.c.n==='Ryu'&&!f.form&&!f.fl.evil&&f.hp>0&&f.hp<f.maxhp*.3){f.fl.evil=1;const ch=Math.min(.6,.2+.05*f.ryuW+(f.t.evilBonus||0));
+      if(R()<ch){transform(f,FORMS.evilRyu);L(`${f.c.n} perde o controle (${Math.round(ch*100)}% de chance): o Satsui no Hado toma conta. Evil Ryu!`,'skill');}
+      else L(`${f.c.n} resiste ao Satsui no Hado (${Math.round(ch*100)}% de chance de perder o controle).`,'');}
+    if(has(f,'gene')&&!f.form&&!f.fl.gene&&f.hp<f.maxhp*.1){f.fl.gene=1;if(R()<.5)devilJin(f,true);else if(f.hp>0)L(`${f.name} luta contra o demônio e não se transforma.`,'');}
+    if(f.hp<=0&&has(f,'naoMorre')&&!f.fl.nm){f.fl.nm=1;f.hp=1;L(`${f.name} se recusa a morrer e fica com 1 de Vida!`,'skill');}thresh(f);}
+  function status(t,s){if(t.hp<=0)return;
+    if(s==='stun'||s==='freeze'){
+      if(has(t,'senhor')||has(t,'mente')||(s==='stun'&&(has(t,'muayThai')||has(t,'psychoKen')||has(t,'bonecaShadaloo')||t.fury>0))){L(`${t.name} é imune a ${s==='stun'?'Atordoado':'Congelado'}.`,'miss');return;}
+      if(t.st.imm){L(`${t.name} resiste: acabou de perder um turno.`,'miss');return;}
+      if(t.st.skip)return; t.st.skip=s;L(`${t.name} fica ${s==='stun'?'Atordoado':'Congelado'}!`,'status');return;}
+    const nm={burn:'Queimado',slow:'Lento',weak:'Enfraquecido'}[s];if((s==='burn'||s==='weak')&&has(t,'purificacao')){L(`A luz de ${t.name} impede que fique ${nm}.`,'miss');return;}t.st[s]=2;L(`${t.name} fica ${nm}!`,'status');}
+  function hit(a,d,k,m,o){o=o||{};
+    if(d.camo&&!o.grab&&!o.unav){d.camo=false;L(`${d.name} está camuflado e o golpe erra.`,'miss');return {dmg:0,ok:false};}
+    if(!o.unav){let dg=0;if(has(d,'graca'))dg=.15;if(has(d,'contorcao'))dg=.2;if(k==='fis'&&has(d,'asasDemonio'))dg=Math.max(dg,.15);dg+=Math.min(TUNE.dgCap,Math.max(0,stat(d,'spd')-stat(a,'spd'))*TUNE.dgPer);dg=Math.min(dg,.35);if(dg&&R()<dg){L(`${d.name} esquiva!`,'miss');return {dmg:0,ok:false};}}
+    if(k==='esp'&&d.barrier){d.barrier=false;const r=raw(a,a,k,m);L(`A Barreira Sombria de ${d.name} reflete o golpe: ${a.name} leva ${r}.`,'skill');hurt(a,r);return {dmg:0,ok:false};}
+    if(k==='esp'&&has(d,'escudo')&&!d.fl.esc){d.fl.esc=1;d.en=Math.min(d.maxen,d.en+20);L(`O Escudo de Crânios de ${d.name} absorve o especial (+20 de Energia).`,'skill');return {dmg:0,ok:false};}
+    if(k==='fis'&&d.clone&&!o.grab){d.clone=false;L(`O Clone de Gelo de ${d.name} leva o golpe no lugar dele.`,'skill');return {dmg:0,ok:false};}
+    if(a.leque){a.leque=false;m*=1.5;} if(a.gib){a.gib=false;m*=1.3;}
+    if(has(a,'spiral')&&stat(a,'spd')>stat(d,'spd'))m*=1.3;
+    if(has(a,'exorcista')&&EVIL.includes(d.c.fam))m*=1.3;
+    if(has(a,'cacador')&&d.c.forca>=90)m*=1.2;
+    const dAlien=d.c.alien||(d.form&&d.form.alien),dDemon=d.form&&/^(devil|trueDevil)/.test(d.form.key);
+    if(dAlien&&has(a,'cacadaElite'))m*=1.3; if(has(a,'buscaAmuleto')&&has(d,'amuleto'))m*=1.2; if(dAlien&&has(a,'sobrevivente'))m*=1.2;
+    if(dDemon&&has(a,'purificacao'))m*=1.2; if(o.id==='luzKazama'&&(dDemon||['Demônio','Meio-demônio'].includes(d.c.fam)))m*=1.5;
+    if(has(a,'semMis')&&d.st.skip)m*=1.5;
+    if(k==='fis'&&a.fury>0)m*=1.5;
+    if(has(a,'mente')&&d.c.n==='M. Bison')m*=1.2;
+    if(k==='fis'&&a.half&&!o.grab){a.half=false;m*=.5;}
+    if(has(d,'bencao')&&EVIL.includes(a.c.fam))m*=.8;
+    if(k==='fis'&&has(d,'resistV'))m*=.8;
+    let ign=o.ign||0;if(k==='fis'&&has(a,'estrela'))ign=Math.max(ign,.3);
+    const crit=TUNE.crit&&R()<TUNE.crit;if(crit)m*=TUNE.critM;
+    const dmg=Math.round(BASE(ATK(a,k),stat(d,DS[k])*(1-ign))*m*(TUNE.vLo+R()*(TUNE.vHi-TUNE.vLo)));
+    hurt(d,dmg);L(`${crit?'CRÍTICO! ':''}${dmg} de dano ${KN[k]} em ${d.name}.`,'dmg');
+    if(TUNE.ryuLuta&&has(a,'caminho')&&a.fl.cam==null)a.fl.cam=0;
+    if(TUNE.ryuLuta&&has(a,'caminho')&&a.fl.cam<3){a.fl.cam++;a.perm.atk++;L(`Caminho do Guerreiro: ${a.name} fica +1 de Ataque nesta luta.`,'skill');}
+    if(k==='fis'&&has(d,'acido')&&!has(a,'cacadaElite')&&!has(a,'sobrevivente')&&a.hp>0&&d.hp>0){L(`Sangue Ácido! ${a.name} leva 10.`,'skill');hurt(a,10);}
+    if(k==='mag'&&has(a,'psychoPower')&&d.en>0){const s=Math.min(10,d.en);d.en-=s;a.en=Math.min(a.maxen,a.en+s);L(`Psycho Power rouba ${s} de Energia de ${d.name}.`,'skill');}
+    if(k==='esp'&&has(a,'fogoInf')&&d.hp>0&&R()<.3)status(d,'burn');
+    if(k==='fis'&&has(a,'chamaShoryu')&&d.hp>0&&R()<.25)status(d,'burn');
+    return {dmg,ok:true};}
+  const kindOf=(f,id)=>{const d=AB[id].d;if(d==='var')return stat(f,'atk')>=stat(f,'sat')?'fis':'esp';return d;};
+  function runAb(f,o,id){f.sig=true;try{return runAb0(f,o,id);}finally{f.sig=false;}}
+  function runAb0(f,o,id){const k=AB[id].d?kindOf(f,id):null;let r;
+    switch(id){
+      case 'venha':r=hit(f,o,'esp',1);if(r.ok&&o.hp>0){L(`${f.name} puxa ${o.name} e ataca de novo!`,'skill');hit(f,o,'fis',1);}break;
+      case 'congela':r=hit(f,o,'esp',1);if(r.ok)status(o,'freeze');break;
+      case 'clone':f.clone=true;break;
+      case 'leque':r=hit(f,o,'fis',1);if(r.ok)f.leque=true;break;
+      case 'roubo':r=hit(f,o,'mag',1);if(r.ok){const h=heal(f,Math.round(r.dmg/2));L(`${f.name} rouba a alma e recupera ${h} de Vida.`,'skill');}break;
+      case 'martelo':r=hit(f,o,'fis',1.5);if(r.ok&&o.hp>0&&o.hp<o.maxhp*.5)status(o,'stun');break;
+      case 'hadouken':r=hit(f,o,'esp',1);if(r.ok)o.half=true;break;
+      case 'shoryuF':r=hit(f,o,'fis',1.3);if(r.ok&&R()<.5)status(o,'burn');break;
+      case 'chute':for(let i=0;i<3&&o.hp>0;i++)hit(f,o,'fis',.5);break;
+      case 'despertar':devilKaz(f,true);break;
+      case 'luzKazama':r=hit(f,o,'mag',1,{ign:.5,id:'luzKazama'});break;
+      case 'caveiraVerde':r=hit(f,o,'mag',1);if(r.ok&&R()<.3)status(o,'weak');break;
+      case 'metsu':r=hit(f,o,'esp',1,{ign:.5});break;
+      case 'laserDevil':r=hit(f,o,'mag',1,{ign:.5});break;
+      case 'urro':r=hit(f,o,'fis',1);if(r.ok&&R()<.4)status(o,'stun');break;
+      case 'poderOrochi':r=hit(f,o,'mag',1,{ign:.5});if(r.ok)status(o,'weak');break;
+      case 'shunGoku':case 'eco':f.fl.eco=1;if(o.hp<o.maxhp*(id==='shunGoku'?.2:.15)){L(`${AB[id].n}! A tela escurece... ${o.name} cai.`,'skill');hurt(o,o.hp);}else hit(f,o,'fis',1);break;
+      case 'tiger':r=hit(f,o,'fis',o.hp<o.maxhp*.3?3:1.5);break;
+      case 'psychoCrusher':hit(f,o,'mag',1,{ign:.5});break;
+      case 'punho':r=hit(f,o,'fis',1);if(r.ok)f.prio=true;break;
+      case 'agarrao':r=hit(f,o,'fis',1,{grab:1});if(r.ok&&R()<.3)status(o,'stun');break;
+      case 'geyser':r=hit(f,o,'esp',1);if(r.ok)status(o,'weak');break;
+      case 'lequeFlam':r=hit(f,o,'esp',1);if(r.ok&&R()<.5)status(o,'burn');break;
+      case 'barreira':f.barrier=true;break;
+      case 'juizo':r=hit(f,o,'mag',1);if(o.hp>0){o.clone=o.camo=o.barrier=o.gib=o.leque=false;o.prep=null;o.mods=[];o.fury=0;o.perm={atk:0,def:0,sat:0,sdef:0,mag:0,res:0,spd:0};o.prio=false;L(`O Juízo da Terra apaga os bônus e proteções de ${o.name}.`,'skill');}break;
+      case 'contra':f.prep='contra';break;
+      case 'teleporte':f.st.burn=f.st.slow=f.st.weak=0;L(`${f.name} some em pétalas e fica livre dos estados negativos.`,'skill');break;
+      case 'gi':f.prep='gi';break;
+      case 'chicote':r=hit(f,o,'esp',1);if(r.ok)status(o,'slow');break;
+      case 'imprev':hit(f,o,'fis',1,{unav:1});break;
+      case 'oqueEh':r=hit(f,o,k,1);if(r.ok){const s=['stun','freeze','slow','burn'][Math.floor(R()*4)];status(o,s);}break;
+      case 'cirurgia':{const h=heal(f,40);L(`${f.name} se cura em ${h}.`,'skill');}break;
+      case 'acorde':r=hit(f,o,'mag',1);if(r.ok){const s=['slow','weak','stun','burn'][Math.floor(R()*4)];status(o,s);}break;
+      case 'combo':f.prep='combo';break;
+      case 'uivo':f.mods.push({s:'atk',v:3,t:3});break;
+      case 'gargulas':r=hit(f,o,'mag',.6);o.garg=2;L(`Duas gárgulas cercam ${o.name}.`,'skill');break;
+      case 'furia':f.fury=3;break;
+      case 'laminas':r=hit(f,o,'esp',1);if(r.ok&&R()<.5)status(o,'burn');break;
+      case 'pesadelo':r=hit(f,o,'mag',1);if(r.ok)status(o,'stun');break;
+      case 'camo':f.camo=true;break;
+      case 'bombaFumaca':f.camo=true;f.gib=true;L(`${f.name} some numa nuvem de fumaça!`,'skill');break;
+      case 'cannonSpike':r=hit(f,o,'fis',1.1);if(r.ok&&o.hp>0&&stat(f,'spd')>stat(o,'spd')&&R()<.15)status(o,'stun');break;
+      case 'aneis':for(let q=0;q<2&&o.hp>0;q++){const rr=hit(f,o,'esp',.65);if(rr.ok&&o.hp>0&&R()<.2)status(o,'slow');}break;
+      case 'investidaPirata':r=hit(f,o,'fis',1.2,{ign:.2});break;
+      case 'mandibula':hit(f,o,'fis',1,{ign:.5});break;
+      case 'investida':r=hit(f,o,'fis',1.5);if(r.ok&&stat(o,'spd')<stat(f,'spd'))status(o,'stun');break;
+      case 'laser':hit(f,o,'esp',1,{ign:.5});break;
+      case 'modoCombate':f.mods.push({s:'atk',v:4,t:3},{s:'sat',v:4,t:3});break;
+      case 'laserOcular':hit(f,o,'esp',1,{unav:1});break;
+      case 'laminaPlasma':for(let i=0;i<2&&o.hp>0;i++)hit(f,o,'fis',.6);break;
+    }}
+  function perform(f,o,ch){
+    let k,id=null,abil=false;
+    if(ch.t==='b'){k=ch.k;f.en-=COST[k];L(`${f.name} faz um ataque ${KN[k]}.`,'');}
+    else{id=ch.id;const a=AB[id];
+      if(!ch.free)f.en-=a.c;
+      L(`${f.name} usa ${a.n}${a.n.endsWith('!')?'':'!'}`,'skill');
+      if(has(f,'musica')&&f.mus<5){f.mus++;f.perm.mag++;}
+      if(id==='metamorfose'){const cp=o.last;L(`${f.name} se transforma em ${o.name} e copia ${AB[cp].n}!`,'skill');f.last='metamorfose';return perform(f,o,{t:'a',id:cp,free:1,copy:1});}
+      if(!ch.copy)f.last=id;
+      if(a.k!=='off')return runAb(f,o,id);
+      abil=true;k=kindOf(f,id);}
+    if(o.prep){const unav=id==='imprev';
+      if(o.prep==='contra'&&k==='fis'&&!unav){o.prep=null;const r=raw(f,o,k,1);L(`${o.name} usa o Contra-golpe! ${f.name} leva ${r} do próprio golpe.`,'skill');hurt(f,r);return;}
+      if(o.prep==='gi'&&(k==='fis'||k==='esp')&&!unav){o.prep=null;o.gib=true;L(`${o.name} rebate com Guard Impact! O próximo golpe dela fica mais forte.`,'skill');return;}
+      if(o.prep==='combo'&&abil){o.prep=null;const r=raw(f,o,k,1);L(`COMBO BREAKER de ${o.name}! ${f.name} perde a habilidade e leva ${r}.`,'skill');hurt(f,r);return;}}
+    if(!abil){hit(f,o,k,1);return;}
+    runAb(f,o,id);}
+  function decide(f,o){const pick=a=>a[Math.floor(R()*a.length)];
+    const acts=f.abs.filter(id=>AB[id]&&AB[id].t==='A'&&f.en>=AB[id].c);
+    const ok=id=>acts.includes(id),ab=id=>({t:'a',id});
+    if(ok('eco')&&!f.fl.eco&&o.hp<o.maxhp*.15)return ab('eco');
+    if(ok('shunGoku')&&!f.fl.eco&&o.hp<o.maxhp*.2)return ab('shunGoku');
+    if(ok('despertar')&&!f.form&&!f.t.trueDevil&&f.hp<f.maxhp*.45&&f.hp>50&&R()<.5)return ab('despertar');
+    if(ok('cirurgia')&&f.hp<f.maxhp*.5&&R()<.8)return ab('cirurgia');
+    if(ok('teleporte')&&(f.st.burn||f.st.slow||f.st.weak)&&R()<.8)return ab('teleporte');
+    const buffs=acts.filter(id=>AB[id].k==='buff'&&!(id==='furia'&&f.fury>0)&&!((id==='uivo'||id==='modoCombate')&&f.mods.length));
+    if(buffs.length&&R()<.5)return ab(pick(buffs));
+    const defs=acts.filter(id=>AB[id].k==='def'&&f.en>=AB[id].c+15&&!(id==='clone'&&f.clone)&&!((id==='camo'||id==='bombaFumaca')&&f.camo)&&!(id==='barreira'&&f.barrier)&&!(id==='combo'&&o.en<20));
+    if(defs.length&&R()<.25)return ab(pick(defs));
+    if(ok('metamorfose')&&o.last&&AB[o.last]&&AB[o.last].t==='A'&&o.last!=='metamorfose'&&R()<.5)return ab('metamorfose');
+    const offs=acts.filter(id=>AB[id].k==='off');
+    let best='fis',bv=-1;const rich=f.en>=f.maxen-10;for(const k of ['fis','esp','mag']){if(f.en<COST[k])continue;let v=raw(f,o,k,1);if(k==='fis'&&!rich)v*=1.15;if(v>bv){bv=v;best=k;}}
+    if(TUNE.smart&&offs.length){const val=id=>{const k=kindOf(f,id);f.sig=true;const A=ATK(f,k);f.sig=false;return BASE(A,stat(o,DS[k]))*(AB[id].v||1.3)*(AB[id].m||1);};
+      const sc=offs.map(id=>[id,val(id)]).sort((x,y)=>y[1]-x[1]);if(sc[0][1]>=bv*.9&&R()<.85){const top=sc.filter(x=>x[1]>=sc[0][1]*.8);return ab(pick(top)[0]);}return {t:'b',k:best};}
+    if(offs.length&&R()<.6)return ab(pick(offs));
+    return {t:'b',k:best};}
+  const CTL=opt.ctl==='A'?A:opt.ctl==='B'?B:null;
+  // o que o jogador pode escolher agora (mesmas travas que a IA respeita)
+  function usable(f,o,id){const a=AB[id];if(!a||a.t!=='A'||f.en<a.c)return false;
+    if((id==='eco'||id==='shunGoku')&&f.fl.eco)return false;if(id==='despertar'&&(f.form||f.t.trueDevil))return false;
+    if(id==='metamorfose'&&!(o.last&&AB[o.last]&&AB[o.last].t==='A'&&o.last!=='metamorfose'))return false;return true;}
+  function choices(f,o){const b=['fis','esp','mag'].map(k=>({t:'b',k,ok:f.en>=COST[k],est:Math.round(raw(f,o,k,1)),cost:COST[k],n:'Ataque '+KN[k]}));
+    const a=f.abs.filter(id=>AB[id]&&AB[id].t==='A').map(id=>({t:'a',id,ok:usable(f,o,id),cost:AB[id].c,n:AB[id].n,x:AB[id].x}));return b.concat(a);}
+  function valid(f,o,ch){return ch.t==='b'?(['fis','esp','mag'].includes(ch.k)&&f.en>=COST[ch.k]):usable(f,o,ch.id);}
+  function* act(f){const o=f.o;
+    if(has(f,'asasDemonio')&&f.hp<f.maxhp){const h=heal(f,5);if(h)L(`${f.name} se regenera com as asas do demônio (+${h}).`,'buff');}
+    if(has(f,'corpoOmega')){L(`O poder de Orochi consome o corpo de ${f.name}: perde 5 de Vida.`,'status');hurt(f,5);if(f.hp<=0)return;}
+    if(has(f,'vontade')&&f.hp<f.maxhp){const h=heal(f,15);if(h)L(`${f.name} recupera ${h} de Vida (Vontade da Terra).`,'skill');}
+    if(f.st.burn>0){f.st.burn--;L(`${f.name} queima e perde 10 de Vida.`,'status');hurt(f,10);if(f.hp<=0)return;}
+    if(f.garg>0){f.garg--;L(`As gárgulas atacam ${f.name}: 15 de dano.`,'status');hurt(f,15);if(f.hp<=0)return;}
+    f.en=Math.min(f.maxen,f.en+10+(has(f,'reator')?10:0));
+    f.prep=null;
+    if(f.st.skip){L(`${f.name} está ${f.st.skip==='stun'?'Atordoado':'Congelado'} e perde o turno.`,'status');f.st.skip=null;f.st.imm=true;
+      if(has(o,'mundoSonhos')&&o.hp>0){const h=heal(o,20);L(`${o.name} se alimenta do sono: +${h} de Vida.`,'skill');}
+    }else{f.st.imm=false;const ai=decide(f,o);let ch=ai;
+      if(f===CTL&&!(f.form&&f.form.key==='evilRyu')){ch=yield {f,o,ai,opts:choices(f,o),A,B,frames};if(!ch||!valid(f,o,ch))ch=ai;}
+      perform(f,o,ch);
+      if(f.hp>0&&o.hp>0&&stat(f,'spd')>=2*stat(o,'spd')){const d=1+Math.floor(R()*6);
+        if(d>=TUNE.xRoll){L(`Velocidade dobrada! ${f.name} rola ${d} no dado e ataca de novo.`,'skill');hit(f,o,'fis',1);}
+        else L(`Velocidade dobrada, mas ${f.name} rola ${d} no dado e não consegue o ataque extra.`,'');}}
+    if(f.st.slow>0)f.st.slow--; if(f.st.weak>0)f.st.weak--; f.mods=f.mods.filter(m=>--m.t>0); if(f.fury>0)f.fury--;}
+  let round=0;L(`${A.name} contra ${B.name}. Que comece a luta!`,'round');
+  {const j=[A,B].find(f=>f.c.n==='Jin Kazama'),k=[A,B].find(f=>f.c.n==='Kazuya Mishima');
+   for(const f of [A,B])if(f.t.trueDevil&&!f.form){transform(f,FORMS.trueDevilKaz);L(`Com os pontos do demônio completos, ${f.c.n} entra como TRUE DEVIL KAZUYA!`,'skill');}
+   if(j&&k){if(k.form===FORMS.trueDevilKaz){j.fl.gene=1;transform(j,FORMS.angelJin);L('Diante do True Devil Kazuya, o Jin não cede ao demônio: a luz de Jun Kazama desperta o ANGEL JIN!','skill');}
+     else{L('Pai e filho frente a frente: o Gene Demoníaco desperta nos dois!','skill');devilJin(j,false);devilKaz(k,false);}}}
+  while(A.hp>0&&B.hp>0&&round<60){round++;L(`Rodada ${round}`,'round');
+    const pa=A.prio||(round===1&&has(A,'infiltrada')),pb=B.prio||(round===1&&has(B,'infiltrada'));A.prio=B.prio=false;
+    let first;
+    if(pa&&!pb)first=A;else if(pb&&!pa)first=B;else{const sa=stat(A,'spd'),sb=stat(B,'spd');
+      if(sa>sb)first=A;else if(sb>sa)first=B;else{let da,db;do{da=1+Math.floor(R()*6);db=1+Math.floor(R()*6);}while(da===db);
+        first=da>db?A:B;L(`Velocidade empatada. Dados: ${A.name} ${da}, ${B.name} ${db}.`,'');}}
+    yield* act(first);if(first.o.hp>0&&first.hp>0)yield* act(first.o);}
+  let w,l,how='';if(A.hp>0&&B.hp<=0){w=A;l=B;}else if(B.hp>0&&A.hp<=0){w=B;l=A;}
+  else if(A.hp<=0&&B.hp<=0){w=A.hp>=B.hp?A:B;l=w.o;w.hp=1;how=' no duplo nocaute, ficando de pé por um fio';}
+  else{w=(A.hp/A.maxhp>=B.hp/B.maxhp)?A:B;l=w.o;how=' por pontos';}
+  L(`${w.name} vence${how}!`,'ko');
+  return {w:w.c,l:l.c,frames,round,whp:Math.max(1,Math.round(w.hp)),evilBy:evilBy?evilBy.c:null,desp:[A,B].filter(f=>f.fl.desp).map(f=>f.c),wForm:w.form?w.form.key:null,forms:[...(A.seen||[]),...(B.seen||[])]};
+}
+
+// ===================== TORNEIO (regras) =====================
+// Formatos: 'copa' (sorteio de grupos de 4 a cada fase, passam 2), 'mata' (chave fixa), 'rei' (Rei do Morro).
+// Quem perde sai do torneio: morto (para sempre) ou nocauteado (vivo). Modo Alien: liga/desliga.
+const FMT={copa:'Copa do Mundo',mata:'Mata-mata',rei:'Rei do Morro'};
+const SIZES={copa:[8,16,20,32,40,NB],mata:[8,16,20,32,40,NB],rei:[8,16,NB]};
+const LIMIT={copa:[4,NB],mata:[4,NB],rei:[3,NB]};
+const REI_CURA=50,EXTRA_CURA=.4; // luta não oficial: quem vence recupera 40% da Vida máxima
+// papel de cada lutador e chance de matar no fim da luta
+const ROLE={'Scorpion':'a','Sub-Zero':'h','Kitana':'h','Sonya Blade':'h','Shang Tsung':'v','Shao Kahn':'v','Ryu':'h','Ken Masters':'h','Chun-Li':'h','Cammy White':'h','Sagat':'a','M. Bison':'v',
+ 'Jin Kazama':'h','Kazuya Mishima':'v','Heihachi Mishima':'v','King':'h','Terry Bogard':'h','Mai Shiranui':'h','Rugal Bernstein':'v','Orochi':'v','Kasumi':'h','Tina Armstrong':'h',
+ 'Sophitia':'h','Cassandra':'h','Ivy Valentine':'a','Taki':'h','Voldo':'v','Faust':'a','I-No':'v','Orchid':'h','Sabrewulf':'a','Spinal':'v','Fulgore':'v','Gargos':'v',
+ 'Kratos':'a','Freddy Krueger':'v','Predador':'a','Alien (Xenomorfo)':'v','Omni-Man':'v','Homelander':'v','Violent Ken':'v','Quan Chi':'v'};
+const ROLE_N={h:'Herói',a:'Anti-herói',v:'Vilão'},KILL={h:.10,a:.35,v:.60};
+const ALWAYS_KILL={'Shao Kahn':'O imperador nunca poupa ninguém'};
+CARDS.forEach(c=>c.role=ROLE[c.n]||'h');
+Object.values(FORMS).forEach(c=>c.role={evilRyu:'a',devilJin:'a',devilKaz:'v',trueDevilKaz:'v',angelJin:'h',omegaRugal:'v',vken:'v',killerBee:'v',predalien:'v',superPred:'a'}[c.key]);
+const KEN=CARDS.find(c=>c.n==='Ken Masters'),BISON=CARDS.find(c=>c.n==='M. Bison'),RYU=CARDS.find(c=>c.n==='Ryu'),RUGAL=CARDS.find(c=>c.n==='Rugal Bernstein'),OROCHI=CARDS.find(c=>c.n==='Orochi');
+const KAZ=CARDS.find(c=>c.n==='Kazuya Mishima'),JIN=CARDS.find(c=>c.n==='Jin Kazama');
+const VKEN={...FORMS.vken,i:'vken',role:'v'},KBEE={...FORMS.killerBee,i:'kbee',role:'v'};
+const CAMMY=CARDS.find(c=>c.n==='Cammy White'),QUAN=CARDS.find(c=>c.n==='Quan Chi'),KRATOS=CARDS.find(c=>c.n==='Kratos');
+const CAPT={vken:{card:VKEN,from:'Ken',reward:'vken'},kbee:{card:KBEE,from:'Cammy',reward:'kbee'}};
+// modos que o Uno liga antes do torneio: formatos permitidos e mínimo de lutadores
+const MODES={alien:{n:'Modo Alien',fmts:['copa','mata'],min:16},amuleto:{n:'Modo Amuleto de Shinnok',fmts:['copa','mata','rei'],min:8}};
+const modeOk=(k,fmt,n)=>MODES[k].fmts.includes(fmt)&&n>=MODES[k].min;
+const GOD_PAT=['Deus','Semideus','Titã'];
+// rivalidades: 'morte' = um sempre mata o outro; 'paz' = nunca se matam
+const RIVAL={};[['Scorpion','Sub-Zero','morte','Vingança do clã Shirai Ryu contra o Lin Kuei'],['Kazuya Mishima','Heihachi Mishima','morte','Pai e filho que se jogaram de penhascos'],
+ ['Chun-Li','M. Bison','morte','O Bison matou o pai dela'],['Kitana','Shao Kahn','morte','O imperador que matou o pai dela e a criou como filha'],
+ ['Orchid','Fulgore','morte','A agente contra as máquinas da Ultratech'],['Jin Kazama','Heihachi Mishima','morte','O avô que tentou matá-lo'],['Predador','Alien (Xenomorfo)','morte','Caçador e presa'],
+ ['Ryu','Ken Masters','paz','Irmãos de treino'],['Sophitia','Cassandra','paz','Irmãs'],['Ryu','Sagat','paz','Rivais que se respeitam'],['Ryu','Chun-Li','paz','Aliados'],
+ ['Chun-Li','Cammy White','paz','Aliadas contra a Shadaloo'],['Sonya Blade','Kitana','paz','Aliadas do Plano Terreno'],['Sub-Zero','Sonya Blade','paz','Aliados do Plano Terreno'],['Terry Bogard','Mai Shiranui','paz','Amigos de South Town']
+].forEach(([a,b,k,x])=>{RIVAL[a+'|'+b]=RIVAL[b+'|'+a]={k,x};});
+RIVAL['Cammy White|M. Bison']={k:'morte',x:'A criação que se voltou contra a Shadaloo'};RIVAL['M. Bison|Cammy White']={k:'paz',x:'O Bison quer a Cammy de volta como boneca: ele nunca a mata'};
+RIVAL['Quan Chi|Scorpion']=RIVAL['Scorpion|Quan Chi']={k:'chance',p:.8,x:'O Quan Chi matou a família do Scorpion'};
+const rival=(a,b)=>RIVAL[a+'|'+b]||null;
+const NO_HERDA=['gene','despertar','caminho','colecionador','irmas','corpoOmega','colmeia','psychoKen','sobrevivente','bonecaShadaloo','buscaAmuleto','amuleto','matadorDeuses'];
+const PRED=CARDS.find(c=>c.n==='Predador'),ALIEN=CARDS.find(c=>c.n==='Alien (Xenomorfo)');
+const REWARD={evil:{title:'derrotou o Evil Ryu',opts:['intencao','eco']},vken:{title:'derrotou o Violent Ken',opts:['mente','chamaShoryu']},kbee:{title:'derrotou a Killer Bee',opts:['mente','tatica']}};
+function shuffle(a,rand){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function drawIds(n,rand){return shuffle([...Array(NB).keys()],rand).slice(0,n);}
+const pow2=n=>{let p=1;while(p*2<=n)p*=2;return p;};
+const GL='ABCDEFGHIJKLMNOP';
+const isAlien=i=>!!CARDS[i].alien,isPred=i=>!!CARDS[i].pred;
+function koName(n){return {2:'Final',4:'Semifinal',8:'Quartas de final',16:'Oitavas de final',32:'16 avos de final'}[n]||`Fase de ${n}`;}
+function bracketOrder(n){let o=[0];while(o.length<n){const m=o.length*2;o=o.flatMap(x=>[x,m-1-x]);}return o;}
+function newTourState(rand,fmt,ids,opt){rand=rand||Math.random;fmt=fmt||'mata';opt=opt||{};ids=ids?[...ids]:drawIds(8,rand);
+  CARDS.length=NB;
+  const keep=new Set();const force=i=>{keep.add(i);if(!ids.includes(i)){const k=ids.findIndex(x=>!keep.has(x));ids[k]=i;}};
+  if(opt.alien&&modeOk('alien',fmt,ids.length)){force(ALIEN.i);force(PRED.i);}else opt.alien=false;
+  if(opt.amuleto&&modeOk('amuleto',fmt,ids.length))force(QUAN.i);else opt.amuleto=false;
+  if(opt.player!=null)force(opt.player);
+  ids=shuffle(ids,rand);
+  const n=ids.length;
+  const T={fmt,ids,phases:[],dead:new Set(),ko:new Set(),out:new Set(),left:new Set(),ryu:{},ryuW:{},wins:{},demon:{},demonMax:n>=20?5:n>=16?4:3,trophy:{},spawn:[],aliens:0,
+    alienMode:!!opt.alien,amuletoMode:!!opt.amuleto,amulet:null,captives:[],returning:[],preyKills:{},karma:{},startRole:{},deaths:[],kos:[],killCount:{},ev:{forms:new Set(),lib:new Set()},quanDone:false,alienKills:0,alienKillsPred:0,superPending:false,superDone:false,alienOver:false,conquest:null,nextHp:{},
+    rugal:null,bonus:{},omega:false,done:false,champ:null,hp:{},msgs:[],rand,stage:0};
+  T.player=opt.player!=null?opt.player:null;T.diff=opt.diff||'normal';T.playerChoice=null;
+  for(const i of ids){T.startRole[i]=CARDS[i].role;if(!fixedRole(i))T.karma[i]=KARMA0[CARDS[i].role];}
+  if(T.amuletoMode){const p=T.player;if(p!=null&&p!==QUAN.i&&amuletOk(T,p))giveAmulet(T,p,'O Uno entrega o Amuleto de Shinnok a você');else giveAmulet(T,null,'O Uno entrega o Amuleto de Shinnok a um lutador sorteado');}
+  if(fmt==='copa')copaNext(T,ids);
+  else if(fmt==='rei'){T.queue=ids.slice(2);T.phases.push({kind:'rei',name:'Rei do Morro',matches:[{a:ids[0],b:ids[1],res:null,tag:'Luta 1'}]});}
+  else koFrom(T,ids);
+  return T;}
+function finish(T,w){T.done=true;T.champ=w;T.msgs.push(`${CARDS[w].n} é o campeão do Torneio de Uno!`);}
+// Modo Alien: Aliens evitam se enfrentar e Aliens e Predadores tendem a cair juntos
+function pairUp(list,T){if(!T.alienMode)return list;const A=list.filter(isAlien),P=list.filter(i=>isPred(i)&&!isAlien(i)),O=list.filter(i=>!isAlien(i)&&!isPred(i)),out=[];
+  while(A.length&&P.length&&T.rand()<.5)out.push([A.pop(),P.pop()]);while(A.length&&O.length)out.push([A.pop(),O.pop()]);
+  const rest=[...A,...P,...O];for(let i=0;i+1<rest.length;i+=2)out.push([rest[i],rest[i+1]]);if(rest.length%2)out.push([rest[rest.length-1]]);
+  return shuffle(out,T.rand).flat();}
+function fixPairs(T,matches){if(!T.alienMode)return;
+  for(const m of matches){if(isAlien(m.a)&&isAlien(m.b)){const o=matches.find(x=>x!==m&&!isAlien(x.a)&&!isAlien(x.b));if(o)[m.b,o.a]=[o.a,m.b];}}
+  for(const m of matches){const p=[m.a,m.b].find(isPred);if(p==null||[m.a,m.b].some(isAlien)||T.rand()>.35)continue;
+    const o=matches.find(x=>x!==m&&[x.a,x.b].some(isAlien)&&![x.a,x.b].some(isPred));if(!o)continue;const oth=isAlien(o.a)?'b':'a';const mine=m.a===p?'a':'b';[m[mine],o[oth]]=[o[oth],m[mine]];}}
+function arrangeGroups(T,groups){if(!T.alienMode)return;const cnt=g=>g.filter(isAlien).length,plain=i=>!isAlien(i)&&!isPred(i);
+  for(const g of groups)while(cnt(g)>1){const h=groups.find(x=>cnt(x)===0&&x.some(plain));if(!h)break;const a=g.findIndex(isAlien),b=h.findIndex(plain);[g[a],h[b]]=[h[b],g[a]];}
+  for(const g of groups){const pi=g.findIndex(i=>isPred(i)&&!isAlien(i));if(pi<0||cnt(g)>0||T.rand()>.4)continue;const h=groups.find(x=>cnt(x)>0&&!x.some(isPred)&&x.some(plain));if(!h)continue;const b=h.findIndex(plain);[g[pi],h[b]]=[h[b],g[pi]];}}
+function copaNext(T,ids){const n=ids.length,rand=T.rand;
+  if(n===1){finish(T,ids[0]);return;}
+  if(n===2){T.phases.push({kind:'ko',name:'Final',matches:[{a:ids[0],b:ids[1],res:null}]});return;}
+  if(n===4){const s=pairUp(shuffle(ids,rand),T);T.phases.push({kind:'ko',name:'Semifinal',matches:[{a:s[0],b:s[1],res:null},{a:s[2],b:s[3],res:null}]});return;}
+  const target=n>=8?n-n%4:pow2(n);
+  if(target!==n){const s=shuffle(ids,rand),extra=n-target,play=pairUp(s.slice(0,2*extra),T),direct=s.slice(2*extra),matches=[];
+    for(let i=0;i<extra;i++)matches.push({a:play[2*i],b:play[2*i+1],res:null});
+    T.phases.push({kind:'ko',name:'Repescagem',prelim:true,direct,matches,note:`Sorteio: ${2*extra} lutadores disputam ${extra} vaga${extra>1?'s':''} para a próxima fase ficar com ${target}.`});return;}
+  const G=n/4,byF=[...ids].sort((x,y)=>CARDS[y].forca-CARDS[x].forca),groups=Array.from({length:G},()=>[]);
+  for(let p=0;p<4;p++){const pot=shuffle(byF.slice(p*G,p*G+G),rand);pot.forEach((x,k)=>groups[k].push(x));}
+  arrangeGroups(T,groups);
+  const matches=[];groups.forEach((g,gi)=>{const s=pairUp(shuffle(g,rand),T);g.splice(0,4,...s);
+    matches.push({a:s[0],b:s[1],res:null,g:gi,tag:`Grupo ${GL[gi]}`},{a:s[2],b:s[3],res:null,g:gi,tag:`Grupo ${GL[gi]}`});});
+  T.stage++;T.phases.push({kind:'grupos',name:`Fase de grupos ${T.stage} (${n} → ${n/2})`,groups,matches});}
+function koFrom(T,seeds){const n=seeds.length,P=pow2(n);
+  if(n===1){finish(T,seeds[0]);return;}
+  if(n===P){const o=bracketOrder(n),matches=[];for(let i=0;i<n;i+=2)matches.push({a:seeds[o[i]],b:seeds[o[i+1]],res:null});
+    fixPairs(T,matches);T.phases.push({kind:'ko',name:koName(n),matches});return;}
+  const extra=n-P,direct=seeds.slice(0,n-2*extra),rest=seeds.slice(n-2*extra),matches=[];
+  for(let i=0;i<extra;i++)matches.push({a:rest[i],b:rest[rest.length-1-i],res:null});
+  fixPairs(T,matches);
+  T.phases.push({kind:'ko',name:'Repescagem',prelim:true,direct,matches,note:`${2*extra} lutadores disputam ${extra} vagas para a chave fechar em ${P}.`});}
+function curPhase(T){return T.phases[T.phases.length-1];}
+function curMatch(T){if(T.done)return null;return curPhase(T).matches.find(m=>!m.res)||null;}
+function tourOpts(T,i){const c=CARDS[i],t={};if(c.n==='Ryu'){t.ryu=T.ryu[i]||0;t.ryuW=T.ryuW[i]||0;const k=T.karma[i]??6;t.evilBonus=k<=-4?.15:k<0?.05:0;}
+  if(c.n==='Cassandra'){const s=CARDS.findIndex(x=>x.n==='Sophitia');if(T.ids.includes(s)&&!T.dead.has(s))t.irmas=true;}
+  if(c.n==='Rugal Bernstein'){if(T.rugal)t.extra=T.rugal;if(T.omega)t.omega=true;}
+  if(c.n==='Kazuya Mishima'&&(T.demon[i]||0)>=T.demonMax)t.trueDevil=true;
+  if(T.trophy[i]||T.preyKills[i])t.bonusSt={atk:2*(T.trophy[i]||0)+(T.preyKills[i]||0)};
+  if(T.alienMode&&i===ALIEN.i){t.bonusSt={atk:10,def:10,sat:10,sdef:10,mag:10,res:10};t.plusHp=10;t.plusEn=10;}
+  if(T.bonus[i])t.extras=[...T.bonus[i]];
+  if(T.amuletoMode&&T.amulet===i){t.extras=[...(t.extras||[]),'amuleto'];t.bonusSt={...(t.bonusSt||{})};t.bonusSt.mag=(t.bonusSt.mag||0)+6;t.bonusSt.res=(t.bonusSt.res||0)+6;}
+  if(T.fmt==='rei'&&T.hp[i]!=null)t.hp=T.hp[i];
+  if(T.nextHp[i]!=null)t.hp=T.nextHp[i];
+  return t;}
+// lutas sem adversário: quem foi embora (Predadores) dá W.O.
+function settleWO(T){let guard=0;while(!T.done&&guard++<200){const m=curMatch(T);if(!m||m.third)break;const oa=T.out.has(m.a),ob=T.out.has(m.b);if(!oa&&!ob)break;
+    const w=oa&&!ob?m.b:m.a,l=w===m.a?m.b:m.a;m.res={w,l,round:0,whp:CARDS[w].hp,wo:true};T.msgs.push(`${CARDS[w].n} vence por W.O.: ${CARDS[l].n} não está mais no torneio.`);
+    const ph=curPhase(T);
+    if(ph.kind==='rei'){if(T.queue.length){const nx=T.queue.shift();ph.matches.push({a:w,b:nx,res:null,tag:`Luta ${ph.matches.length+1}`});}else finish(T,w);}
+    else if(!curMatch(T))closePhase(T);}}
+// a luta que vai acontecer agora (os capturados pelo Bison lutam antes dele, um de cada vez)
+function curBout(T){settleWO(T);const m=curMatch(T);if(!m)return null;
+  if(m.stage==null){m.capQ=[m.a,m.b].includes(BISON.i)&&!m.inv&&!m.third&&T.captives.length?[T.captives[Math.floor(T.rand()*T.captives.length)]]:[];m.stage=m.capQ.length?'cap':'main';}
+  const opp=m.a===BISON.i?m.b:m.a;
+  if(m.stage==='cap'){const k=m.capQ[0],cp=CAPT[k];const tb=tourOpts(T,opp);if(m.carry&&m.carry[opp]!=null)tb.hp=m.carry[opp];
+    const ta0={};if(T.diff==='divina'&&opp===T.player)divBuff(T,ta0,cp.card);
+    return {m,A:cp.card,B:CARDS[opp],ta:ta0,tb,note:`Luta não oficial: ${cp.card.n} luta primeiro, no lugar do M. Bison`};}
+  const ta=tourOpts(T,m.a),tb=tourOpts(T,m.b);if(m.carry){if(m.carry[m.a]!=null)ta.hp=m.carry[m.a];if(m.carry[m.b]!=null)tb.hp=m.carry[m.b];}
+  if(T.diff==='divina'&&T.player!=null){if(m.a===T.player)divBuff(T,tb,CARDS[m.b]);else if(m.b===T.player)divBuff(T,ta,CARDS[m.a]);}
+  const carried=m.carry||T.nextHp[m.a]!=null||T.nextHp[m.b]!=null;
+  return {m,A:CARDS[m.a],B:CARDS[m.b],ta,tb,note:m.inv?(m.sp?'Luta não oficial: o Super Predador chega caçando':'Luta não oficial: um Alien cruza o caminho'):(carried?'Com a Vida que sobrou da luta não oficial':'')};}
+function afterUnofficial(T,w){const c=CARDS[w];T.nextHp[w]=Math.min(c.hp,Math.round((T.lastWhp||c.hp)+c.hp*EXTRA_CURA));return T.nextHp[w];}
+// morte ou nocaute no fim da luta (w e l são cartas; l.i numérico = lutador do torneio)
+function finisher0(T,w,l){const li=typeof l.i==='number'?l.i:null,out=k=>{if(li!=null){T.out.add(li);if(k){T.ko.delete(li);T.dead.add(li);}else T.ko.add(li);}};
+  if(T.alienMode&&l.alien){out(true);T.alienKills++;if(w.pred)T.alienKillsPred++;T.msgs.push(`${w.n} mata ${l.n}: todo Alien derrotado morre.`);
+    if(w.pred&&typeof w.i==='number'){T.trophy[w.i]=(T.trophy[w.i]||0)+1;T.msgs.push(`${w.n} guarda o crânio como troféu: +2 de Ataque (total +${2*T.trophy[w.i]}).`);}
+    else if(typeof w.i==='number'&&!w.alien&&!(T.bonus[w.i]||[]).includes('sobrevivente')){(T.bonus[w.i]=T.bonus[w.i]||[]).push('sobrevivente');T.msgs.push(`${w.n} ganha Sobrevivente: imune ao Sangue Ácido e +20% de dano contra Aliens até o fim do torneio.`);}
+    return true;}
+  const rv=(T.alienMode&&(w.alien||l.alien))?null:rival(w.n,l.n);let kill,why='';const lock=playerLock(T,w,l);
+  if(isPlayer(T,l)){kill=true;why=' No Modo Você Luta, perder é morrer.';}
+  else if(isPlayer(T,w)&&!lock&&T.playerChoice){kill=T.playerChoice==='kill';why=kill?' Foi a sua escolha.':'';}
+  else if(w.n==='Kratos'&&GOD_PAT.includes(l.pat)){kill=true;why=' O Matador de Deuses nunca poupa um deus.';}
+  else if(ALWAYS_KILL[w.n]&&!(rv&&rv.k==='paz')){kill=true;why=` ${ALWAYS_KILL[w.n]} (100%).`;}
+  else if(rv&&rv.k==='chance'){kill=T.rand()<rv.p;why=` Rivalidade: ${rv.x} (${Math.round(rv.p*100)}% de chance).`;}
+  else if(rv){kill=rv.k==='morte';why=kill?` Rivalidade mortal: ${rv.x}.`:` ${rv.x}: um nunca mata o outro.`;}
+  else{const ch=Math.min(.95,KILL[roleOf(T,w)]+(typeof w.i==='number'&&T.bonus[w.i]&&T.bonus[w.i].includes('intencao')?.25:0));kill=T.rand()<ch;why=` (${ROLE_N[roleOf(T,w)]}: ${Math.round(ch*100)}% de chance)`;}
+  if(!kill&&T.alienMode&&w.alien&&li!=null){out(true);T.spawn.push({host:li});T.msgs.push(`${w.n} não mata ${l.n}: implanta um embrião. ${l.n} vira hospedeiro e morre quando o novo Alien nasce.`);return true;}
+  out(kill);if(kill&&w.n==='Predador'&&typeof w.i==='number'){T.preyKills[w.i]=(T.preyKills[w.i]||0)+1;T.msgs.push(`O Predador leva o crânio de ${l.n}: +1 de Ataque (total +${T.preyKills[w.i]}).`);}
+  T.msgs.push(kill?`${w.n} mata ${l.n}!${why}`:`${w.n} nocauteia ${l.n}, que sai do torneio vivo.${rv?why:''}`);return kill;}
+// ---------- MODO VOCÊ LUTA ----------
+const isPlayer=(T,c)=>T.player!=null&&typeof c.i==='number'&&c.i===T.player;
+// a escolha de matar ou poupar fica travada em alguns casos (o motivo vem junto)
+function playerLock(T,w,l){if(T.alienMode&&l.alien)return {k:'kill',x:'Todo Alien derrotado morre'};
+  const rv=(T.alienMode&&(w.alien||l.alien))?null:rival(w.n,l.n);
+  if(w.n==='Kratos'&&GOD_PAT.includes(l.pat))return {k:'kill',x:'O Matador de Deuses nunca poupa um deus'};
+  if(rv&&rv.k==='paz')return {k:'spare',x:rv.x+': um nunca mata o outro'};
+  if(ALWAYS_KILL[w.n])return {k:'kill',x:ALWAYS_KILL[w.n]};
+  if(rv&&rv.k==='morte')return {k:'kill',x:'Rivalidade mortal: '+rv.x};
+  return null;}
+// Divina: o rival fica mais forte conforme o patamar do seu lutador (calibrado para ~50% por luta: comum +3%, sub-chefe +5%, chefe +12% em todos os atributos)
+const DIV_PCT={'':.03,'Sub-chefe':.05,'Chefe':.12};
+function divBuff(T,t,card){const p=CARDS[T.player];const pct=DIV_PCT[p.tit||'']??.03;const b={...(t.bonusSt||{})};
+  for(const k of ['atk','def','sat','sdef','mag','res','spd'])b[k]=(b[k]||0)+Math.round(card.st[k]*pct*(k==='spd'?.5:1));
+  t.bonusSt=b;t.plusHp=(t.plusHp||0)+Math.round(card.hp*pct);return t;}
+function playerSide(T,bt){if(T.player==null||!bt)return null;return bt.A.i===T.player?'A':bt.B.i===T.player?'B':null;}
+// ---------- CARMA: de -10 a +10; o papel acompanha o carma ----------
+const KARMA0={h:6,a:0,v:-6},FIXED_ROLE=new Set(['Shao Kahn','Orochi','Gargos']);
+const DEMON_FORMS=['evilRyu','devilJin','devilKaz','trueDevilKaz'];
+const karmaRole=k=>k>=4?'h':k<=-4?'v':'a';
+const kOwner=c=>typeof c.i==='number'?c.i:c.i==='vken'?KEN.i:c.i==='kbee'?CAMMY.i:null;
+const fixedRole=i=>i==null||i>=NB||FIXED_ROLE.has(CARDS[i].n)||!!CARDS[i].alien;
+function roleOf(T,c){if(typeof c.i!=='number')return c.role||'v';if(fixedRole(c.i)||T.karma[c.i]==null)return c.role||'h';return karmaRole(T.karma[c.i]);}
+function addKarma(T,i,d){if(i==null||fixedRole(i)||!d)return;const k0=T.karma[i]??KARMA0[CARDS[i].role],before=karmaRole(k0);
+  T.karma[i]=Math.max(-10,Math.min(10,k0+d));const after=karmaRole(T.karma[i]);
+  if(after!==before){const down={h:0,a:1,v:2};T.msgs.push(down[after]>down[before]?`${CARDS[i].n} mergulha na escuridão: agora é ${ROLE_N[after]} (carma ${T.karma[i]}).`:`${CARDS[i].n} busca a redenção: agora é ${ROLE_N[after]} (carma ${T.karma[i]}).`);}}
+// morte ou nocaute + carma + registro para o relatório final
+function finisher(T,w,l){const vr=roleOf(T,l),rv=rival(w.n,l.n),kill=finisher0(T,w,l),own=kOwner(w),vi=kOwner(l),ph=curPhase(T).name,res=T.lastRes||{};
+  const host=kill&&T.alienMode&&w.alien&&T.spawn.some(s=>s.host===vi);
+  if(kill){T.deaths.push({vi,v:l.n,by:w.n,byI:own,phase:ph,how:host?'virou hospedeiro':l.alien?'Alien derrotado':rv&&rv.k!=='paz'?'rivalidade':''});if(own!=null)T.killCount[own]=(T.killCount[own]||0)+1;}
+  else T.kos.push({vi,v:l.n,by:w.n,phase:ph});
+  if(own!=null&&!l.alien){let d;if(kill){d={h:-3,a:-2,v:-1}[vr];if(rv&&rv.k!=='paz')d=-1;if(DEMON_FORMS.includes(res.wForm))d=-3;}else d=vr==='v'?2:1;addKarma(T,own,d);}
+  return kill;}
+// um novo Alien nasce do hospedeiro e herda uma habilidade dele (um Predador vira Predalien)
+function spawnAlien(T,host){const h=CARDS[host];let c;
+  if(h.pred){c={...FORMS.predalien,i:CARDS.length,temp:true,form:false};}
+  else{const pool=h.ab.filter(id=>!NO_HERDA.includes(id)&&!ALIEN.ab.includes(id));const herda=pool.length?pool[Math.floor(T.rand()*pool.length)]:null;
+    c={...ALIEN,i:CARDS.length,temp:true,n:`Alien de ${h.n.split(' ')[0]}`,img:'alien',orig:`Nasceu de ${h.n}`,ab:[...ALIEN.ab,...(herda?[herda]:[])],herda};}
+  CARDS.push(c);T.aliens++;T.msgs.push(c.n==='Predalien'?`Do corpo de ${h.n} nasce o PREDALIEN!`:`Nasce o ${c.n}${c.herda?`, com ${AB[c.herda].n}`:''}!`);return c.i;}
+function spawnSuper(T){const c={...FORMS.superPred,i:CARDS.length,temp:true,form:false};CARDS.push(c);T.superDone=true;T.superPending=false;
+  T.msgs.push('O SUPER PREDADOR chega ao torneio para caçar os Aliens!');return c.i;}
+// Aliens que nasceram (e o Super Predador) invadem a fase nova: atacam um lutador sorteado; quem vencer fica com a vaga
+function injectSpawns(T){if(T.done){if(T.spawn.length)T.msgs.push('Um embrião de Alien morre com o hospedeiro: o torneio já acabou.');T.spawn=[];return;}
+  const ph=curPhase(T);
+  if(ph.kind==='rei'){for(const sp of T.spawn)T.queue.unshift(spawnAlien(T,sp.host));T.spawn=[];
+    if(T.superPending&&!T.alienOver)T.queue.unshift(spawnSuper(T));return;}
+  const taken=new Set(),pool=[...new Set([...ph.matches.filter(m=>!m.res&&!m.inv).flatMap(m=>[m.a,m.b]),...(ph.direct||[])])].filter(i=>!T.out.has(i));
+  const pick=c=>{const w=c.map(i=>isPred(i)?3:1),s=w.reduce((a,b)=>a+b,0);let r=T.rand()*s;for(let k=0;k<c.length;k++){r-=w[k];if(r<=0)return c[k];}return c[c.length-1];};
+  for(const sp of T.spawn){const cand=pool.filter(i=>!taken.has(i)&&!isAlien(i));if(!cand.length){T.msgs.push('Um embrião de Alien morre sem encontrar vítima.');continue;}
+    const al=spawnAlien(T,sp.host),tg=pick(cand);taken.add(tg);ph.matches.unshift({a:al,b:tg,res:null,inv:true,tag:'Invasão Alien (não oficial)'});}
+  T.spawn=[];
+  if(T.superPending&&!T.alienOver){const cand=pool.filter(i=>isAlien(i)&&!taken.has(i));if(cand.length){const sp=spawnSuper(T),tg=cand[Math.floor(T.rand()*cand.length)];taken.add(tg);
+    ph.matches.unshift({a:sp,b:tg,res:null,inv:true,sp:true,tag:'O Super Predador chega (não oficial)'});}}}
+function replaceSlot(ph,from,to){for(const m of ph.matches){if(m.res||m.inv)continue;if(m.a===from)m.a=to;if(m.b===from)m.b=to;}
+  if(ph.groups)ph.groups.forEach(g=>{const k=g.indexOf(from);if(k>=0)g[k]=to;});if(ph.direct){const k=ph.direct.indexOf(from);if(k>=0)ph.direct[k]=to;}
+  if(ph.kind==='rei'){}}
+function addReward(T,who,kind,pend){if(T.out.has(who))return;pend.push({kind:'reward',who,opts:REWARD[kind].opts.filter(id=>!(T.bonus[who]||[]).includes(id)),title:`${CARDS[who].n} ${REWARD[kind].title}: escolha a habilidade nova para o resto do torneio.`});}
+// capturado do Bison derrotado: a Cammy se liberta e vai embora; o Ken se liberta e volta ao torneio (rival do Ryu)
+function freeCaptive(T,k,killed){const c=k==='vken'?KEN:CAMMY;
+  if(killed){T.ko.delete(c.i);T.dead.add(c.i);T.out.add(c.i);T.msgs.push(`${c.n} morre ainda sob o controle do Bison.`);return;}
+  if(k==='kbee'){T.msgs.push('A Cammy se liberta do controle da Shadaloo e deixa o torneio.');return;}
+  T.ko.delete(c.i);T.out.delete(c.i);T.msgs.push('O Ken se liberta do Psycho Power e volta ao torneio: ainda tem uma rivalidade com o Ryu para resolver!');
+  if(T.fmt==='rei')T.queue.push(c.i);else T.returning.push(c.i);}
+// Modo Amuleto de Shinnok: o amuleto passa para quem vence o portador; o Quan Chi o pega e sai do torneio
+function amuletOk(T,i){return typeof i==='number'&&!T.out.has(i)&&i!==QUAN.i&&!isAlien(i)&&!isPred(i);}
+function giveAmulet(T,to,why){if(to==null){const all=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>amuletOk(T,i));if(!all.length){T.amulet=null;return;}to=all[Math.floor(T.rand()*all.length)];}
+  T.amulet=to;T.msgs.push(`${why}: ${CARDS[to].n} está com o Amuleto de Shinnok (+6 Poder Mágico, +6 Res. Mágica).`);}
+function handleAmulet(T,wCard,l,pend){if(!T.amuletoMode||T.amulet!==l||T.quanDone)return;
+  if(wCard.i===QUAN.i){T.quanDone=true;T.amulet=null;T.conquest=T.conquest||'quanchi';
+    const others=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>!T.out.has(i)&&i!==QUAN.i);
+    if(!others.length){T.msgs.push('O Quan Chi toma o Amuleto de Shinnok no fim do torneio: missão cumprida! (Conquista do Quan Chi)');return;}
+    T.out.add(QUAN.i);T.left.add(QUAN.i);
+    T.msgs.push('O Quan Chi toma o Amuleto de Shinnok e desaparece num portal para o Netherrealm: missão cumprida! (Conquista do Quan Chi)');redraw(T);return;}
+  if(amuletOk(T,wCard.i))giveAmulet(T,wCard.i,`${wCard.n} toma o amuleto de ${CARDS[l].n}`);
+  else giveAmulet(T,null,`O amuleto cai e o Uno o entrega a outro lutador`);}
+// fim do Modo Alien: todos os Aliens mortos (Predadores vão embora) ou só sobraram Aliens (os Aliens vencem)
+function alienCheck(T){if(!T.alienMode||T.done)return;const all=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>!T.out.has(i));
+  const aliveAliens=all.filter(isAlien),aliveOthers=all.filter(i=>!isAlien(i));if(aliveAliens.length>=4)T.ev.colmeia=true;
+  if(!aliveOthers.length&&aliveAliens.length){T.done=true;T.champ=aliveAliens[0];T.conquest='aliens';T.msgs.push(`OS ALIENS TOMARAM O TORNEIO! Não sobrou nenhum lutador vivo. Conquista dos Aliens (${aliveAliens.length} Alien${aliveAliens.length>1?'s':''} no fim).`);return;}
+  if(!T.alienOver&&!aliveAliens.length&&!T.spawn.length){T.alienOver=true;T.superPending=false;
+    if(T.alienKills>0&&T.alienKillsPred===T.alienKills){T.conquest='predador';T.ev.pred=true;T.msgs.push(`Todos os Aliens morreram pelas mãos dos Predadores: Conquista do Predador! (${T.alienKills} Alien${T.alienKills>1?'s':''} caçado${T.alienKills>1?'s':''})`);}
+    else T.msgs.push('Todos os Aliens estão mortos.');
+    const preds=all.filter(isPred),others=all.filter(i=>!isPred(i)&&!isAlien(i));
+    if(!others.length){T.msgs.push('Os Predadores são os últimos de pé.');settleWO(T);return;}
+    for(const p of preds){T.out.add(p);T.left.add(p);}
+    if(T.queue)T.queue=T.queue.filter(i=>!T.out.has(i));
+    if(preds.length){T.msgs.push(`Sem presas, ${preds.map(i=>CARDS[i].n).join(' e ')} ${preds.length>1?'vão':'vai'} embora do torneio.`);redraw(T);}
+    settleWO(T);}}
+// novo sorteio da fase atual quando alguém sai do torneio no meio dela (sem W.O.)
+function redraw(T){const ph=curPhase(T);if(!ph||T.done)return;
+  if(ph.kind==='rei'){const m=curMatch(T);if(m&&(T.out.has(m.a)||T.out.has(m.b))&&T.queue.length){const keep=T.out.has(m.a)?m.b:m.a;m.a=keep;m.b=T.queue.shift();m.tag+=' (novo desafiante)';}return;}
+  const un=ph.matches.filter(m=>!m.res&&!m.inv&&!m.third);if(!un.some(m=>T.out.has(m.a)||T.out.has(m.b)))return;
+  const pool=un.flatMap(m=>[m.a,m.b]).filter(i=>!T.out.has(i));ph.matches=ph.matches.filter(m=>!un.includes(m));
+  const s=pairUp(shuffle(pool,T.rand),T);for(let k=0;k+1<s.length;k+=2)ph.matches.push({a:s[k],b:s[k+1],res:null,re:true,tag:'Novo sorteio'});
+  if(s.length%2){ph.direct=[...(ph.direct||[]),s[s.length-1]];T.msgs.push(`${CARDS[s[s.length-1]].n} sobra no novo sorteio e passa para a próxima fase.`);}
+  ph.redrawn=true;T.msgs.push('O Uno refaz o sorteio das lutas que faltam nesta fase.');}
+// registra o resultado de UMA luta; devolve escolhas pendentes do jogador (lista)
+function applyResult(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[];T.msgs=[];T.lastWhp=res.whp;T.lastRes=res;(res.forms||[]).forEach(k=>T.ev.forms.add(k));
+  const wi=res.w.i,li=res.l.i;if(![b.A.i,b.B.i].includes(wi)||![b.A.i,b.B.i].includes(li)||wi===li)throw new Error('resultado não pertence à luta atual');
+  if(m.stage==='cap'){const opp=m.a===BISON.i?m.b:m.a,k=m.capQ[0],cp=CAPT[k];
+    if(wi===k){finisher(T,cp.card,CARDS[opp]);m.res={w:BISON.i,l:opp,round:res.round,whp:res.whp,via:cp.card.n};T.msgs.push(`O M. Bison avança sem lutar, e ${cp.card.n} continua com ele.`);handleAmulet(T,cp.card,opp,pend);}
+    else{const kill=finisher(T,CARDS[opp],cp.card);T.captives=T.captives.filter(x=>x!==k);m.capQ.shift();if(!kill)T.ev.lib.add(k);freeCaptive(T,k,kill);const hp=Math.min(CARDS[opp].hp,Math.round(res.whp+CARDS[opp].hp*EXTRA_CURA));
+      const nxt=m.capQ.length?CAPT[m.capQ[0]].card.n:'o M. Bison';
+      T.msgs.push(`${cp.card.n} está fora. ${CARDS[opp].n} recupera 40% da Vida (fica com ${hp}) e agora enfrenta ${nxt}.`);
+      m.stage=m.capQ.length?'cap':'main';m.carry={[opp]:hp};addReward(T,opp,cp.reward,pend);return finishPend(T,pend);}}
+  else{const w=wi,l=li;m.res={w,l,round:res.round,whp:res.whp||0};delete T.nextHp[m.a];delete T.nextHp[m.b];
+    if(res.evilBy&&res.evilBy.i===w)T.msgs.push(`${CARDS[w].n} derrotou o Evil Ryu e o Ryu!`);
+    const firstAlienWin=T.alienMode&&w===ALIEN.i&&!T.superDone&&!T.superPending;
+    const killed=finisher(T,CARDS[w],CARDS[l]);T.wins[w]=(T.wins[w]||0)+1;
+    if(firstAlienWin){T.superPending=true;T.msgs.push('O primeiro Alien venceu: um Super Predador está a caminho.');}
+    if(m.inv){if(!T.out.has(w)){replaceSlot(curPhase(T),m.b,w);const hp=afterUnofficial(T,w);
+        T.msgs.push(w===m.a?`${CARDS[w].n} toma a vaga de ${CARDS[l].n} no torneio (Vida ${hp} na próxima luta).`:`${CARDS[w].n} segue no torneio e recupera 40% da Vida (fica com ${hp}).`);}}
+    if(w===KAZ.i&&!m.inv){const before=T.demon[w]||0;if(res.desp&&res.desp.some(c=>c.i===w))T.msgs.push('O Kazuya venceu com o Despertar do Demônio: essa vitória não vale ponto do demônio.');
+      else{const pts=l===JIN.i?2:1;T.demon[w]=before+pts;T.msgs.push(`Pontos do demônio do Kazuya: ${Math.min(T.demon[w],T.demonMax)}/${T.demonMax}${pts===2?' (vencer o Jin vale 2)':''}.`);
+        if(before<T.demonMax&&T.demon[w]>=T.demonMax)T.msgs.push('O demônio toma conta por completo: daqui em diante ele luta como TRUE DEVIL KAZUYA!');}}
+    if(CARDS[w].n==='Ryu'){T.ryuW[w]=(T.ryuW[w]||0)+1;T.ryu[w]=Math.min(5,(T.ryu[w]||0)+1);T.msgs.push(`Caminho do Guerreiro: o Ryu agora luta com +${T.ryu[w]} de Ataque.`);}
+    if(w===BISON.i&&l===KEN.i&&!killed&&T.ko.has(l)&&!T.captives.includes('vken')){T.captives.push('vken');T.ev.captured=true;T.msgs.push('O M. Bison captura o Ken com o Psycho Power: ele volta como Violent Ken e vai lutar pelo Bison!');}
+    if(w===BISON.i&&l===CAMMY.i&&!killed&&T.ko.has(l)&&!T.captives.includes('kbee')){T.captives.push('kbee');T.ev.captured=true;T.msgs.push('O M. Bison captura a Cammy e a reprograma: ela volta como KILLER BEE, a boneca da Shadaloo, e vai lutar pelo Bison!');}
+    if(l===BISON.i&&T.captives.length){T.msgs.push('Com o M. Bison fora, o controle psíquico se quebra.');for(const k of T.captives)freeCaptive(T,k,false);T.captives=[];}
+    if(w===KRATOS.i&&GOD_PAT.includes(CARDS[l].pat)){const pool=CARDS[l].ab.filter(id=>!NO_HERDA.includes(id)&&!(T.bonus[w]||[]).includes(id)&&!KRATOS.ab.includes(id));
+      if(pool.length){const id=pool[Math.floor(T.rand()*pool.length)];(T.bonus[w]=T.bonus[w]||[]).push(id);T.ev.godkill=true;T.msgs.push(`O Matador de Deuses toma o poder de ${CARDS[l].n}: Kratos ganha ${AB[id].n} até o fim do torneio.`);}}
+    handleAmulet(T,CARDS[w],l,pend);
+    if(w===RUGAL.i&&l===OROCHI.i&&!T.omega){T.omega=true;T.msgs.push('O Rugal absorve o poder de Orochi e vira OMEGA RUGAL até o fim do torneio! (Muito mais forte, mas o corpo perde 5 de Vida por turno.)');}
+    else if(w===RUGAL.i){const opts=CARDS[l].ab.filter(id=>!['colecionador','caminho','irmas','despertar','colmeia'].includes(id));if(opts.length)pend.push({kind:'rugal',who:w,opts,title:`Colecionador: escolha uma habilidade de ${CARDS[l].n} para o Rugal usar nas próximas lutas.`});}
+    if(res.evilBy&&res.evilBy.i===w)addReward(T,w,'evil',pend);}
+  const ph=curPhase(T);
+  alienCheck(T);
+  if(T.done)return finishPend(T,pend);
+  if(ph.kind==='rei'){const w=m.res.w;if(!T.out.has(w)){const whp=m.via?(T.hp[w]!=null?T.hp[w]:CARDS[w].hp):res.whp;T.hp[w]=Math.min(CARDS[w].hp,(whp||1)+REI_CURA);}
+    if(T.spawn.length||T.superPending)injectSpawns(T);
+    if(!curMatch(T)&&T.out.has(w)){if(T.queue.length>=2){const a1=T.queue.shift(),b1=T.queue.shift();ph.matches.push({a:a1,b:b1,res:null,tag:`Luta ${ph.matches.length+1} (o morro ficou vazio)`});T.msgs.push('O morro ficou vazio: os próximos dois desafiantes se enfrentam.');}else if(T.queue.length===1){finish(T,T.queue.shift());}}
+    if(!T.done&&!curMatch(T)){if(T.queue.length){const nx=T.queue.shift();ph.matches.push({a:w,b:nx,res:null,tag:`Luta ${ph.matches.length+1}`});T.msgs.push(`${CARDS[w].n} fica no morro com ${T.hp[w]} de Vida.`);}
+      else{T.done=true;T.champ=w;T.msgs.push(`${CARDS[w].n} é o Rei do Morro e campeão do Torneio de Uno!`);}}}
+  else if(!curMatch(T))closePhase(T);
+  settleWO(T);alienCheck(T);
+  return finishPend(T,pend);}
+// pódio (1º, 2º, 3º)
+function getPodium(T){if(!T.done)return null;const P=[T.conquest==='aliens'?null:T.champ,null,null];
+  if(T.fmt==='rei'){const ms=curPhase(T).matches.filter(m=>m.res&&!m.res.wo&&!m.inv);const ls=[];for(let k=ms.length-1;k>=0&&ls.length<2;k--){const l=ms[k].res.l;if(typeof l==='number'&&!ls.includes(l)&&l!==T.champ)ls.push(l);}P[1]=ls[0]??null;P[2]=ls[1]??null;return P;}
+  const fin=[...T.phases].reverse().find(p=>p.name==='Final');if(fin){const fm=fin.matches.find(m=>!m.third&&m.res);if(fm)P[1]=fm.res.l;const tm=fin.matches.find(m=>m.third&&m.res);P[2]=tm?tm.res.w:(fin.thirdAuto??null);}
+  return P;}
+// conquistas (ficam salvas no computador)
+const CONQ=[['aliens','Conquista dos Aliens','Modo Alien: só sobram Aliens vivos.'],['predador','Conquista do Predador','Modo Alien: todos os Aliens morrem pelas mãos de Predadores.'],
+ ['quanchi','Conquista do Quan Chi','Modo Amuleto: o Quan Chi leva o Amuleto de Shinnok.'],['omega','Omega','O Rugal vira Omega Rugal.'],['trueDevil','O Demônio Verdadeiro','O Kazuya vira True Devil Kazuya.'],
+ ['angel','A Luz dos Kazama','O Angel Jin aparece.'],['evil','Satsui no Hado','O Ryu vira Evil Ryu.'],['lavagem','Lavagem Cerebral','O M. Bison captura o Ken ou a Cammy.'],
+ ['libKen','Libertação do Ken','Alguém derrota o Violent Ken e liberta o Ken.'],['libCammy','Libertação da Cammy','Alguém derrota a Killer Bee e liberta a Cammy.'],['libTotal','Libertação Total','Ken e Cammy libertados no mesmo torneio.'],
+ ['deuses','Matador de Deuses','O Kratos mata um deus.'],['colmeia','Colmeia','4 ou mais Aliens vivos ao mesmo tempo.'],['queda','Queda','Um herói termina o torneio como vilão.'],
+ ['redencao','Redenção','Um vilão termina o torneio como herói.'],['sangrento','Torneio Sangrento','Mais da metade dos lutadores morre.'],['paz','Torneio da Paz','Ninguém morre no torneio.']];
+function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
+  ok('aliens',T.conquest==='aliens');ok('predador',e.pred);ok('quanchi',T.quanDone);ok('omega',T.omega);ok('trueDevil',Object.values(T.demon).some(v=>v>=T.demonMax));
+  ok('angel',e.forms.has('angelJin'));ok('evil',e.forms.has('evilRyu'));ok('lavagem',e.captured);ok('libKen',e.lib.has('vken'));ok('libCammy',e.lib.has('kbee'));ok('libTotal',e.lib.has('vken')&&e.lib.has('kbee'));
+  ok('deuses',e.godkill);ok('colmeia',e.colmeia);
+  const ch=Object.keys(T.karma).map(Number);ok('queda',ch.some(i=>T.startRole[i]==='h'&&karmaRole(T.karma[i])==='v'));ok('redencao',ch.some(i=>T.startRole[i]==='v'&&karmaRole(T.karma[i])==='h'));
+  ok('sangrento',T.dead.size>T.ids.length/2);ok('paz',T.dead.size===0);return got;}
+function finishPend(T,pend){return pend.filter(p=>p.opts.length&&!(T.done&&p.kind==='rugal'));}
+function choosePending(T,p,id){if(p.kind==='rugal')T.rugal=id;else(T.bonus[p.who]=T.bonus[p.who]||[]).push(id);}
+function closePhase(T){const ph=curPhase(T),winners=ph.matches.filter(m=>!m.inv&&!m.third).map(m=>m.res.w),next=[...(ph.direct||[]),...winners,...T.returning].filter((i,k,a)=>!T.out.has(i)&&a.indexOf(i)===k);T.returning=[];
+  if(!next.length){T.done=true;return;}
+  if(T.fmt==='copa'){if(next.length>1&&ph.kind==='grupos')T.msgs.push(`Fim da fase: ${next.length} classificados. Novo sorteio!`);copaNext(T,next);}
+  else koFrom(T,next);
+  // disputa de 3º lugar: os perdedores da semifinal que estão vivos
+  if(ph.name==='Semifinal'&&!ph.prelim&&!T.done){const fin=curPhase(T),alive=ph.matches.filter(m=>!m.inv).map(m=>m.res.l).filter(i=>!T.dead.has(i)&&!T.left.has(i)&&!T.captives.some(k=>CAPT[k].card===VKEN?i===KEN.i:i===CAMMY.i));
+    if(alive.length===2){fin.matches.unshift({a:alive[0],b:alive[1],res:null,third:true,tag:'Disputa de 3º lugar'});T.msgs.push(`${CARDS[alive[0]].n} e ${CARDS[alive[1]].n} estão vivos: vão disputar o 3º lugar.`);}
+    else if(alive.length===1){fin.thirdAuto=alive[0];T.msgs.push(`${CARDS[alive[0]].n} é o único semifinalista derrotado ainda vivo: fica com o 3º lugar.`);}}
+  injectSpawns(T);}
+
+// ===================== INTERFACE =====================
+const $=s=>document.querySelector(s);
+const initials=n=>{const w=n.replace(/\(.*?\)/g,'').replace(/\./g,'').trim().split(/[\s-]+/).filter(Boolean);return (w.length>1?w[0][0]+w[1][0]:w[0].slice(0,2)).toUpperCase();};
+const slug=n=>n.toLowerCase().replace(/\(.*?\)/g,'').trim().replace(/\.\s*/g,'-').replace(/\s+/g,'-');
+const pic=c=>`<img src="img/${c.img||slug(c.n)}.jpg" alt="${c.n}" loading="lazy" onerror="this.remove()">`;
+const imgUrl=c=>'https://www.google.com/search?tbm=isch&q='+encodeURIComponent(c.n+' '+c.orig);
+function tagsHTML(c){let h=`<span class="tag">${c.fam}</span><span class="tag" title="Raça">${c.race}</span>`;
+  if(c.pat!=='Mortal')h+=`<span class="tag pat">${c.pat}</span>`;if(c.tit)h+=`<span class="tag boss">${c.tit}</span>`;return h;}
+function cardHTML(c){const [tn,tc]=tierOf(c.forca);
+  const stats=`<div><span>Vida</span>${c.hp}</div><div><span>Energia</span>${c.en}</div><div><span>Ataque</span>${c.st.atk}</div><div><span>Defesa</span>${c.st.def}</div><div><span>Atq. Esp.</span>${c.st.sat}</div><div><span>Def. Esp.</span>${c.st.sdef}</div><div><span>Poder Mág.</span>${c.st.mag}</div><div><span>Res. Mág.</span>${c.st.res}</div><div><span>Velocidade</span>${c.st.spd}</div>`;
+  const abs=c.ab.map(id=>{const a=AB[id];return `<li><b>${a.n}</b><em>${a.t==='A'?'Ativa · '+a.c:'Passiva'}</em><p>${a.x}</p></li>`;}).join('');
+  return `<div class="art" style="--u:${UNI[c.u].c}"><span class="mono">${initials(c.n)}</span>${pic(c)}<span class="badge"><span class="tier ${tc}">${tn} · ${c.forca}</span><br><small>${c.cls} · ${c.sub}</small></span></div>
+  <div class="cbody"><h3>${c.n}</h3><div class="uni">${c.orig}</div><div class="tags">${tagsHTML(c)}</div><div class="stats">${stats}</div><ul class="abs">${abs}</ul></div>`;}
+function renderForms(){const seen=loadSeen();$('#forms').innerHTML=Object.values(FORMS).map(c=>seen.has(c.key)?`<article class="card form">${cardHTML(c)}<div class="how"><b>Como surge:</b> ${c.how}</div></article>`:`<article class="card form pc lock"><div class="art">${pic(c)}<span class="qq">???</span></div><div class="cbody"><h3>???</h3><div class="note">Forma especial bloqueada: aparece num torneio.</div></div></article>`).join('');}
+// filtros e grade
+let filt='all',sel=[];
+function renderFilters(){const opts=[['all','Todos'],...Object.entries(UNI).map(([k,v])=>[k,v.n])];
+  $('#filters').innerHTML=opts.map(([k,n])=>`<button class="chip" aria-pressed="${filt===k}" data-f="${k}">${n}</button>`).join('');}
+function renderGrid(){$('#grid').innerHTML=CARDS.filter(c=>!c.temp&&(filt==='all'||c.u===filt)).map(c=>`<article class="card${sel.includes(c.i)?' sel':''}" data-i="${c.i}" tabindex="0" aria-label="${c.n}">${cardHTML(c)}</article>`).join('');}
+function renderSlots(){const s=[ $('#slotA'),$('#slotB')];[0,1].forEach(k=>{const c=CARDS[sel[k]];s[k].textContent=c?c.n:(k?'e depois em outra':'Clique numa carta');s[k].classList.toggle('full',!!c);});$('#btnFight').disabled=sel.length<2;}
+$('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filt=b.dataset.f;renderFilters();renderGrid();});
+$('#grid').addEventListener('click',e=>{if(e.target.closest('a'))return;const el=e.target.closest('.card');if(!el)return;const i=+el.dataset.i;
+  if(sel.includes(i))sel=sel.filter(x=>x!==i);else{if(sel.length>=2)sel.shift();sel.push(i);}renderGrid();renderSlots();});
+$('#grid').addEventListener('keydown',e=>{if(e.key==='Enter'){const el=e.target.closest('.card');if(el)el.click();}});
+$('#btnClear').onclick=()=>{sel=[];renderGrid();renderSlots();};
+// navegação
+// painel de lutador
+function panelHTML(c,s){c=s.fc||c;const pct=Math.max(0,s.hp/s.maxhp*100),cls=pct<30?'low':pct<60?'mid':'';
+  const st=[];if(s.burn)st.push('<span class="st burn">Queimado</span>');if(s.slow)st.push('<span class="st slow">Lento</span>');if(s.weak)st.push('<span class="st weak">Enfraquecido</span>');
+  if(s.skip)st.push(`<span class="st skip">${s.skip==='stun'?'Atordoado':'Congelado'}</span>`);
+  if(s.clone)st.push('<span class="st buff">Clone de Gelo</span>');if(s.camo)st.push('<span class="st buff">Camuflado</span>');if(s.barrier)st.push('<span class="st buff">Barreira</span>');
+  if(s.prep)st.push(`<span class="st buff">${{contra:'Contra-golpe',gi:'Guard Impact',combo:'Combo Breaker'}[s.prep]}</span>`);if(s.fury)st.push('<span class="st buff">Fúria Espartana</span>');
+  if(s.buff||s.perm)st.push('<span class="st buff">Fortalecido</span>');
+  return `<div class="art" style="--u:${UNI[c.u].c}"><span class="mono">${initials(c.n)}</span>${pic(c)}<span class="badge"><span class="tier ${tierOf(c.forca)[1]}">${c.cls} · ${c.sub}</span></span></div>
+  <div class="cbody"><h3>${s.nm||c.n}</h3><div class="uni">${c.orig}</div>
+  <div class="mlabel"><span>Vida</span><span>${Math.max(0,Math.round(s.hp))} / ${s.maxhp}</span></div><div class="meter hp ${cls}"><i style="width:${pct}%"></i></div>
+  <div class="mlabel"><span>Energia</span><span>${s.en} / ${s.maxen}</span></div><div class="meter en"><i style="width:${s.en/s.maxen*100}%"></i></div>
+  <div class="sts">${st.join('')}</div><div class="tags">${tagsHTML(c)}</div>
+  <ul class="abs">${(s.abs||c.ab).filter(id=>AB[id]).map(id=>`<li><b>${AB[id].n}</b><em>${AB[id].t==='A'?'Ativa · '+AB[id].c:'Passiva'}</em></li>`).join('')}</ul></div>`;}
+// reprodução
+function Player(ids){this.ids=ids;this.timer=null;}
+Player.prototype.play=function(res,cA,cB,onEnd){clearTimeout(this.timer);const {pa,pb,log,out,speed}=this.ids;const fr=res.frames;let i=0;
+  $(log).innerHTML='';$(out).textContent='';
+  const draw=f=>{$(pa).innerHTML=panelHTML(cA,f.s[0]);$(pb).innerHTML=panelHTML(cB,f.s[1]);};
+  const line=f=>{const p=document.createElement('p');p.className=f.k;p.textContent=f.t;$(log).appendChild(p);$(log).scrollTop=$(log).scrollHeight;};
+  let ended=false;const end=()=>{if(ended)return;ended=true;clearTimeout(this.timer);$(out).textContent=`${res.w.n} vence em ${res.round} rodadas.`;if(onEnd)onEnd();};
+  this.finish=()=>{if(ended)return;clearTimeout(this.timer);while(i<fr.length){line(fr[i]);i++;}draw(fr[fr.length-1]);end();};
+  const step=()=>{if(i>=fr.length){end();return;}draw(fr[i]);line(fr[i]);i++;this.timer=setTimeout(step,+$(speed).value);};
+  draw(fr[0]);step();};
+const P1=new Player({pa:'#pA',pb:'#pB',log:'#log',out:'#result',speed:'#speed'});
+let lastPair=null;
+function startFight(a,b){lastPair=[a,b];show('luta');const r=fight(CARDS[a],CARDS[b]);noteSeen(r);P1.play(r,CARDS[a],CARDS[b]);}
+const rnd2=()=>{const a=Math.floor(Math.random()*NB);let b;do{b=Math.floor(Math.random()*NB);}while(b===a);return [a,b];};
+$('#btnFight').onclick=()=>startFight(sel[0],sel[1]);
+$('#btnShuffle').onclick=()=>{const [a,b]=rnd2();sel=[a,b];renderGrid();renderSlots();startFight(a,b);};
+$('#btnRandom').onclick=()=>{const [a,b]=rnd2();startFight(a,b);};
+$('#btnRematch').onclick=()=>{if(lastPair)startFight(...lastPair);};
+$('#btnSkip').onclick=()=>{if(P1.finish)P1.finish();};
+
+// ===================== TORNEIO =====================
+const P2=new Player({pa:'#tA',pb:'#tB',log:'#tlog',out:'#tresult',speed:'#tspeed'});
+let T=null,busy=false;const picked=new Set();
+const FMT_INFO={
+  copa:'Copa do Mundo: a cada fase o Uno faz um novo sorteio de grupos de 4 (por potes de Força, para os mais fortes ficarem separados). Em cada grupo são 2 lutas: os 2 vencedores passam, quem perde sai. Se o número de classificados não fecha grupos de 4, um sorteio manda alguns para a Repescagem. No fim: semifinal e final.',
+  mata:'Mata-mata: a chave é sorteada no começo e não muda. Quem perde sai. Se o número não fecha a chave (20 ou 40), os de baixo jogam uma Repescagem antes.',
+  rei:'Rei do Morro: o vencedor fica no morro e enfrenta o próximo desafiante sem recuperar tudo (só +'+REI_CURA+' de Vida entre lutas). Quem perde sai. Quem estiver no morro no fim é o campeão.'};
+function fillSizes(){const f=$('#tFmt').value,keep=$('#tSize').value;
+  $('#tSize').innerHTML=SIZES[f].map(n=>`<option value="${n}">${n===NB?`Todos os ${NB}`:`${n} sorteados`}</option>`).join('')+`<option value="esc">Escolher personagens</option>`;
+  if([...$('#tSize').options].some(o=>o.value===keep))$('#tSize').value=keep;
+  $('#fmtInfo').textContent=FMT_INFO[f]+` Aceita de ${LIMIT[f][0]} a ${LIMIT[f][1]} lutadores. As regras completas dos modos estão na aba Regras.`;renderPicker();updModes();}
+function tourSize(){const v=$('#tSize').value;return v==='esc'?picked.size:+v;}
+function updModes(){const f=$('#tFmt').value,n=tourSize();
+  for(const [k,id] of [['alien','tAlien'],['amuleto','tAmuleto']]){const ok=modeOk(k,f,n),el=$('#'+id),lb=$('#l'+id.slice(1));el.disabled=!ok;lb.classList.toggle('off',!ok);
+    lb.title=ok?'':`${MODES[k].n}: só em ${MODES[k].fmts.map(x=>FMT[x]).join(' ou ')}, com ${MODES[k].min} lutadores ou mais.`;}}
+function renderPicker(){const on=$('#tSize').value==='esc';$('#picker').classList.toggle('on',on);if(!on)return;
+  $('#pickList').innerHTML=CARDS.filter(c=>!c.temp).map(c=>`<button class="chip" data-i="${c.i}" aria-pressed="${picked.has(c.i)}">${c.n}</button>`).join('');
+  const f=$('#tFmt').value,[lo,hi]=LIMIT[f],n=picked.size;
+  $('#pickCount').textContent=`${n} escolhido${n===1?'':'s'}`+(n<lo?` (mínimo ${lo})`:n>hi?` (máximo ${hi})`:'');}
+$('#tFmt').onchange=fillSizes;$('#tAlien').onchange=fillSizes;$('#tAmuleto').onchange=fillSizes;$('#tSize').onchange=()=>{renderPicker();updModes();};
+$('#pickList').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;picked.has(i)?picked.delete(i):picked.add(i);renderPicker();updModes();};
+$('#pickAll').onclick=()=>{CARDS.filter(c=>!c.temp).forEach(c=>picked.add(c.i));renderPicker();updModes();};
+$('#pickNone').onclick=()=>{picked.clear();renderPicker();updModes();};
+$('#pickRand').onclick=()=>{picked.clear();drawIds(8,Math.random).forEach(i=>picked.add(i));renderPicker();updModes();};
+function setBtns(){const off=!T||T.done||busy;['#btnNext','#btnPhase','#btnAll'].forEach(s=>$(s).disabled=off);$('#btnTour').disabled=busy;
+  if($('#vlNext'))$('#vlNext').disabled=off||!T||T.mode!=='voce';}
+function newTour(){const f=$('#tFmt').value,sz=$('#tSize').value;let ids;
+  if(sz==='esc'){const [lo,hi]=LIMIT[f];if(picked.size<lo||picked.size>hi){$('#criarInfo').textContent=`${FMT[f]} precisa de ${lo} a ${hi} lutadores. Você escolheu ${picked.size}.`;return;}ids=[...picked];}
+  else ids=drawIds(+sz,Math.random);
+  const opt={alien:$('#tAlien').checked&&!$('#tAlien').disabled,amuleto:$('#tAmuleto').checked&&!$('#tAmuleto').disabled};
+  if(PLAY==='voce'){opt.player=pickPlayer();opt.diff=DIFF;if(sz==='esc'&&!ids.includes(opt.player)&&ids.length<LIMIT[f][1])ids.push(opt.player);}
+  T=newTourState(Math.random,f,ids,opt);T.mode=PLAY==='voce'?'voce':'livre';busy=false;$('#mOver').classList.remove('on');$('#meanwhile').innerHTML='';$('#actions').innerHTML='';$('#tA').classList.remove('you');$('#tB').classList.remove('you');setBars();show('torneio');vlStatus();$('#tArena').classList.add('off');$('#choice').classList.remove('on');$('#tlog').innerHTML='';$('#tresult').textContent='';$('#tA').innerHTML='';$('#tB').innerHTML='';
+  $('#tourInfo').textContent=T.mode==='voce'?`${FMT[f]} com ${T.ids.length} lutadores. Você é ${CARDS[T.player].n}${T.amulet===T.player?' e começa com o Amuleto de Shinnok':''}. Clique em "Próxima luta".`:`${FMT[f]} com ${T.ids.length} lutadores. Clique em "Jogar próxima luta" ou simule.`;renderBracket();setBtns();}
+const nm=(x,res)=>x==null?'<span class="note">a definir</span>':`<span class="${res?(res.w===x?'w':(T.dead.has(x)?'dead':'lost')):(T.dead.has(x)?'dead':(T.ko.has(x)?'lost':''))}">${CARDS[x].n}${res&&res.l===x?(T.left.has(x)?' (foi embora)':T.dead.has(x)?' ✝':' (nocaute)'):''}</span>`;
+function matchHtml(m,cur,orig){return `<div class="match${(orig||m)===cur?' now':''}">${m.tag?`<span class="note mt">${m.tag}</span>`:''}${nm(m.a,m.res)} <span class="note">vs</span> ${nm(m.b,m.res)}${m.res&&m.res.wo?' <span class="note">(W.O.)</span>':''}${m.res&&!m.res.wo?` <span class="note">(${m.res.via?`venceu o ${m.res.via} no lugar do Bison, `:''}${m.res.round} rodadas, sobrou ${m.res.whp} de Vida)</span>`:''}</div>`;}
+function renderBracket(){if(!T){$('#bracket').innerHTML='';$('#tnow').innerHTML='';return;}const cur=curMatch(T),bt=curBout(T);let h='';
+  for(const ph of [...T.phases].reverse()){h+=`<h3 class="phase">${ph.name}</h3>`+(ph.note?`<p class="note">${ph.note}</p>`:'')+(ph.direct&&ph.direct.length?`<p class="note">Já classificados: ${ph.direct.map(i=>CARDS[i].n).join(', ')}.</p>`:'');
+    const red=ph.matches.filter(m=>m.re);if(red.length&&ph.kind==='grupos')h+=`<div class="groups"><div class="bround"><h4>Novo sorteio</h4>${red.map(m=>matchHtml({...m,tag:null},cur,m)).join('')}</div></div>`;
+    const inv=ph.matches.filter(m=>m.inv);if(inv.length&&ph.kind==='grupos')h+=`<div class="groups"><div class="bround"><h4>Invasão Alien</h4>${inv.map(m=>matchHtml({...m,tag:null},cur,m)).join('')}</div></div>`;
+    if(ph.kind==='grupos')h+=`<div class="groups">${ph.groups.map((g,gi)=>`<div class="bround"><h4>Grupo ${GL[gi]}</h4>${ph.matches.filter(m=>m.g===gi).map(m=>matchHtml({...m,tag:null},cur,m)).join('')}</div>`).join('')}</div>`;
+    else h+=`<div class="groups">${ph.matches.map(m=>matchHtml(m,cur,m)).join('')}</div>`;}
+  if(T.fmt==='rei'&&!T.done)h=`<p class="note">Fila de desafiantes: ${T.queue.map(i=>CARDS[i].n).join(', ')||'ninguém'}.</p>`+h;
+  if(T.done){onTourEnd(T);h=reportHtml(T)+h;}
+  $('#bracket').innerHTML=h;
+  const dead=[...T.dead].map(i=>CARDS[i].n),ko=[...T.ko].map(i=>CARDS[i].n);
+  const extra=[T.omega?'<span class="st buff">Omega Rugal</span>':'',...T.captives.map(k=>`<span class="st weak">${CAPT[k].card.n} com o Bison</span>`),T.amuletoMode&&T.amulet!=null?`<span class="st buff">Amuleto de Shinnok: ${CARDS[T.amulet].n}</span>`:'',T.amuletoMode&&T.quanDone?'<span class="st weak">O Quan Chi levou o amuleto</span>':'',
+    ...Object.entries(T.trophy).map(([i,n])=>`<span class="st buff">${CARDS[i].n}: ${n} troféu${n>1?'s':''} (+${2*n} Ataque)</span>`),
+    ...Object.entries(T.demon).filter(([i,n])=>n>0).map(([i,n])=>`<span class="st weak">Pontos do demônio: ${Math.min(n,T.demonMax)}/${T.demonMax}${n>=T.demonMax?' · True Devil Kazuya':''}</span>`),
+    T.alienMode?`<span class="st ${T.alienOver?'':'weak'}">Modo Alien${T.alienOver?' (acabou)':''}: ${[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>!T.out.has(i)&&isAlien(i)).length} Alien(s) vivo(s)</span>`:'',
+    ...Object.entries(T.bonus).map(([i,a])=>`<span class="st buff">${CARDS[i].n}: ${a.map(id=>AB[id].n).join(', ')}</span>`)].join(' ');
+  const lists=`${dead.length?`<div class="note">✝ Mortos (${dead.length}): ${dead.join(', ')}</div>`:''}${ko.length?`<div class="note">Nocauteados, vivos (${ko.length}): ${ko.join(', ')}</div>`:''}${T.left.size?`<div class="note">Foram embora: ${[...T.left].map(i=>CARDS[i].n).join(', ')}</div>`:''}`;
+  const conq={aliens:'Conquista dos Aliens',predador:'Conquista do Predador',quanchi:'Conquista do Quan Chi'}[T.conquest];const conqH=conq?`<span class="conq">${conq}</span>`:'';
+  $('#tnow').innerHTML=(T.done?`<b class="champ">${T.conquest==='aliens'?'Os Aliens tomaram o torneio':'Campeão: '+CARDS[T.champ].n}</b>${conqH}`
+    :`<b>${curPhase(T).name}</b>${bt?` · próxima luta: ${bt.A.n} vs ${bt.B.n}${cur.tag?` <span class="note">(${cur.tag})</span>`:''}${bt.note?` <span class="note">· ${bt.note}</span>`:''}`:''}`)+(extra?`<div>${extra}</div>`:'')+lists;}
+// ---------- fim do torneio: conquistas salvas e relatório ----------
+const CONQ_KEY='convergencia_conquistas';
+function loadConq(){try{return JSON.parse(localStorage.getItem(CONQ_KEY)||'{}');}catch(e){return {};}}
+function saveConq(o){try{localStorage.setItem(CONQ_KEY,JSON.stringify(o));}catch(e){}}
+function onTourEnd(T){if(T.endDone)return;T.endDone=true;const got=evalConquests(T),saved=loadConq(),now=new Date().toLocaleDateString('pt-BR');
+  T.conqGot=got;T.conqNew=got.filter(id=>!saved[id]);for(const id of T.conqNew)saved[id]={date:now,fmt:FMT[T.fmt]};saveConq(saved);renderConq();}
+const roleTag=(i)=>{const k=T.karma[i];if(k==null)return `<span class="note">${ROLE_N[CARDS[i].role]||''} (fixo)</span>`;const r=karmaRole(k),s=T.startRole[i];
+  return `<span class="kr kr-${r}">${ROLE_N[r]} (${k>0?'+':''}${k})</span>${s&&s!==r?` <span class="note">começou ${ROLE_N[s]}</span>`:''}`;};
+function reportHtml(T){const P=getPodium(T),nm=i=>i==null?'—':CARDS[i].n;const medal=['1º','2º','3º'];
+  let h=`<div class="report"><h3 class="phase">Fim do Torneio de Uno</h3>`;
+  h+=`<div class="podium">${[0,1,2].map(k=>`<div class="pod p${k+1}"><b>${medal[k]}</b><div>${nm(P[k])}</div>${P[k]!=null&&CARDS[P[k]]&&!CARDS[P[k]].temp?roleTag(P[k]):''}</div>`).join('')}</div>`;
+  if(T.conquest==='aliens')h+=`<p class="note">Os Aliens tomaram o torneio: não há pódio de lutadores.</p>`;
+  const kc=Object.entries(T.killCount).sort((a,b)=>b[1]-a[1]);
+  h+=`<div class="groups"><div class="bround"><h4>Mortos (${T.deaths.length})</h4>${T.deaths.map(d=>`<div class="match">✝ <b>${d.v}</b> <span class="note">morto por</span> ${d.by} <span class="note">· ${d.phase}${d.how?' · '+d.how:''}</span></div>`).join('')||'<span class="note">Ninguém morreu.</span>'}</div>`;
+  const surv=T.kos.filter(k=>k.vi!=null&&!T.dead.has(k.vi)&&!T.kos.slice(T.kos.indexOf(k)+1).some(x=>x.vi===k.vi));
+  h+=`<div class="bround"><h4>Sobreviventes nocauteados (${surv.length})</h4>${surv.map(k=>`<div class="match"><b>${k.v}</b> <span class="note">nocauteado por</span> ${k.by} <span class="note">· ${k.phase}</span><br>${roleTag(k.vi)}</div>`).join('')||'<span class="note">Nenhum.</span>'}</div>`;
+  h+=`<div class="bround"><h4>Quem mais matou</h4>${kc.slice(0,8).map(([i,n])=>`<div class="match"><b>${CARDS[i].n}</b>: ${n} morte${n>1?'s':''} · ${roleTag(+i)}</div>`).join('')||'<span class="note">Ninguém matou.</span>'}</div>`;
+  const ch=Object.keys(T.karma).map(Number).filter(i=>T.startRole[i]!==karmaRole(T.karma[i]));
+  h+=`<div class="bround"><h4>Mudanças de carma (${ch.length})</h4>${ch.map(i=>`<div class="match"><b>${CARDS[i].n}</b>: ${ROLE_N[T.startRole[i]]} → ${roleTag(i)}</div>`).join('')||'<span class="note">Ninguém mudou de lado.</span>'}</div></div>`;
+  const cq=(T.conqGot||[]).map(id=>CONQ.find(c=>c[0]===id));
+  h+=`<div class="bround"><h4>Conquistas deste torneio</h4>${cq.map(c=>`<div class="match">🏆 <b>${c[1]}</b>${T.conqNew.includes(c[0])?' <span class="st buff">nova!</span>':''} <span class="note">${c[2]}</span></div>`).join('')||'<span class="note">Nenhuma.</span>'}</div></div>`;
+  return h;}
+function renderConq(){const el=$('#conqList');if(!el)return;const saved=loadConq();const n=CONQ.filter(c=>saved[c[0]]).length;$('#conqCount').textContent=`${n} de ${CONQ.length} desbloqueadas`;
+  el.innerHTML=CONQ.map(([id,name,desc])=>{const s=saved[id];return `<div class="conqc ${s?'on':''}"><div class="ci">${s?'🏆':'🔒'}</div><div><b>${name}</b><div class="note">${desc}</div>${s?`<div class="note">Desbloqueada em ${s.date} · ${s.fmt}</div>`:''}</div></div>`;}).join('');}
+// escolhas do jogador (Colecionador do Rugal e recompensas), uma de cada vez
+function askChoices(list,done){if(!list.length){done();return;}const p=list[0];
+  $('#choiceTitle').textContent=p.title;
+  $('#choiceOpts').innerHTML=p.opts.map(id=>`<button class="chip" data-id="${id}" title="${AB[id].x.replace(/"/g,'')}">${AB[id].n} (${AB[id].t==='A'?'Ativa':'Passiva'}): ${AB[id].x}</button>`).join('');
+  $('#choice').classList.add('on');$('#choiceOpts').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;choosePending(T,p,b.dataset.id);$('#choice').classList.remove('on');
+    $('#tourInfo').textContent+=` ${CARDS[p.who].n} ganhou ${AB[b.dataset.id].n}.`;$('#choiceOpts').onclick=null;renderBracket();askChoices(list.slice(1),done);};}
+function nextMatch(){const bt=T&&curBout(T);if(!bt||busy)return;busy=true;setBtns();$('#tArena').classList.remove('off');
+  const r=fight(bt.A,bt.B,{ta:bt.ta,tb:bt.tb});noteSeen(r,bt.A,bt.B);
+  P2.play(r,bt.A,bt.B,()=>{const pend=applyResult(T,r);renderBracket();$('#tourInfo').textContent=T.msgs.join(' ');
+    askChoices(pend,()=>{busy=false;setBtns();});});}
+// simula sem animação; pergunta ao jogador quando ele precisa escolher
+function simulate(untilEnd){if(!T||busy||T.done)return;busy=true;setBtns();const start=T.phases.length;let log=[];
+  const loop=()=>{let n=0;while(!T.done&&(untilEnd||T.phases.length===start)&&n<40){const bt=curBout(T);
+      const r=fight(bt.A,bt.B,{ta:bt.ta,tb:bt.tb,quiet:true});noteSeen(r,bt.A,bt.B);const pend=applyResult(T,r);n++;log=T.msgs;
+      if(pend.length){renderBracket();$('#tourInfo').textContent=log.join(' ');askChoices(pend,()=>setTimeout(loop,0));return;}}
+    renderBracket();$('#tourInfo').textContent=log.join(' ');
+    if(!T.done&&(untilEnd||T.phases.length===start))setTimeout(loop,0);else{busy=false;setBtns();}};
+  loop();}
+$('#btnTour').onclick=newTour;$('#btnNext').onclick=nextMatch;$('#btnPhase').onclick=()=>simulate(false);$('#btnAll').onclick=()=>simulate(true);
+$('#tSkip').onclick=()=>{vlFast=true;if(P2.finish)P2.finish();};fillSizes();
+
+// ===================== EQUILÍBRIO =====================
+$('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=new Array(NB).fill(0),games=new Array(NB).fill(0);let i=0;const N=20;
+  const chunk=()=>{if(i<NB){for(let j=i+1;j<NB;j++)for(let n=0;n<N;n++){const r=fight(CARDS[i],CARDS[j],{quiet:true});wins[r.w.i]++;games[i]++;games[j]++;}
+      i++;$('#balInfo').textContent=`Simulando... ${Math.round(i/NB*100)}%`;setTimeout(chunk,0);return;}
+    const rows=CARDS.map(c=>({c,p:wins[c.i]/games[c.i]})).sort((a,b)=>b.p-a.p);
+    $('#balBody').innerHTML=rows.map((r,k)=>`<tr><td>${k+1}</td><td>${r.c.n}</td><td>${UNI[r.c.u].n}</td><td>${r.c.forca} · ${tierOf(r.c.forca)[0]}</td><td>${(r.p*100).toFixed(1)}%</td><td class="wr"><div class="wbar"><i style="width:${r.p*100}%"></i></div></td></tr>`).join('');
+    $('#balInfo').textContent='Pronto. 15.600 lutas simuladas. Rode de novo para ver a variação.';btn.disabled=false;};
+  chunk();};
+
+
+// ===================== v1.2: TELAS NOVAS =====================
+const VERSION='1.2.0';
+const TITLES={criar:'Criar Torneio',regras:'Regras',personagens:'Personagens',conquistas:'Conquistas',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
+function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
+  if(v==='menu')$('#btnCont').hidden=!(T&&!T.done);if(v==='personagens')renderPers();if(v==='cartas')renderForms();if(v==='criar')renderMe();window.scrollTo(0,0);}
+$('#verTxt').textContent='versão '+VERSION;
+$('#btnPlay').onclick=()=>show('menu');
+$('#btnBack').onclick=()=>show('menu');
+$('#v-menu').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;show(g==='continuar'?'torneio':g);});
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]'))m.classList.remove('on');}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.on').forEach(m=>{if(m.id!=='mOver')m.classList.remove('on');});});
+
+// ---------- personagens vistos (formas especiais ficam bloqueadas até aparecer) ----------
+const SEEN_KEY='convergencia_vistos';
+function loadSeen(){try{return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)||'[]'));}catch(e){return new Set();}}
+function noteSeen(res,A,B){const s=loadSeen(),n=s.size;(res&&res.forms||[]).forEach(k=>s.add(k));for(const c of [A,B])if(c&&c.key&&FORMS[c.key])s.add(c.key);
+  if(s.size!==n){try{localStorage.setItem(SEEN_KEY,JSON.stringify([...s]));}catch(e){}}}
+
+// ---------- sininho ----------
+const NEWS_KEY='convergencia_novidades';
+const NEWS={novas:[
+  ['Tela inicial e menu novos','Logo do Torneio de Uno, botão Jogar e menu com Criar Torneio, Regras, Personagens e Conquistas.'],
+  ['Modo Você Luta','Escolha um lutador (ou sorteie) e controle cada turno dele: físico, especial, mágico ou habilidade. As outras lutas acontecem ao mesmo tempo ("Enquanto isso..."). Perdeu, morreu.'],
+  ['Matar ou Poupar','Ao vencer, você decide o destino do rival. Algumas lutas travam a escolha: Shao Kahn e Kratos contra deuses só matam, rivalidades mortais só matam, amizades só poupam. Suas escolhas mexem no seu carma.'],
+  ['Dificuldade Divina','Libera chefes e sub-chefes para você jogar, mas o Uno fortalece seus rivais conforme o seu patamar.'],
+  ['Personagens','Separados por universo, com busca e ficha completa. As formas especiais aparecem como silhueta (???) até surgirem num torneio.'],
+  ['Criar Torneio','Modo Livre ou Você Luta, formato e modos do Uno, com um resumo ao passar o mouse.'],
+  ['Regras por modo','Cada modo de jogo, formato e modo do Uno explicado separado.'],
+  ['Sininho','Este aviso: novidades da versão e o que vem por aí.']],
+ breve:[
+  ['Novos lutadores','Akuma e outros nomes da lista de expansão.'],
+  ['Eventos de Mortal Kombat','Cyber Lin Kuei, Triborg e Netherrealm.'],
+  ['Eventos de outros universos','Acontecimentos especiais de Street Fighter, Tekken, KOF e convidados.'],
+  ['Ajustes de equilíbrio','Orochi e Shao Kahn estão na lista de possíveis mudanças.'],
+  ['Poderes do Uno e campanha','O Uno interferindo no torneio e um modo história.'],
+  ['Salvar o torneio','Continuar um torneio depois de fechar o jogo.']]};
+let newsTab='novas';
+function renderNews(){$('#newsBody').innerHTML=(newsTab==='novas'?`<p class="note">Versão ${VERSION}</p>`:'<p class="note">Ideias em andamento: podem mudar.</p>')+'<ul>'+NEWS[newsTab].map(([t,x])=>`<li><b>${t}:</b> ${x}</li>`).join('')+'</ul>';
+  document.querySelectorAll('[data-nt]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.nt===newsTab));}
+function bellDot(){let seen='';try{seen=localStorage.getItem(NEWS_KEY)||'';}catch(e){}$('#bellDot').hidden=seen===VERSION;}
+$('#bell').onclick=()=>{newsTab='novas';renderNews();$('#mNews').classList.add('on');try{localStorage.setItem(NEWS_KEY,VERSION);}catch(e){}bellDot();};
+document.querySelector('#mNews .tabs').onclick=e=>{const b=e.target.closest('[data-nt]');if(!b)return;newsTab=b.dataset.nt;renderNews();};
+bellDot();
+
+// ---------- personagens ----------
+let pUni=null;
+const baseCards=()=>CARDS.slice(0,NB);
+function persTile(c,locked){const u=UNI[c.u]||{c:'#444'};
+  if(locked)return `<button class="pc lock" disabled aria-label="Bloqueado"><div class="art" style="--u:${u.c}">${pic(c)}<span class="qq">???</span></div><div class="pn"><b>???</b><span>Aparece num torneio</span></div></button>`;
+  return `<button class="pc" data-k="${c.form?'f:'+c.key:c.i}"><div class="art" style="--u:${u.c}"><span class="mono">${initials(c.n)}</span>${pic(c)}</div><div class="pn"><b>${c.n}</b><span>${c.form?'Forma especial':c.tit||tierOf(c.forca)[0]} · ${c.cls}</span></div></button>`;}
+function renderPers(){const q=$('#pSearch').value.trim().toLowerCase(),seen=loadSeen(),forms=Object.values(FORMS);
+  const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  $('#pUnis').hidden=!(pUni||q);
+  if(q){const hit=c=>norm(c.n).includes(norm(q));const list=[...baseCards().filter(hit),...forms.filter(f=>seen.has(f.key)&&hit(f))];
+    $('#pCount').textContent=`${list.length} encontrado${list.length===1?'':'s'}`;
+    $('#pBody').innerHTML=list.length?`<div class="pgrid">${list.map(c=>persTile(c,false)).join('')}</div>`:'<p class="note">Ninguém com esse nome. As formas especiais só aparecem na busca depois de desbloqueadas.</p>';return;}
+  if(!pUni){const tot=NB+forms.length,un=NB+forms.filter(f=>seen.has(f.key)).length;$('#pCount').textContent=`${un} de ${tot} desbloqueados`;
+    $('#pBody').innerHTML=`<div class="unis">${Object.entries(UNI).map(([k,u])=>{const n=baseCards().filter(c=>c.u===k).length,fs=forms.filter(f=>f.u===k);if(!n&&!fs.length)return '';
+      return `<button class="unit" data-u="${k}" style="--u:${u.c}"><b>${u.n}</b><span>${n} personage${n===1?'m':'ns'}${fs.length?` · ${fs.filter(f=>seen.has(f.key)).length}/${fs.length} formas especiais`:''}</span></button>`;}).join('')}</div>`;return;}
+  const u=UNI[pUni],cs=baseCards().filter(c=>c.u===pUni),fs=forms.filter(f=>f.u===pUni);$('#pCount').textContent=u.n;
+  $('#pBody').innerHTML=`<h3 class="phase">${u.n}</h3><div class="pgrid">${cs.map(c=>persTile(c,false)).join('')}</div>`+
+    (fs.length?`<h3 class="phase">Formas especiais</h3><div class="pgrid">${fs.map(f=>persTile(f,!seen.has(f.key))).join('')}</div>`:'');}
+$('#pSearch').oninput=renderPers;
+$('#pUnis').onclick=()=>{pUni=null;$('#pSearch').value='';renderPers();};
+$('#pBody').onclick=e=>{const u=e.target.closest('[data-u]');if(u){pUni=u.dataset.u;renderPers();return;}
+  const p=e.target.closest('[data-k]');if(!p)return;const k=p.dataset.k,c=k.startsWith('f:')?FORMS[k.slice(2)]:CARDS[+k];openDetail(c);};
+function openDetail(c){const [tn,tc]=tierOf(c.forca),u=UNI[c.u];
+  const stats=[['Vida',c.hp],['Energia',c.en],...Object.entries(SN).map(([k,n])=>[n,c.st[k]])].map(([n,v])=>`<div><span>${n}</span>${v}</div>`).join('');
+  const role=c.role?ROLE_N[c.role]:'';
+  const abs=c.ab.filter(id=>AB[id]).map(id=>{const a=AB[id];return `<li><b>${a.n}</b><em>${a.t==='A'?'Ativa · '+a.c+' de Energia':'Passiva'}</em><p>${a.x}</p></li>`;}).join('');
+  const rv=Object.keys(RIVAL).filter(k=>k.startsWith(c.n+'|')).map(k=>{const r=RIVAL[k],o=k.split('|')[1];return `<li><b>${o}</b><em>${r.k==='paz'?'amizade':r.k==='morte'?'rivalidade mortal':'rivalidade ('+Math.round(r.p*100)+'%)'}</em><p>${r.x}</p></li>`;}).join('');
+  $('#detailBody').innerHTML=`<div class="detail"><div class="art" style="--u:${u.c}"><span class="mono">${initials(c.n)}</span>${pic(c)}</div>
+    <div class="cbody"><h3 style="font-size:40px">${c.n}</h3><div class="uni">${c.orig}</div>
+    <div class="tags"><span class="tier ${tc}" style="font-weight:700">${tn} · Força ${c.forca}</span><span class="tag">${c.cls} · ${c.sub}</span>${role?`<span class="tag">${role}</span>`:''}${tagsHTML(c)}</div>
+    <div class="stats">${stats}</div>${c.how?`<p class="note"><b>Como surge:</b> ${c.how}</p>`:''}
+    <h4 style="margin:6px 0 0">Habilidades</h4><ul class="abs">${abs}</ul>${rv?`<h4 style="margin:6px 0 0">Rivalidades e amizades</h4><ul class="abs">${rv}</ul>`:''}</div></div>`;
+  $('#mDetail').classList.add('on');}
+
+// ---------- criar torneio ----------
+let PLAY='livre',DIFF='normal',ME='rand';
+const alienOn=()=>$('#tAlien').checked&&!$('#tAlien').disabled;
+function meBlock(i){const c=CARDS[i];if(DIFF==='normal'&&c.tit)return `${c.tit}: só na dificuldade Divina`;if(alienOn()&&(c.alien||c.pred))return 'No Modo Alien você não pode ser o Alien nem o Predador';if(amuOn()&&(c.alien||c.pred))return 'No Modo Amuleto você carrega o amuleto (ou é o Quan Chi), e o Alien e o Predador não podem carregá-lo';return '';}
+const amuOn=()=>$('#tAmuleto').checked&&!$('#tAmuleto').disabled;
+function renderMe(){$('#voceBox').hidden=PLAY!=='voce';document.querySelectorAll('[data-play]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.play===PLAY));
+  document.querySelectorAll('[data-diff]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.diff===DIFF));
+  document.querySelectorAll('[data-fmt]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fmt===$('#tFmt').value));
+  if(PLAY!=='voce'){$('#criarInfo').textContent='';return;}
+  if(ME!=='rand'&&meBlock(ME))ME='rand';
+  $('#meList').innerHTML=baseCards().map(c=>{const b=meBlock(c.i);return `<button class="me" data-me="${c.i}" aria-pressed="${ME===c.i}" ${b?`disabled title="${b}"`:`title="${c.n}"`}>${c.tit?`<span class="bt">${c.tit}</span>`:''}<div class="art" style="--u:${UNI[c.u].c}"><span class="mono">${initials(c.n)}</span>${pic(c)}</div><div class="nm">${c.n}</div></button>`;}).join('');
+  const amu=$('#tAmuleto').checked&&!$('#tAmuleto').disabled;
+  $('#meName').textContent=ME==='rand'?'Você: sorteado na hora de começar.':`Você: ${CARDS[ME].n}${amu?(ME===QUAN.i?' (o Quan Chi caça o amuleto)':' (começa com o Amuleto de Shinnok)'):''}`;
+  $('#criarInfo').textContent=amu?'Modo Amuleto: você começa com o amuleto, a não ser que escolha o Quan Chi, que entra para caçá-lo.':'';}
+document.querySelector('#v-criar .modepick').onclick=e=>{const b=e.target.closest('[data-play]');if(!b)return;PLAY=b.dataset.play;renderMe();};
+$('#voceBox').addEventListener('click',e=>{const d=e.target.closest('[data-diff]');if(d){DIFF=d.dataset.diff;renderMe();return;}
+  const m=e.target.closest('[data-me]');if(m&&!m.disabled){ME=+m.dataset.me;renderMe();}});
+$('#meRand').onclick=()=>{ME='rand';renderMe();};
+$('#fmtChips').onclick=e=>{const b=e.target.closest('[data-fmt]');if(!b)return;$('#tFmt').value=b.dataset.fmt;fillSizes();renderMe();};
+$('#tAlien').addEventListener('change',renderMe);$('#tAmuleto').addEventListener('change',renderMe);$('#tSize').addEventListener('change',renderMe);
+function pickPlayer(){if(ME!=='rand'&&!meBlock(ME))return ME;const pool=baseCards().map(c=>c.i).filter(i=>!meBlock(i));return pool[Math.floor(Math.random()*pool.length)];}
+function setBars(){const v=!!(T&&T.mode==='voce');$('#livreBar').hidden=v;$('#vlBar').hidden=!v;}
+
+// ---------- MODO VOCÊ LUTA ----------
+let vlFast=false;
+const youName=()=>CARDS[T.player].n;
+function vlStatus(){if(!T||T.mode!=='voce')return;const p=T.player;
+  $('#vlInfo').innerHTML=`Você é <b>${CARDS[p].n}</b> · ${T.diff==='divina'?'Divina':'Normal'}${T.karma[p]!=null?` · ${roleTag(p)}`:''}`;}
+// as outras lutas acontecem até chegar a sua
+function vlAdvance(){if(!T||busy||T.done||T.mode!=='voce')return;busy=true;setBtns();$('#meanwhile').innerHTML='';const lines=[];
+  const step=()=>{let n=0;
+    while(!T.done){const bt=curBout(T);if(!bt)break;const side=playerSide(T,bt);
+      if(side){showMeanwhile(lines);vlFight(bt,side);return;}
+      const ph=curPhase(T).name,d0=T.dead.size;const r=fight(bt.A,bt.B,{ta:bt.ta,tb:bt.tb,quiet:true});noteSeen(r,bt.A,bt.B);
+      const pend=applyResult(T,r);const died=T.dead.size>d0;
+      lines.push({ph,t:`${r.w.n} ${died?'mata':'vence'} ${r.l.n}`,k:died?'dead':'',x:T.msgs.filter(m=>/vira|TRUE DEVIL|OMEGA|captura|KILLER BEE|amuleto|Super Predador|nasce|campeão/i.test(m)).join(' ')});
+      for(const p of pend)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
+      if(++n>=30){setTimeout(step,0);return;}}
+    showMeanwhile(lines);busy=false;renderBracket();setBtns();vlCheckEnd();};
+  step();}
+function showMeanwhile(lines){if(!lines.length){$('#meanwhile').innerHTML='';return;}
+  $('#meanwhile').innerHTML=`<h4>Enquanto isso...</h4>`+lines.map(l=>`<p class="${l.k}"><span class="note">${l.ph}:</span> ${l.t}${l.k?' ✝':''}${l.x?` <span class="note">· ${l.x}</span>`:''}</p>`).join('');}
+function vlFight(bt,side){busy=true;setBtns();renderBracket();vlFast=false;$('#tArena').classList.remove('off');$('#tlog').innerHTML='';$('#tresult').textContent='';$('#actions').innerHTML='';
+  $('#tA').classList.toggle('you',side==='A');$('#tB').classList.toggle('you',side==='B');
+  $('#tourInfo').textContent=`Sua luta: ${youName()} contra ${(side==='A'?bt.B:bt.A).n}.${bt.note?' '+bt.note+'.':''}`;
+  const g=fightG(bt.A,bt.B,{ta:bt.ta,tb:bt.tb,ctl:side});let shown=0;
+  const draw=f=>{$('#tA').innerHTML=panelHTML(bt.A,f.s[0]);$('#tB').innerHTML=panelHTML(bt.B,f.s[1]);};
+  const line=f=>{const p=document.createElement('p');p.className=f.k;p.textContent=f.t;$('#tlog').appendChild(p);$('#tlog').scrollTop=$('#tlog').scrollHeight;};
+  const flush=(fr,done)=>{const tick=()=>{if(vlFast){while(shown<fr.length){line(fr[shown]);shown++;}if(fr.length)draw(fr[fr.length-1]);done();return;}
+      if(shown<fr.length){const f=fr[shown++];draw(f);line(f);setTimeout(tick,Math.max(30,+$('#tspeed').value/3));}else done();};tick();};
+  const go=ch=>{$('#actions').innerHTML='';const r=g.next(ch);
+    if(r.done){flush(r.value.frames,()=>vlAfter(bt,side,r.value));return;}
+    flush(r.value.frames,()=>{vlFast=false;vlActions(r.value,go);});};
+  go();}
+function vlActions(y,go){const f=y.f;
+  const btn=(o,i)=>`<button class="act" data-i="${i}" ${o.ok?'':'disabled'} title="${(o.x||'').replace(/"/g,'')}">${o.n}<small>${o.t==='b'?`~${o.est} de dano · ${o.cost} de Energia`:`Habilidade · ${o.cost} de Energia`}</small></button>`;
+  $('#actions').innerHTML=`<div class="who">Sua vez: ${f.name} (${Math.max(0,Math.round(f.hp))} de Vida, ${f.en} de Energia)</div>`+y.opts.map(btn).join('')+`<button class="act" data-ai="1">Deixar o jogo escolher<small>a melhor jogada da IA</small></button>`;
+  $('#actions').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;$('#actions').onclick=null;
+    if(b.dataset.ai){go(y.ai);return;}const o=y.opts[+b.dataset.i];go(o.t==='b'?{t:'b',k:o.k}:{t:'a',id:o.id});};}
+function vlAfter(bt,side,res){noteSeen(res,bt.A,bt.B);const won=res.w.i===T.player;$('#tresult').textContent=`${res.w.n} vence em ${res.round} rodadas.`;
+  const apply=ch=>{$('#actions').innerHTML='';T.playerChoice=ch||null;const pend=applyResult(T,res);T.playerChoice=null;renderBracket();$('#tourInfo').textContent=T.msgs.join(' ');vlStatus();
+    const mine=pend.filter(p=>p.who===T.player);for(const p of pend)if(p.who!==T.player)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
+    askChoices(mine,()=>{busy=false;setBtns();vlCheckEnd();});};
+  if(!won){apply(null);return;}
+  const lock=playerLock(T,res.w,res.l),k=T.karma[T.player];
+  if(lock){$('#actions').innerHTML=`<div class="who">Você venceu! ${lock.x}: ${lock.k==='kill'?'você mata':'você poupa'} ${res.l.n}.</div><button class="act ${lock.k==='kill'?'kill':'spare'}" data-go="1">${lock.k==='kill'?'Matar':'Poupar'}<small>escolha travada pela regra</small></button>`;
+    $('#actions').onclick=e=>{if(e.target.closest('[data-go]')){$('#actions').onclick=null;apply(lock.k);}};return;}
+  const vr=roleOf(T,res.l);
+  $('#actions').innerHTML=`<div class="who">Você venceu! O que fazer com ${res.l.n}?</div>`+
+    `<button class="act kill" data-c="kill">Matar<small>carma ${({h:-3,a:-2,v:-1})[vr]} (${ROLE_N[vr]})</small></button>`+
+    `<button class="act spare" data-c="spare">Poupar<small>carma +${vr==='v'?2:1}, ${res.l.n} sai vivo</small></button>`+(k!=null?`<span class="note">Seu carma agora: ${k>0?'+':''}${k} (${ROLE_N[karmaRole(k)]})</span>`:'');
+  $('#actions').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;$('#actions').onclick=null;apply(b.dataset.c);};}
+function vlCheckEnd(){if(!T||T.mode!=='voce')return;const p=T.player;let t='',x='';
+  if(T.dead.has(p)){const d=T.deaths.find(d=>d.vi===p);t='Você morreu';x=`${CARDS[p].n} foi morto por ${d?d.by:'um rival'}${d?' ('+d.phase+')':''}. No Modo Você Luta, perder é morrer.`;}
+  else if(T.out.has(p)){t='Você saiu do torneio';x=T.conquest==='quanchi'&&p===QUAN.i?'Você pegou o Amuleto de Shinnok e deixou o torneio: Conquista do Quan Chi!':`${CARDS[p].n} deixou o torneio.`;}
+  else if(T.done){if(T.champ===p){t='Você é o campeão!';x=`${CARDS[p].n} venceu o Torneio de Uno${T.diff==='divina'?' na dificuldade Divina':''}.`;}else{t='Fim do torneio';x=`${CARDS[p].n} sobreviveu até o fim.`;}}
+  else return;
+  $('#overT').textContent=t;$('#overX').textContent=x;$('#overWatch').hidden=T.done;$('#overReport').hidden=!T.done;$('#mOver').classList.add('on');}
+$('#overWatch').onclick=()=>{$('#mOver').classList.remove('on');T.mode='livre';setBars();setBtns();$('#actions').innerHTML='';$('#tourInfo').textContent='Você agora assiste ao resto do torneio. Jogue luta por luta ou simule.';};
+$('#overReport').onclick=()=>{$('#mOver').classList.remove('on');$('#bracket').scrollIntoView({behavior:'smooth'});};
+$('#overHome').onclick=()=>{$('#mOver').classList.remove('on');show('menu');};
+$('#vlNext').onclick=vlAdvance;
+
+renderFilters();renderGrid();renderSlots();renderForms();renderConq();
+</script>
+</body>
+</html>
