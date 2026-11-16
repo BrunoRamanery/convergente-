@@ -1133,7 +1133,7 @@ function redraw(T){const ph=curPhase(T);if(!ph||T.done)return;
 function applyResult(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[];T.msgs=[];T.lastWhp=res.whp;T.lastRes=res;(res.forms||[]).forEach(k=>T.ev.forms.add(k));
   const wi=res.w.i,li=res.l.i;if(![b.A.i,b.B.i].includes(wi)||![b.A.i,b.B.i].includes(li)||wi===li)throw new Error('resultado não pertence à luta atual');
   if(m.stage==='cap'){const opp=m.a===BISON.i?m.b:m.a,k=m.capQ[0],cp=CAPT[k];
-    if(wi===k){finisher(T,cp.card,CARDS[opp]);if(isKramp(CARDS[opp])&&T.saco.length){(T.bonus[BISON.i]=T.bonus[BISON.i]||[]).push(...T.saco.filter(id=>!(T.bonus[BISON.i]||[]).includes(id)));T.msgs.push(`${cp.card.n} mata o Krampus por ordem do Bison: o saco vai para o M. Bison.`);}m.res={w:BISON.i,l:opp,round:res.round,whp:res.whp,via:cp.card.n};T.msgs.push(`O M. Bison avança sem lutar, e ${cp.card.n} continua com ele.`);handleAmulet(T,cp.card,opp,pend);}
+    if(wi===k){finisher(T,cp.card,CARDS[opp]);if(isKramp(CARDS[opp])&&T.saco.length){(T.bonus[BISON.i]=T.bonus[BISON.i]||[]).push(...T.saco.filter(id=>!(T.bonus[BISON.i]||[]).includes(id)));T.msgs.push(`${cp.card.n} mata o Krampus por ordem do Bison: o saco vai para o M. Bison.`);}if(isKramp(CARDS[opp]))sacoAliens(T);m.res={w:BISON.i,l:opp,round:res.round,whp:res.whp,via:cp.card.n};T.msgs.push(`O M. Bison avança sem lutar, e ${cp.card.n} continua com ele.`);handleAmulet(T,cp.card,opp,pend);}
     else{const kill=finisher(T,CARDS[opp],cp.card);T.captives=T.captives.filter(x=>x!==k);m.capQ.shift();
       if(isKramp(CARDS[opp])){const c=k==='vken'?KEN:CAMMY;T.sacked.add(c.i);T.ko.add(c.i);T.out.add(c.i);T.msgs.push(`${c.n} não volta: fica no saco do Krampus.`);}else{if(!kill)T.ev.lib.add(k);freeCaptive(T,k,kill);}const hp=Math.min(CARDS[opp].hp,Math.round(res.whp+CARDS[opp].hp*EXTRA_CURA));
       const nxt=m.capQ.length?CAPT[m.capQ[0]].card.n:'o M. Bison';
@@ -1157,6 +1157,7 @@ function applyResult(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[]
       if(pool.length){const id=pool[Math.floor(T.rand()*pool.length)];(T.bonus[w]=T.bonus[w]||[]).push(id);T.ev.godkill=true;T.msgs.push(`O Matador de Deuses toma o poder de ${CARDS[l].n}: Kratos ganha ${AB[id].n} até o fim do torneio.`);}}
     if(killed&&isKramp(CARDS[l])&&T.saco.length){const got=T.saco.filter(id=>!(T.bonus[w]||[]).includes(id)&&!CARDS[w].ab.includes(id));(T.bonus[w]=T.bonus[w]||[]).push(...got);T.ev.krampus=(T.ev.krampus||0)+1;
       T.msgs.push(`O saco do Krampus se abre: ${CARDS[w].n} fica com ${got.map(id=>AB[id].n).join(', ')||'nada novo'} até o fim do torneio.`);}
+    if(killed&&isKramp(CARDS[l]))sacoAliens(T);
     handleAmulet(T,CARDS[w],l,pend);
     if(w===RUGAL.i&&l===OROCHI.i&&!T.omega){T.omega=true;T.msgs.push('O Rugal absorve o poder de Orochi e vira OMEGA RUGAL até o fim do torneio! (Muito mais forte, mas o corpo perde 5 de Vida por turno.)');}
     else if(w===RUGAL.i){const opts=CARDS[l].ab.filter(id=>!['colecionador','caminho','irmas','despertar','colmeia'].includes(id));if(opts.length)pend.push({kind:'rugal',who:w,opts,title:`Colecionador: escolha uma habilidade de ${CARDS[l].n} para o Rugal usar nas próximas lutas.`});}
@@ -1172,6 +1173,10 @@ function applyResult(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[]
   else if(!curMatch(T))closePhase(T);
   settleWO(T);alienCheck(T);natalBoss(T);
   return finishPend(T,pend);}
+// quando o Krampus morre, só os Aliens rasgam o saco e voltam ao torneio
+function sacoAliens(T){const al=[...T.sacked].filter(i=>CARDS[i]&&CARDS[i].alien&&!T.dead.has(i));
+  for(const i of al){T.sacked.delete(i);T.ko.delete(i);if(T.done){T.msgs.push(`${CARDS[i].n} rasga o saco do Krampus, mas o torneio já acabou.`);continue;}
+    T.out.delete(i);if(T.fmt==='rei')T.queue.push(i);else T.returning.push(i);T.msgs.push(`${CARDS[i].n} rasga o saco do Krampus por dentro e volta ao torneio!`);}}
 // Natal Sombrio: o campeão ainda enfrenta o Krampus titã
 function natalBoss(T){if(!T.natal||!T.done||T.natalBoss||T.champ==null)return;T.natalBoss=true;const k=CARDS.length;CARDS.push({...KRAMPUS_TITA,i:k,temp:true});T.kt=k;
   T.done=false;const c=T.champ;T.champ=null;delete T.nextHp[c];delete T.hp[c];T.phases.push({kind:'ko',name:'Natal Sombrio: o Krampus',matches:[{a:c,b:k,res:null,tag:'Luta final contra o Krampus'}]});

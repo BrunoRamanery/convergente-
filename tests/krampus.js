@@ -12,7 +12,7 @@ function run(T,st,bug){let g=0;const seenMatches=new Set();
     for(const f of r.frames)if(/undefined|NaN/.test(f.t))bug('texto quebrado: '+f.t);
     const d0=T.dead.size,lI=r.l.i,wI=r.w.i,saco0=T.saco.length;const inheritor=(kA||kB)&&!isKramp(r.w);
     const wBon0=(T.bonus[wI]||[]).length;
-    const pend=applyResult(T,r);for(const p of pend)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
+    const m0=T.msgs.length;const pend=applyResult(T,r);if(T.msgs.slice(m0).some(x=>/rasga o saco/.test(x)))st.alienVolta=(st.alienVolta||0)+T.msgs.slice(m0).filter(x=>/rasga o saco/.test(x)&&!/já acabou/.test(x)).length;for(const p of pend)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
     if(kA||kB){const kWon=isKramp(r.w);const tita=(kA?bt.A:bt.B).tita;const key=tita?'boss':'k';
       st[key+'F']=(st[key+'F']||0)+1;if(kWon){st[key+'W']=(st[key+'W']||0)+1;if(T.dead.has(lI))bug('Krampus matou '+r.l.n);if(typeof lI==='string'){const c=lI==='vken'?KEN:CAMMY;st.capSack=(st.capSack||0)+1;if(!T.sacked.has(c.i))bug('capturado não ensacado');if(T.captives.includes(lI))bug('capturado continua com o Bison');}
         if(r.l.alien)st.alienSack=(st.alienSack||0)+1;
@@ -37,7 +37,7 @@ function scenario(name,mk){const st={tours:0},bugs={};const bug=(k)=>{bugs[k]=(b
     o['Krampus morto no torneio']=pct(st.mortes||0,st.tours);o['saco médio quando morre']=st.mortes?(st.sacoAtMorte/st.mortes).toFixed(2):'-';
     o['quem herda: vitórias por luta depois']=pct(st.inhW||0,st.inhF||0);o['quem herda vira campeão']=pct(st.inhChamp||0,st.herdou||0);o['habilidades herdadas (média)']=st.herdou?(st.herdouN/st.herdou).toFixed(2):'-';
     o['Rugal mata o Krampus']=st.rugalK||0;o['mais mataram o Krampus']=Object.entries(st.kKilledBy||{}).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]+' '+x[1]).join(', ');
-    o['roubos ativa/passiva']=(st.sacoA||0)+'/'+(st.sacoP||0);if(st.capSack)o['capturados ensacados']=st.capSack;if(st.alienSack)o['Aliens ensacados']=st.alienSack;if(st.alienK)o['Alien Krampus nasceu (torneios)']=st.alienK;
+    o['roubos ativa/passiva']=(st.sacoA||0)+'/'+(st.sacoP||0);if(st.capSack)o['capturados ensacados']=st.capSack;if(st.alienSack)o['Aliens ensacados']=st.alienSack;if(st.alienVolta)o['Aliens que rasgaram o saco e voltaram']=st.alienVolta;if(st.alienK)o['Alien Krampus nasceu (torneios)']=st.alienK;
     for(const k in st)if(k.startsWith('conq_'))o[k]=pct(st[k],st.tours);}
   console.log('\n== '+name);console.log(o);console.log('BUGS:',Object.keys(bugs).length?bugs:'nenhum');}
 const fmts=['copa','mata','rei'],sizes=[8,16,20,32,41];
