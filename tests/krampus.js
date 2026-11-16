@@ -14,13 +14,17 @@ function run(T,st,bug){let g=0;const seenMatches=new Set();
     const wBon0=(T.bonus[wI]||[]).length;
     const pend=applyResult(T,r);for(const p of pend)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
     if(kA||kB){const kWon=isKramp(r.w);const tita=(kA?bt.A:bt.B).tita;const key=tita?'boss':'k';
-      st[key+'F']=(st[key+'F']||0)+1;if(kWon){st[key+'W']=(st[key+'W']||0)+1;if(T.dead.has(lI))bug('Krampus matou '+r.l.n);if(typeof lI==='number'&&!T.sacked.has(lI)&&!(T.alienMode&&r.l.alien))bug('perdedor não ensacado: '+r.l.n+' i='+lI);}
+      st[key+'F']=(st[key+'F']||0)+1;if(kWon){st[key+'W']=(st[key+'W']||0)+1;if(T.dead.has(lI))bug('Krampus matou '+r.l.n);if(typeof lI==='string'){const c=lI==='vken'?KEN:CAMMY;st.capSack=(st.capSack||0)+1;if(!T.sacked.has(c.i))bug('capturado não ensacado');if(T.captives.includes(lI))bug('capturado continua com o Bison');}
+        if(r.l.alien)st.alienSack=(st.alienSack||0)+1;
+        if(typeof lI==='number'&&!T.sacked.has(lI))bug('perdedor não ensacado: '+r.l.n+' i='+lI);}
       else{if(!T.dead.has(lI))bug('Krampus sobreviveu à derrota para '+r.w.n);
         if(!tita){st.kKilledBy=st.kKilledBy||{};st.kKilledBy[r.w.n]=(st.kKilledBy[r.w.n]||0)+1;st.sacoAtMorte=(st.sacoAtMorte||0)+saco0;st.mortes=(st.mortes||0)+1;
           if(saco0){T._inh=T._inh||new Set();T._inh.add(wI);st.herdou=(st.herdou||0)+1;st.herdouN=(st.herdouN||0)+((T.bonus[wI]||[]).length-wBon0);}
           if(r.w.n==='Rugal Bernstein')st.rugalK=(st.rugalK||0)+1;}}}
     else if(T._inh){for(const i of [bt.A.i,bt.B.i])if(T._inh.has(i)){st.inhF=(st.inhF||0)+1;if(r.w.i===i)st.inhW=(st.inhW||0)+1;}}
     if(++g>3000){bug('loop');break;}}
+  st.sacoA=(st.sacoA||0)+T.saco.filter(id=>AB[id].t==='A').length;st.sacoP=(st.sacoP||0)+T.saco.filter(id=>AB[id].t==='P').length;
+  if(CARDS.some(c=>c.n==='Alien de Krampus'))st.alienK=(st.alienK||0)+1;
   getPodium(T);evalConquests(T);}
 function scenario(name,mk){const st={tours:0},bugs={};const bug=(k)=>{bugs[k]=(bugs[k]||0)+1;};
   for(let t=0;t<TOURS;t++){const T=mk(t);if(!T)continue;st.tours++;run(T,st,bug);
@@ -33,6 +37,7 @@ function scenario(name,mk){const st={tours:0},bugs={};const bug=(k)=>{bugs[k]=(b
     o['Krampus morto no torneio']=pct(st.mortes||0,st.tours);o['saco médio quando morre']=st.mortes?(st.sacoAtMorte/st.mortes).toFixed(2):'-';
     o['quem herda: vitórias por luta depois']=pct(st.inhW||0,st.inhF||0);o['quem herda vira campeão']=pct(st.inhChamp||0,st.herdou||0);o['habilidades herdadas (média)']=st.herdou?(st.herdouN/st.herdou).toFixed(2):'-';
     o['Rugal mata o Krampus']=st.rugalK||0;o['mais mataram o Krampus']=Object.entries(st.kKilledBy||{}).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]+' '+x[1]).join(', ');
+    o['roubos ativa/passiva']=(st.sacoA||0)+'/'+(st.sacoP||0);if(st.capSack)o['capturados ensacados']=st.capSack;if(st.alienSack)o['Aliens ensacados']=st.alienSack;if(st.alienK)o['Alien Krampus nasceu (torneios)']=st.alienK;
     for(const k in st)if(k.startsWith('conq_'))o[k]=pct(st[k],st.tours);}
   console.log('\n== '+name);console.log(o);console.log('BUGS:',Object.keys(bugs).length?bugs:'nenhum');}
 const fmts=['copa','mata','rei'],sizes=[8,16,20,32,41];
