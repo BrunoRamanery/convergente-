@@ -1,6 +1,6 @@
 # Convergência
 
-Jogo de computador (Windows) do Torneio de Uno. Feito com Electron; atualiza sozinho pelo GitHub Releases.
+Jogo de computador (Windows) do Torneio de Uno. Feito com Electron; atualiza pelo botão Atualizar (direto do GitHub).
 
 ## Rodar em modo de desenvolvimento
     npm install
@@ -9,16 +9,25 @@ Jogo de computador (Windows) do Torneio de Uno. Feito com Electron; atualiza soz
 ## Gerar o instalador
     npm run dist        # cria dist/Convergencia-Setup-<versão>.exe
 
-## Lançar uma atualização
-1. Mude `"version"` no `package.json` (ex.: 1.0.0 → 1.1.0).
-2. Gere o instalador (`npm run dist`) ou deixe o GitHub fazer: crie a tag `v1.1.0` e envie (`git push --tags`); o workflow `.github/workflows/release.yml` monta e publica.
-3. Na Release do GitHub precisam estar: o `.exe`, o `.exe.blockmap` e o `latest.yml`.
-4. Quem já tem o jogo instalado recebe o aviso "Nova versão do Convergência" ao abrir.
+## Atualizar o jogo (botão Atualizar)
+Quem já tem o jogo instalado (versão 1.3.0 ou mais nova) clica em **Atualizar**, no canto de cima da tela. O jogo compara a versão do GitHub com a dele e baixa só os arquivos que mudaram, sem reinstalar.
+
+Para lançar uma atualização assim:
+1. Coloque o jogo novo em `app/` (`index.html` e `img/`).
+2. Atualize `app/manifest.json`: a `version` nova e a lista de arquivos com o SHA-1 de cada um (o script de montagem já gera).
+3. Faça commit e envie para a branch `main`. Pronto: o botão já encontra a versão nova.
+
+## Novo instalador (para quem ainda não tem o jogo)
+1. Mude `"version"` no `package.json`.
+2. Crie a tag e envie (`git tag v1.3.0 && git push --tags`): o workflow `.github/workflows/release.yml` monta o `.exe` e publica na Release.
+3. Quem tem uma versão antiga sem o botão Atualizar (1.2.0) recebe o instalador novo pelo aviso automático ao abrir o jogo.
 
 O repositório precisa ser **público** (BrunoRamanery/convergente-) para a atualização funcionar sem senha.
 
 ## Estrutura
-- `main.js` — janela do jogo e atualização automática.
+- `main.js` — janela do jogo e botão Atualizar.
+- `preload.js` — ponte entre o jogo e o aplicativo (só o Atualizar).
+- `app/manifest.json` — versão do jogo e lista de arquivos, usada pelo Atualizar.
 - `app/index.html` — o jogo (cartas, motor de luta, torneio, telas).
 - `app/img/` — imagens das cartas.
 - `docs/index.html` — página de download (GitHub Pages).
