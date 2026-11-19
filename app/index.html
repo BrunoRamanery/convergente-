@@ -260,6 +260,7 @@ td.wr{width:40%}
 #btnUpd{position:fixed;top:14px;right:62px;z-index:40;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:20px;padding:6px 12px;font-size:13px;font-weight:600}
 #btnUpd:hover{border-color:var(--gold)}
 @media (max-width:720px){.evcard{grid-template-columns:1fr}}
+.nextbelow{padding:10px 14px;border-top:1px solid var(--line);display:flex;justify-content:center}.nextbelow .btn{min-width:220px}
 </style>
 </head>
 <body>
@@ -421,6 +422,7 @@ td.wr{width:40%}
       <div class="log" id="tlog" aria-live="polite"></div>
       <div class="actions" id="actions"></div>
       <div class="result" id="tresult"></div>
+      <div class="nextbelow" id="nextBelow" hidden><button class="btn big" id="nextB">Próxima luta</button></div>
     </div>
     <div class="fpanel" id="tB"></div>
   </div>
@@ -604,7 +606,7 @@ roubo:{n:'Roubo de Alma',t:'A',c:35,d:'mag',k:'off',x:'Ataque mágico que cura m
 metamorfose:{n:'Metamorfose',t:'A',c:40,k:'meta',x:'Copia a última habilidade ativa que o oponente usou e a usa contra ele.'},
 martelo:{n:'Martelo da Ira',t:'A',c:35,d:'fis',k:'off',x:'+50% de dano. Se o alvo tiver menos de 50% de Vida, fica Atordoado.'},
 imperador:{n:'Imperador de Exoterra',t:'P',x:'Na primeira vez que a Vida cai abaixo de 50%, ganha +3 de Ataque e +3 de Defesa.'},
-ego:{n:'Ego Inflado',t:'P',x:'Com mais Vida que o oponente, ganha +3 no atributo principal. Com menos, perde 2 de Defesa.'},
+ego:{n:'Ego Inflado',t:'P',x:'Causa dano em dobro em quem está com menos de 15% de Vida.'},
 hadouken:{n:'Hadouken',t:'A',c:20,d:'esp',k:'off',x:'O próximo golpe físico do oponente causa metade do dano.'},
 caminho:{n:'Caminho do Guerreiro',t:'P',x:'Cada golpe que acerta dá +1 de Ataque nesta luta (até +3). No torneio, cada vitória dá +1 de Ataque (até +5). Com menos de 30% de Vida pode perder o controle e virar Evil Ryu.'},
 shoryuF:{n:'Shoryuken Flamejante',t:'A',c:30,d:'fis',k:'off',m:1.3,x:'+30% de dano e 50% de chance de deixar o alvo Queimado.'},
@@ -651,7 +653,7 @@ graca:{n:'Graça Shiranui',t:'P',x:'15% de chance de esquivar de qualquer golpe.
 barreira:{n:'Barreira Sombria',t:'A',c:25,k:'def',x:'Reflete o próximo ataque especial de volta para quem atacou.'},
 colecionador:{n:'Colecionador',t:'P',x:'No torneio, ao vencer, escolhe uma habilidade do derrotado para as próximas lutas. Se vencer o Orochi, vira Omega Rugal.'},
 juizo:{n:'Juízo da Terra',t:'A',c:45,d:'mag',k:'off',x:'Remove todos os bônus e proteções ativos do alvo.'},
-vontade:{n:'Vontade da Terra',t:'P',x:'Recupera 15 de Vida no começo de cada turno.'},
+vontade:{n:'Vontade da Terra',t:'P',x:'No começo de cada turno, gasta 15 de Energia para recuperar 15 de Vida (sem Energia, não cura).'},
 contra:{n:'Contra-golpe',t:'A',c:20,k:'def',x:'Se o oponente usar ataque físico, anula o golpe e devolve o dano.'},
 teleporte:{n:'Teleporte Sakura',t:'A',c:25,k:'clean',x:'Remove os estados negativos dela.'},
 estrela:{n:'Estrela do Ringue',t:'P',x:'Golpes físicos ignoram 30% da Defesa do alvo.'},
@@ -1038,7 +1040,7 @@ function newTourState(rand,fmt,ids,opt){rand=rand||Math.random;fmt=fmt||'mata';o
   const keep=new Set();const force=i=>{keep.add(i);if(!ids.includes(i)){const k=ids.findIndex(x=>!keep.has(x));ids[k]=i;}};
   if(opt.alien&&modeOk('alien',fmt,ids.length)){force(ALIEN.i);force(PRED.i);}else opt.alien=false;
   if(opt.amuleto&&modeOk('amuleto',fmt,ids.length))force(QUAN.i);else opt.amuleto=false;
-  if(opt.player!=null)force(opt.player);
+  if(opt.player!=null&&opt.player!=='K')force(opt.player);
   let kr=null;if(opt.krampus&&!opt.natal&&fmt!=='torre'){kr=CARDS.length;CARDS.push({...KRAMPUS,i:kr,temp:true});if(opt.krampusSlot)ids.push(kr);else force(kr);}
   ids=shuffle(ids,rand);
   const n=ids.length;
@@ -1046,7 +1048,7 @@ function newTourState(rand,fmt,ids,opt){rand=rand||Math.random;fmt=fmt||'mata';o
     alienMode:!!opt.alien,amuletoMode:!!opt.amuleto,amulet:null,captives:[],returning:[],preyKills:{},karma:{},startRole:{},deaths:[],kos:[],killCount:{},ev:{forms:new Set(),lib:new Set()},quanDone:false,alienKills:0,alienKillsPred:0,superPending:false,superDone:false,alienOver:false,conquest:null,nextHp:{},
     rugal:null,bonus:{},omega:false,done:false,champ:null,hp:{},msgs:[],rand,stage:0};
   T.kr=kr;T.saco=[];T.sacked=new Set();T.natal=!!opt.natal;T.natalBoss=false;
-  T.player=opt.player!=null?opt.player:null;T.diff=opt.diff||'normal';T.playerChoice=null;
+  T.player=opt.player!=null&&opt.player!=='K'?opt.player:(opt.playerKr&&kr!=null?kr:null);T.diff=opt.diff||'normal';T.playerChoice=null;
   for(const i of ids){T.startRole[i]=CARDS[i].role;if(!fixedRole(i))T.karma[i]=KARMA0[CARDS[i].role];}
   if(T.amuletoMode){const p=T.player;if(p!=null&&p!==QUAN.i&&amuletOk(T,p))giveAmulet(T,p,'O Uno entrega o Amuleto de Shinnok a você');else giveAmulet(T,null,'O Uno entrega o Amuleto de Shinnok a um campeão sorteado');}
   if(fmt==='copa')copaStart(T,ids);
@@ -1059,7 +1061,10 @@ function pairUp(list,T){if(!T.alienMode)return list;const A=list.filter(isAlien)
   while(A.length&&P.length&&T.rand()<.5)out.push([A.pop(),P.pop()]);while(A.length&&O.length)out.push([A.pop(),O.pop()]);
   const rest=[...A,...P,...O];for(let i=0;i+1<rest.length;i+=2)out.push([rest[i],rest[i+1]]);if(rest.length%2)out.push([rest[rest.length-1]]);
   return shuffle(out,T.rand).flat();}
-function fixPairs(T,matches){if(!T.alienMode)return;
+function fixPairs(T,matches){if(!T.alienMode)return;fixPairs0(T,matches);
+  for(const m of matches)if(!m.res&&!m.inv&&isAlien(m.a)&&isAlien(m.b)){m.hive=true;m.res={w:m.a,l:m.b,round:0,whp:0,hive:true,grp:true};m.tag='Colmeia: Alien não luta contra Alien, os dois passam';
+    (T.msgs=T.msgs||[]).push(`${CARDS[m.a].n} e ${CARDS[m.b].n} não lutam entre si: os Aliens lutam para aumentar a colmeia, e os dois passam de fase.`);}}
+function fixPairs0(T,matches){
   for(const m of matches){if(isAlien(m.a)&&isAlien(m.b)){const o=matches.find(x=>x!==m&&!isAlien(x.a)&&!isAlien(x.b));if(o)[m.b,o.a]=[o.a,m.b];}}
   for(const m of matches){const p=[m.a,m.b].find(isPred);if(p==null||[m.a,m.b].some(isAlien)||T.rand()>.35)continue;
     const o=matches.find(x=>x!==m&&[x.a,x.b].some(isAlien)&&![x.a,x.b].some(isPred));if(!o)continue;const oth=isAlien(o.a)?'b':'a';const mine=m.a===p?'a':'b';[m[mine],o[oth]]=[o[oth],m[mine]];}}
@@ -1103,10 +1108,11 @@ function copaGroupsEnd(T){const ph=curPhase(T);let added=false;
   T.phases.push({kind:'ko',name:koName(matches.length*2),matches});}
 // ---------- Rei da Torre: 10 andares, Vida cheia a cada luta, quem perde morre ----------
 function torreSetup(T,opt){const rand=T.rand,div=T.diff==='divina',idx=n=>CARDS.findIndex(c=>c.n===n);
-  const pool=poolIds(T.diff);let c=opt.player!=null?opt.player:opt.climber;
+  const pool=poolIds(T.diff);let c=opt.player!=null&&opt.player!=='K'?opt.player:opt.climber;
+  if(opt.playerKr){c=CARDS.length;CARDS.push({...KRAMPUS,i:c,temp:true});T.kr=c;T.player=c;opt={...opt,krampus:false};}
   if(c==null){const cl=pool.filter(i=>CARDS[i].tit!=='Chefe');c=cl[Math.floor(rand()*cl.length)];}
   const subs=TORRE_SUB.map(idx).filter(i=>i>=0&&i!==c);
-  let subPool=[...subs];if(div&&opt.krampus)subPool.push('K');
+  let subPool=[...subs];if(div&&opt.krampus&&T.kr==null)subPool.push('K');
   const two=shuffle(subPool,rand).slice(0,2);
   const low=shuffle([...Array(NB).keys()].filter(i=>{if(i===c||two.includes(i))return false;const cd=CARDS[i];if(cd.tit==='Chefe')return false;if(div)return true;return !isDivine(cd)&&!TORRE_SUB.includes(cd.n);}),rand).slice(0,7);
   let tops=TORRE_TOP.map(n=>({i:idx(n)}));if(div)tops.push({i:idx('Kazuya Mishima'),f:'trueDevil'},{i:idx('Rugal Bernstein'),f:'omega'});
@@ -1124,13 +1130,15 @@ function torreNext(T){const ph=curPhase(T),c=T.climber;
   ph.matches.push({a:c,b:T.floors[T.floor],res:null,tag:floorTag(T.floor)});
   T.msgs.push(`${CARDS[c].n} sobe para o ${floorTag(T.floor)}${T.floor===9?`: ${topName(T)} espera no topo!`:'.'} A Vida volta ao máximo.`);}
 function koFrom(T,seeds){const n=seeds.length,P=pow2(n);
+  if(T.alienMode&&n&&seeds.every(isAlien)){T.done=true;T.champ=seeds[0];T.conquest='aliens';T.msgs.push(`OS ALIENS TOMARAM O TORNEIO! Só sobraram Aliens, e Alien não luta para ser campeão. Não há campeão: Conquista dos Aliens (${n} Alien${n>1?'s':''} no fim).`);return;}
   if(n===1){finish(T,seeds[0]);return;}
   if(n===P){const o=bracketOrder(n),matches=[];for(let i=0;i<n;i+=2)matches.push({a:seeds[o[i]],b:seeds[o[i+1]],res:null});
-    fixPairs(T,matches);T.phases.push({kind:'ko',name:koName(n),matches});return;}
-  const extra=n-P,direct=seeds.slice(0,n-2*extra),rest=seeds.slice(n-2*extra),matches=[];
-  for(let i=0;i<extra;i++)matches.push({a:rest[i],b:rest[rest.length-1-i],res:null});
+    fixPairs(T,matches);T.phases.push({kind:'ko',name:koName(n),matches});if(!curMatch(T))closePhase(T);return;}
+  const extra=n-P;let direct=seeds.slice(0,n-2*extra),rest=seeds.slice(n-2*extra);const matches=[];
+  if(T.alienMode&&seeds.some(isAlien)){const A=seeds.filter(isAlien),O=seeds.filter(i=>!isAlien(i)),pr=[];while(pr.length<extra&&A.length&&O.length)pr.push([A.shift(),O.pop()]);const left=[...O,...A];while(pr.length<extra)pr.push([left.pop(),left.pop()]);direct=left;for(const [x,y] of pr)matches.push({a:x,b:y,res:null});}
+  else for(let i=0;i<extra;i++)matches.push({a:rest[i],b:rest[rest.length-1-i],res:null});
   fixPairs(T,matches);
-  T.phases.push({kind:'ko',name:'Repescagem',prelim:true,direct,matches,note:`${2*extra} campeões disputam ${extra} vagas para a chave fechar em ${P}.`});}
+  T.phases.push({kind:'ko',name:'Repescagem',prelim:true,direct,matches,note:`${2*extra} campeões disputam ${extra} vagas para a chave fechar em ${P}.`});if(!curMatch(T))closePhase(T);}
 function curPhase(T){return T.phases[T.phases.length-1];}
 function curMatch(T){if(T.done)return null;return curPhase(T).matches.find(m=>!m.res)||null;}
 function tourOpts(T,i){const c=CARDS[i],t={};if(c.n==='Ryu'){t.ryu=T.ryu[i]||0;t.ryuW=T.ryuW[i]||0;const k=T.karma[i]??6;t.evilBonus=k<=-4?.15:k<0?.05:0;}
@@ -1149,7 +1157,9 @@ function tourOpts(T,i){const c=CARDS[i],t={};if(c.n==='Ryu'){t.ryu=T.ryu[i]||0;t
   if(T.nextHp[i]!=null)t.hp=T.nextHp[i];
   return t;}
 // lutas sem adversário: quem foi embora (Predadores) dá W.O.
-function settleWO(T){let guard=0;while(!T.done&&guard++<200){const m=curMatch(T);if(!m||m.third)break;const oa=T.out.has(m.a),ob=T.out.has(m.b);if(!oa&&!ob)break;
+function settleWO(T){let guard=0;while(!T.done&&guard++<200){const m=curMatch(T);if(!m||m.third)break;const oa=T.out.has(m.a),ob=T.out.has(m.b);
+    if(T.alienMode&&!oa&&!ob&&!m.inv&&!m.sp&&isAlien(m.a)&&isAlien(m.b)){m.hive=true;m.res={w:m.a,l:m.b,round:0,whp:0,hive:true,grp:true};m.tag='Colmeia: Alien não luta contra Alien, os dois passam';T.msgs.push(`${CARDS[m.a].n} e ${CARDS[m.b].n} não lutam entre si: os dois passam de fase.`);if(!curMatch(T))closePhase(T);continue;}
+    if(!oa&&!ob)break;
     const w=oa&&!ob?m.b:m.a,l=w===m.a?m.b:m.a;m.res={w,l,round:0,whp:CARDS[w].hp,wo:true};T.msgs.push(`${CARDS[w].n} vence por W.O.: ${CARDS[l].n} não está mais no torneio.`);
     const ph=curPhase(T);
     if(ph.kind==='rei'){if(T.queue.length){const nx=T.queue.shift();ph.matches.push({a:w,b:nx,res:null,tag:`Luta ${ph.matches.length+1}`});}else finish(T,w);}
@@ -1283,9 +1293,9 @@ function redraw(T){const ph=curPhase(T);if(!ph||T.done)return;
   if(ph.kind==='rei'){const m=curMatch(T);if(m&&(T.out.has(m.a)||T.out.has(m.b))&&T.queue.length){const keep=T.out.has(m.a)?m.b:m.a;m.a=keep;m.b=T.queue.shift();m.tag+=' (novo desafiante)';}return;}
   const un=ph.matches.filter(m=>!m.res&&!m.inv&&!m.third);if(!un.some(m=>T.out.has(m.a)||T.out.has(m.b)))return;
   const pool=un.flatMap(m=>[m.a,m.b]).filter(i=>!T.out.has(i));ph.matches=ph.matches.filter(m=>!un.includes(m));
-  const s=pairUp(shuffle(pool,T.rand),T);for(let k=0;k+1<s.length;k+=2)ph.matches.push({a:s[k],b:s[k+1],res:null,re:true,tag:'Novo sorteio'});
+  const s=pairUp(shuffle(pool,T.rand),T),nw=[];for(let k=0;k+1<s.length;k+=2)nw.push({a:s[k],b:s[k+1],res:null,re:true,tag:'Novo sorteio'});fixPairs(T,nw);ph.matches.push(...nw);
   if(s.length%2){ph.direct=[...(ph.direct||[]),s[s.length-1]];T.msgs.push(`${CARDS[s[s.length-1]].n} sobra no novo sorteio e passa para a próxima fase.`);}
-  ph.redrawn=true;T.msgs.push('O Uno refaz o sorteio das lutas que faltam nesta fase.');}
+  ph.redrawn=true;T.msgs.push('O Uno refaz o sorteio das lutas que faltam nesta fase.');if(!curMatch(T)&&!T.done)closePhase(T);}
 // registra o resultado de UMA luta; devolve escolhas pendentes do jogador (lista)
 function applyResult(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[];T.msgs=[];T.lastWhp=res.whp;T.lastRes=res;(res.forms||[]).forEach(k=>T.ev.forms.add(k));
   const wi=res.w.i,li=res.l.i;if(![b.A.i,b.B.i].includes(wi)||![b.A.i,b.B.i].includes(li)||wi===li)throw new Error('resultado não pertence à luta atual');
@@ -1368,11 +1378,11 @@ function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
   const pw=T.natal&&T.champ===T.player;ok('natalSombrio',pw);ok('presente',T.natal&&T.sacked.has(T.player));ok('castigoLib',!!T.krUnlocked);ok('coracao',pw&&!(T.killCount[T.player]>0));ok('torreRei',T.fmt==='torre'&&T.champ!=null);return got;}
 function finishPend(T,pend){return pend.filter(p=>p.opts.length&&!(T.done&&p.kind==='rugal'));}
 function choosePending(T,p,id){if(p.kind==='rugal')T.rugal=id;else(T.bonus[p.who]=T.bonus[p.who]||[]).push(id);}
-function closePhase(T){const ph=curPhase(T),winners=ph.matches.filter(m=>!m.inv&&!m.third).map(m=>m.res.w),next=[...(ph.direct||[]),...winners,...T.returning].filter((i,k,a)=>!T.out.has(i)&&a.indexOf(i)===k);T.returning=[];
+function closePhase(T){const ph=curPhase(T),winners=ph.matches.filter(m=>!m.inv&&!m.third).flatMap(m=>m.res.hive?[m.res.w,m.res.l]:[m.res.w]),next=[...(ph.direct||[]),...winners,...T.returning].filter((i,k,a)=>!T.out.has(i)&&a.indexOf(i)===k);T.returning=[];
   if(!next.length){T.done=true;return;}
   koFrom(T,next);
   // disputa de 3º lugar: os perdedores da semifinal que estão vivos
-  if(ph.name==='Semifinal'&&!ph.prelim&&!T.done){const fin=curPhase(T),alive=ph.matches.filter(m=>!m.inv).map(m=>m.res.l).filter(i=>!T.dead.has(i)&&!T.left.has(i)&&!T.sacked.has(i)&&!T.captives.some(k=>CAPT[k].card===VKEN?i===KEN.i:i===CAMMY.i));
+  if(ph.name==='Semifinal'&&!ph.prelim&&!T.done){const fin=curPhase(T),alive=ph.matches.filter(m=>!m.inv&&!m.res.hive).map(m=>m.res.l).filter(i=>!T.dead.has(i)&&!T.left.has(i)&&!T.sacked.has(i)&&!T.captives.some(k=>CAPT[k].card===VKEN?i===KEN.i:i===CAMMY.i));
     if(alive.length===2){fin.matches.unshift({a:alive[0],b:alive[1],res:null,third:true,tag:'Disputa de 3º lugar'});T.msgs.push(`${CARDS[alive[0]].n} e ${CARDS[alive[1]].n} estão vivos: vão disputar o 3º lugar.`);}
     else if(alive.length===1){fin.thirdAuto=alive[0];T.msgs.push(`${CARDS[alive[0]].n} é o único semifinalista derrotado ainda vivo: fica com o 3º lugar.`);}}
   injectSpawns(T);}
@@ -1469,15 +1479,19 @@ $('#pickAll').onclick=()=>{tourPool().forEach(x=>picked.add(x));renderPicker();u
 $('#pickNone').onclick=()=>{picked.clear();renderPicker();updModes();};
 $('#pickRand').onclick=()=>{picked.clear();shuffle(tourPool(),Math.random).slice(0,$('#tFmt').value==='copa'?32:8).forEach(i=>picked.add(i));renderPicker();updModes();};
 function setBtns(){const off=!T||T.done||busy;['#btnNext','#btnPhase','#btnAll'].forEach(s=>$(s).disabled=off);$('#btnTour').disabled=busy;
-  if($('#vlNext'))$('#vlNext').disabled=off||!T||T.mode!=='voce';}
+  if($('#vlNext'))$('#vlNext').disabled=off||!T||T.mode!=='voce';
+  const nb=$('#nextBelow'),show=!off&&!$('#tArena').classList.contains('off')&&!$('#choice').classList.contains('on');const was=!nb.hidden;nb.hidden=!show;
+  if(show){$('#nextB').textContent=T.mode==='voce'?'Próxima luta':'Jogar próxima luta';if(!was)setTimeout(()=>nb.scrollIntoView({block:'nearest',behavior:'smooth'}),60);}}
+$('#nextB').onclick=()=>{$('#nextBelow').hidden=true;(T&&T.mode==='voce'?$('#vlNext'):$('#btnNext')).click();};
 function newTour(){const f=$('#tFmt').value,sz=$('#tSize').value;let ids;const opt={diff:DIFF,alien:$('#tAlien').checked&&!$('#tAlien').disabled&&f==='mata',amuleto:$('#tAmuleto').checked&&!$('#tAmuleto').disabled&&f==='mata'};
   if(f==='torre'){ids=[];if(DIFF==='divina'&&krOk())opt.krampus=true;}
   else{if(sz==='esc'){if(!sizeOk(f,picked.size)){$('#criarInfo').textContent=`${FMT[f]} precisa de ${f==='copa'?'32':'8, 16 ou 32'} campeões. Você escolheu ${picked.size}.`;return;}ids=[...picked];}
     else ids=shuffle(tourPool(),Math.random).slice(0,+sz);
     if(ids.includes('K')){ids=ids.filter(x=>x!=='K');opt.krampus=true;opt.krampusSlot=true;}}
-  if(PLAY==='voce'){opt.player=pickPlayer();if(f!=='torre'&&!ids.includes(opt.player)){const k=ids.findIndex(x=>!(opt.amuleto&&x===QUAN.i)&&!(opt.alien&&(x===ALIEN.i||x===PRED.i)));ids[k>=0?k:0]=opt.player;}}
+  if(PLAY==='voce'&&ME==='K'&&!meBlock('K')){opt.player='K';opt.playerKr=true;if(f!=='torre'&&!opt.krampus){opt.krampus=true;opt.krampusSlot=true;ids=ids.slice(0,ids.length-1);}}
+  else if(PLAY==='voce'){opt.player=pickPlayer();if(f!=='torre'&&!ids.includes(opt.player)){const k=ids.findIndex(x=>!(opt.amuleto&&x===QUAN.i)&&!(opt.alien&&(x===ALIEN.i||x===PRED.i)));ids[k>=0?k:0]=opt.player;}}
   T=newTourState(Math.random,f,ids,opt);T.mode=PLAY==='voce'?'voce':'livre';
-  const who=T.mode==='voce'?`Você é ${CARDS[T.player].n}${T.amulet===T.player?' e começa com o Amuleto de Shinnok':''}. Clique em "Próxima luta".`:'Clique em "Jogar próxima luta" ou simule.';
+  const who=T.mode==='voce'?`Você é ${CARDS[T.player].n}${isKramp(CARDS[T.player])?' (nunca mata: leva no saco)':''}${T.amulet===T.player?' e começa com o Amuleto de Shinnok':''}. Clique em "Próxima luta".`:'Clique em "Jogar próxima luta" ou simule.';
   openTour(f==='torre'?`Rei da Torre (${T.diff==='divina'?'Divindade':'Normal'}): ${CARDS[T.climber].n} vai subir 10 andares. No topo espera ${topName(T)}. ${who}`:`${FMT[f]} com ${T.ids.length+(T.kr!=null&&!T.ids.includes(T.kr)?1:0)} campeões (${T.diff==='divina'?'Divindade':'Normal'}). ${who}`);}
 function openTour(info){busy=false;$('#mOver').classList.remove('on');$('#meanwhile').innerHTML='';$('#actions').innerHTML='';$('#tA').classList.remove('you');$('#tB').classList.remove('you');setBars();show('torneio');vlStatus();$('#tArena').classList.add('off');$('#choice').classList.remove('on');$('#tlog').innerHTML='';$('#tresult').textContent='';$('#tA').innerHTML='';$('#tB').innerHTML='';
   $('#tourInfo').textContent=info;renderBracket();setBtns();}
@@ -1561,7 +1575,7 @@ $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=ne
 
 
 // ===================== v1.2: TELAS NOVAS =====================
-const VERSION='1.3.0';
+const VERSION='1.3.1';
 const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
 function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
@@ -1582,6 +1596,7 @@ function noteSeen(res,A,B){const s=loadSeen(),n=s.size;(res&&res.forms||[]).forE
 // ---------- sininho ----------
 const NEWS_KEY='convergencia_novidades';
 const NEWS={novas:[
+  ['Visual novo e correções (1.3.1)','Imagens novas para quase todos os campeões e formas especiais, no estilo do Krampus. Botão de próxima luta logo abaixo da luta, sem precisar subir a tela. O Krampus liberado agora pode ser escolhido como o seu campeão na Divindade. No Modo Alien, Alien não luta contra Alien: os dois passam de fase, e se só sobrarem Aliens não há campeão.'],
   ['Evento Natal Sombrio','Novo botão Eventos no menu. Jogue o Natal Sombrio com Sub-Zero, Scorpion, Freddy Krueger, Sabrewulf, Spinal ou Kasumi, vença o Krampus 3 vezes com o mesmo campeão (🔔🔔🔔) e libere o campeão secreto.'],
   ['Krampus','O castigador do Natal: nunca mata, leva no saco e rouba habilidades. Depois de liberado, aparece na Divindade e na Torre.'],
   ['12 campeões novos','Mileena, Baraka, Jade, Dhalsim, Vega, Balrog, Lau Chan (Virtua Fighter, universo novo), Asuka Kazama, Helena Douglas, Ghostface, Riptor e Eyedol. Agora são 53 campeões.'],
@@ -1646,21 +1661,22 @@ function openDetail(c){const [tn,tc]=tierOf(c.forca),u=UNI[c.u];
 // ---------- criar torneio ----------
 var PLAY='livre',DIFF='normal',ME='rand';
 const alienOn=()=>$('#tAlien').checked&&!$('#tAlien').disabled;
-function meBlock(i){const c=CARDS[i];if(DIFF==='normal'&&isDivine(c))return `${c.tit||'Divino'}: só na Divindade`;if(alienOn()&&(c.alien||c.pred))return 'No Modo Alien você não pode ser o Alien nem o Predador';if(amuOn()&&(c.alien||c.pred))return 'No Modo Amuleto você carrega o amuleto (ou é o Quan Chi), e o Alien e o Predador não podem carregá-lo';return '';}
+function meBlock(i){if(i==='K')return !krOk()?'Libere no evento Natal Sombrio':DIFF!=='divina'?'Sub-chefe: só na Divindade':(alienOn()||amuOn())?'O Krampus não joga com os modos do Uno':'';const c=CARDS[i];if(DIFF==='normal'&&isDivine(c))return `${c.tit||'Divino'}: só na Divindade`;if(alienOn()&&(c.alien||c.pred))return 'No Modo Alien você não pode ser o Alien nem o Predador';if(amuOn()&&(c.alien||c.pred))return 'No Modo Amuleto você carrega o amuleto (ou é o Quan Chi), e o Alien e o Predador não podem carregá-lo';return '';}
 const amuOn=()=>$('#tAmuleto').checked&&!$('#tAmuleto').disabled;
 function renderMe(){$('#voceBox').hidden=PLAY!=='voce';document.querySelectorAll('[data-play]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.play===PLAY));
   document.querySelectorAll('[data-diff]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.diff===DIFF));
   document.querySelectorAll('[data-fmt]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fmt===$('#tFmt').value));
   if(PLAY!=='voce'){$('#criarInfo').textContent='';return;}
   if(ME!=='rand'&&meBlock(ME))ME='rand';
-  $('#meList').innerHTML=baseCards().map(c=>{const b=meBlock(c.i);return `<button class="me" data-me="${c.i}" aria-pressed="${ME===c.i}" ${b?`disabled title="${b}"`:`title="${c.n}"`}>${c.tit?`<span class="bt">${c.tit}</span>`:''}<div class="art" style="--u:${UNI[c.u].c}"><span class="mono">${initials(c.n)}</span>${pic(c)}</div><div class="nm">${c.n}</div></button>`;}).join('');
+  const kB=meBlock('K'),kTile=krOk()?`<button class="me" data-me="K" aria-pressed="${ME==='K'}" ${kB?`disabled title="${kB}"`:'title="Krampus"'}><span class="bt">Secreto</span><div class="art" style="--u:${UNI[KRAMPUS.u].c}"><span class="mono">KR</span>${pic(KRAMPUS)}</div><div class="nm">Krampus</div></button>`:'';
+  $('#meList').innerHTML=baseCards().map(c=>{const b=meBlock(c.i);return `<button class="me" data-me="${c.i}" aria-pressed="${ME===c.i}" ${b?`disabled title="${b}"`:`title="${c.n}"`}>${c.tit?`<span class="bt">${c.tit}</span>`:''}<div class="art" style="--u:${UNI[c.u].c}"><span class="mono">${initials(c.n)}</span>${pic(c)}</div><div class="nm">${c.n}</div></button>`;}).join('')+kTile;
   const amu=$('#tAmuleto').checked&&!$('#tAmuleto').disabled;
-  $('#meName').textContent=ME==='rand'?'Você: sorteado na hora de começar.':`Você: ${CARDS[ME].n}${amu?(ME===QUAN.i?' (o Quan Chi caça o amuleto)':' (começa com o Amuleto de Shinnok)'):''}`;
+  $('#meName').textContent=ME==='rand'?'Você: sorteado na hora de começar.':ME==='K'?'Você: Krampus (nunca mata: leva no saco e rouba uma habilidade de cada vítima).':`Você: ${CARDS[ME].n}${amu?(ME===QUAN.i?' (o Quan Chi caça o amuleto)':' (começa com o Amuleto de Shinnok)'):''}`;
   $('#criarInfo').textContent=amu?'Modo Amuleto: você começa com o amuleto, a não ser que escolha o Quan Chi, que entra para caçá-lo.':'';}
 document.querySelector('#v-criar .modepick').onclick=e=>{const b=e.target.closest('[data-play]');if(!b)return;PLAY=b.dataset.play;renderMe();};
 $('#diffBox').addEventListener('click',e=>{const d=e.target.closest('[data-diff]');if(d){DIFF=d.dataset.diff;fillSizes();renderMe();}});
 $('#voceBox').addEventListener('click',e=>{
-  const m=e.target.closest('[data-me]');if(m&&!m.disabled){ME=+m.dataset.me;renderMe();}});
+  const m=e.target.closest('[data-me]');if(m&&!m.disabled){ME=m.dataset.me==='K'?'K':+m.dataset.me;renderMe();}});
 $('#meRand').onclick=()=>{ME='rand';renderMe();};
 $('#fmtChips').onclick=e=>{const b=e.target.closest('[data-fmt]');if(!b)return;$('#tFmt').value=b.dataset.fmt;fillSizes();renderMe();};
 $('#tAlien').addEventListener('change',renderMe);$('#tAmuleto').addEventListener('change',renderMe);$('#tSize').addEventListener('change',renderMe);
