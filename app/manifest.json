@@ -1,5 +1,5 @@
 {
-"version": "1.6.0",
+"version": "1.6.1",
 "files": {
 "img/alien.jpg": "71b116c164eedcc2ea87ab1aac8a7db347ed9c80",
 "img/amuleto-de-shinnok.jpg": "7e08040140ec21424b21bb029ae7d1c743b8f1a0",
@@ -58,6 +58,7 @@
 "img/itens/faca-de-combate.png": "2ebb1c7a23b64d0b1235da70088b8a75786dce8b",
 "img/itens/fuuenken.png": "e5b4d4b4e44656e5cafa56b3f5b146f950fe4463",
 "img/itens/laminas-do-caos.png": "e288cbb0224f18c64cf7e496b8dac9423097ba7a",
+"img/itens/lanca-selvagem.png": "ede9cfdd0ffbde4b60f1db8476be84a3463a8116",
 "img/itens/leques-de-aco.png": "f3d0aaa2e56a90abc53a7637257d663cda6177e0",
 "img/itens/luva-de-laminas.png": "00211d63157446eb6e32a97561425c5474393343",
 "img/itens/luvas-de-ferro.png": "572a38a905ef2bdad2d687f54f87492c4ae72109",
@@ -123,6 +124,6 @@
 "img/vega.jpg": "b8da91d33c0e0b42c4faafa985f0fa109252e34c",
 "img/violent-ken.jpg": "fc25ba59b7fa569842812d41d6bb7db4cfe732b8",
 "img/voldo.jpg": "97e553c3269057cda764036a1ed183fd99585dee",
-"index.html": "cfc5e2007f1fa3fd20d3ed007c15112b3ed7ca14"
+"index.html": "53d5e0c38d040ad9c5a2144ad89572c30555af21"
 }
 }

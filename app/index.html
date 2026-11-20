@@ -161,9 +161,23 @@ td.wr{width:40%}
 .mkmsg{color:var(--gold);font-weight:600}
 .bhboard{background:var(--panel);border:1px solid #6b4a2a;border-radius:10px;padding:8px 10px;margin:8px 0}.bhboard summary{cursor:pointer;font-weight:600;color:var(--gold)}
 .posters{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-.poster{width:112px;text-align:center;font-size:12px}.poster.off{opacity:.45}.poster b{display:block;line-height:1.15;margin-top:3px}.poster small{color:var(--muted)}
-.pimg{position:relative;width:112px;aspect-ratio:4/5}.pimg .pbg{width:100%;height:100%;display:block}
+.poster{width:80px;text-align:center;font-size:11px}.poster.off{opacity:.45}.poster b{display:block;line-height:1.15;margin-top:3px}.poster small{color:var(--muted)}
+.pimg{position:relative;width:80px;aspect-ratio:4/5}.pimg .pbg{width:100%;height:100%;display:block}
 .pimg .pface{position:absolute;left:19.8%;top:28.3%;width:60.4%;height:45.8%;object-fit:cover;object-position:top;filter:sepia(.75) contrast(1.1) brightness(.95)}
+.feed{display:flex;flex-direction:column;gap:2px;max-height:230px;overflow:auto;text-align:left;margin-top:4px}.feed.long{max-height:420px}
+.fline{display:flex;gap:6px;align-items:flex-start;padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.03);color:var(--text,#ddd);font-size:13px;line-height:1.3}.fline i{font-style:normal;width:18px;flex:none;text-align:center}
+.fline.dim{opacity:.55;background:none}.fline.c-dead{border-left:3px solid #c0392b}.fline.c-pris,.fline.c-esc{border-left:3px solid #8e7cc3}.fline.c-hunt{border-left:3px solid #d4a017}.fline.c-item{border-left:3px solid #2e86c1}.fline.c-karma{border-left:3px solid #27ae60}.fline.c-flee,.fline.c-ko{border-left:3px solid #7f8c8d}
+.rph{font-size:11px;color:var(--gold);margin:6px 0 2px;text-transform:uppercase;letter-spacing:.04em}
+.rtabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.rtabs .on{background:var(--gold);color:#111}
+.rboxes{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:10px}.rbox{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--panel);border:1px solid #444;border-radius:10px;padding:8px;color:inherit;cursor:pointer}.rbox i{font-style:normal;font-size:20px}.rbox b{font-size:18px}.rbox small{color:var(--muted);font-size:11px;text-align:center}
+.rtab{width:100%;border-collapse:collapse;font-size:13px}.rtab th{text-align:left;color:var(--gold);font-weight:600;border-bottom:1px solid #444;padding:4px}.rtab td{padding:5px 4px;border-bottom:1px solid #2a2a2a;vertical-align:top}.rtab tr.q td{background:rgba(212,160,23,.08)}.rtab tr.dead td{opacity:.6}
+.ric{width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:3px}.rrow{padding:3px 0}
+.huntbox{border:1px dashed #6b4a2a;border-radius:8px;padding:4px 8px;margin:6px 0}.huntbox summary{cursor:pointer;color:var(--gold);font-size:13px}
+.agal{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}.agal h3{margin:0 0 4px}.agal p{margin:6px 0 0}
+.aimg{position:relative;flex:none;width:280px;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}.aimg img{width:100%;height:100%;object-fit:cover}
+.igal{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:14px}.iitem{display:flex;flex-direction:column;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}.iitem small{font-size:12px;line-height:1.3}
+.iimg{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}.iimg img{width:100%;height:100%;object-fit:contain}.agal .qq,.iitem .qq{font-family:var(--logo);color:var(--gold);font-size:28px}
+@media(max-width:640px){.agal{flex-direction:column}.aimg{width:100%}}
 .prisonrow{display:flex;gap:10px;align-items:center;margin-top:10px}.prisonrow img{width:130px;aspect-ratio:2/1;object-fit:cover;border-radius:6px}.prisonrow small{display:block}
 .arenabar{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0}
 .arenabar img{width:150px;aspect-ratio:3/2;object-fit:cover;border-radius:6px}.arenabar small{display:block;color:var(--muted);font-size:12.5px}
@@ -330,6 +344,7 @@ td.wr{width:40%}
     <button class="mb" data-go="continuar" id="btnCont" hidden>Continuar torneio</button>
     <button class="mb" data-go="regras">Regras</button>
     <div class="mrow"><button class="mb" data-go="personagens">Campeões</button><button class="mb" data-go="conquistas">Conquistas</button></div>
+    <div class="mrow"><button class="mb" data-go="arenas">Arenas</button><button class="mb" data-go="itens">Itens</button></div>
     <div class="mextra"><button class="chip" data-go="cartas">Luta 1 contra 1</button><button class="chip" data-go="equilibrio">Equilíbrio</button></div>
   </div>
 </section>
@@ -455,7 +470,7 @@ td.wr{width:40%}
     <button class="btn ghost" id="btnPhase" disabled>Simular a fase</button>
     <button class="btn ghost" id="btnAll" disabled>Simular até o fim</button>
   </div>
-  <p class="note" id="tourInfo">Escolha o formato e comece. Quem perde sai do torneio: no fim da luta, o vencedor pode matar (Herói 10%, Anti-herói 35%, Vilão 60%) ou só nocautear.</p>
+  <div class="note" id="tourInfo">Escolha o formato e comece. Quem perde sai do torneio: no fim da luta, o vencedor pode matar (Herói 10%, Anti-herói 35%, Vilão 60%) ou só nocautear.</div>
   <div class="meanwhile" id="meanwhile"></div>
   <div class="choice" id="choice"><b id="choiceTitle"></b><div class="chips" id="choiceOpts"></div></div>
   <div class="tnow" id="tnow"></div>
@@ -484,6 +499,13 @@ td.wr{width:40%}
   <div id="evList"></div>
 </section>
 
+<section id="v-arenas">
+  <p class="note">As arenas são sorteadas como cartas antes de cada fase (só a da primeira luta é revelada). Algumas mudam a luta.</p>
+  <div id="arenaList"></div>
+</section>
+<section id="v-itens">
+  <div id="itemList"></div>
+</section>
 <section id="v-conquistas">
   <p class="note" id="conqCount"></p>
   <div class="conqs" id="conqList"></div>
@@ -673,7 +695,9 @@ killerBee|killer-bee|M. Bison vence a Cammy: ele nunca a mata, a captura e a tra
 vken|violent-ken|M. Bison vence o Ken sem matar e o captura. Luta primeiro nas lutas do Bison.|Violent Ken|SF|Street Fighter (controlado pelo M. Bison)|Guerreiro|Berserker|Humano sob lavagem cerebral|Humano|Mortal||220|120|18|11|12|9|5|16|13|shoryuF,psychoKen
 predalien|predalien|Modo Alien: um Alien vence um Predador sem matar. O Predador vira hospedeiro e nasce o Predalien, um sub-chefe.|Predalien|AVP|Alien vs. Predador|Assassino|Fera|Xenomorfo nascido de um Predador|Alienígena|Mortal|Sub-chefe|220|100|18|14|10|10|2|15|18|acido,mandibula,urro,colmeia`;
 const FORMS={};FORM_RAW.trim().split('\n').forEach(l=>{const p=l.split('|');const c=parseCard(p.slice(3).join('|'),'f_'+p[0]);c.key=p[0];c.img=p[1];c.how=p[2];c.form=true;FORMS[p[0]]=c;});
-FORMS.predalien.alien=true;FORMS.superPred.pred=true;CARDS.find(c=>c.n==='Predador').pred=true;
+FORMS.predalien.alien=true;FORMS.superPred.pred=true;
+{const p=CARDS.find(c=>c.n==='Predador');FORMS.predCac={...p,st:{...p.st},key:'predCac',img:'predador-cacador',n:'Predador Caçador',orig:'Predadores (Caçada à Colmeia)',form:true,pred:true,role:'a',
+  how:'Modo Alien + Modo Caçador: chega quando a colmeia converte 3 campeões. Só caça Aliens: +15 de Vida e +1 de Ataque por Alien. Ao cair, deixa a Armadura de Camuflagem na arena.'};}CARDS.find(c=>c.n==='Predador').pred=true;
 const tierOf=f=>f>=104?['Lendário','L']:f>=94?['Elite','E']:f>=88?['Forte','F']:['Comum','C'];
 
 // habilidades: n nome, t A/P, c custo, d dano, k tipo de uso, x efeito
@@ -802,7 +826,7 @@ function* fightG(cA,cB,opt){
     if(has(a,'spiral')&&stat(a,'spd')>stat(d,'spd'))dmg*=1.3;
     if(has(a,'pernas')&&o.kick)dmg*=1.15;
     if(has(d,'mascara')&&!d.fl.msc)dmg*=.85;
-    const em=emult(o.el,d);dmg*=em;if(a.ifx&&a.ifx.dmg&&a.ifx.dmg!==1)dmg*=a.ifx.dmg;if(a.t&&a.t.huntBonus)dmg*=a.t.huntBonus;if(AR.el&&o.el&&AR.el[o.el])dmg*=AR.el[o.el];
+    const em=emult(o.el,d);dmg*=em;if(a.ifx&&a.ifx.dmg&&a.ifx.dmg!==1)dmg*=a.ifx.dmg;if(a.ifx&&a.ifx.alien&&isAlienF(d))dmg*=a.ifx.alien;if(a.t&&a.t.huntBonus)dmg*=a.t.huntBonus;if(AR.el&&o.el&&AR.el[o.el])dmg*=AR.el[o.el];
     if(a.s.strong)dmg*=1+NUM.strong;if(a.s.provoke)dmg*=1+NUM.provDmg;if(d.s.slip&&!esp)dmg*=1-NUM.slipPhys;
     if(has(a,'ego')&&d.hp<d.maxhp*.15)dmg*=2;if(has(a,'lobo')&&a.hp<a.maxhp*.5)dmg*=1.2;if(a.s.furia&&!esp)dmg*=1.5;
     if(has(a,'mundoSonhos')&&d.s.skip==='sleep')dmg*=1.3;if(has(d,'resistV')&&!esp)dmg*=.8;if(o.dblWeak&&d.s.weak)dmg*=2;
@@ -1008,17 +1032,18 @@ Object.assign(ITEMS,{
  bastao:{img:'bastao-de-jade',n:'Bastão de Jade',k:'sig',own:'Jade',p:150,st:{spd:1},fx:{norm:[['stun',.1]],enc:true},x:'+1 Velocidade, +10% de chance de Atordoado no ataque normal e Encantadora.'},
  amuletoQC:{n:'Amuleto de Shinnok',k:'sig',own:'Quan Chi',p:200,st:{mag:3,res:3},imgPath:'img/amuleto-de-shinnok.jpg',x:'+3 Poder Mágico e +3 Res. Mágica. Fora do Modo Amuleto, o Quan Chi já entra com ele.'},
  porrete:{karma:-2,img:'porrete-do-eyedol',n:'Porrete do Eyedol',k:'sig',own:'Eyedol',p:150,st:{atk:2,spd:-1},fx:{norm:[['stun',.1]]},x:'+2 Ataque e +10% de chance de Atordoado no ataque normal, −1 Velocidade.'}});
+ITEMS.lancaSelvagem={img:'lanca-selvagem',n:'Lança Selvagem',k:'sig',own:'Super Predador',p:150,st:{atk:2},fx:{norm:[['bleed',.15]],alien:1.1},x:'+2 Ataque, +15% de chance de Sangrando no ataque normal e +10% de dano contra Aliens.'};
 const SIG_OF={};for(const id in ITEMS)if(ITEMS[id].k==='sig')SIG_OF[ITEMS[id].own]=id;
 // item de personagem de um campeão neste torneio (o Quan Chi só entra com o amuleto quando o Modo Amuleto está desligado)
 const sigOf=(T,n)=>n==='Quan Chi'&&T.amuletoMode?null:(SIG_OF[n]||null);
 // efeitos especiais dos itens de uma bolsa (somam)
 function sigFx(bag,ownerName){const fx={norm:[],dmg:1,dodge:0,enc:false,self:0,kill:0};for(const id of bag||[]){const it=ITEMS[id];if(!it||!it.fx)continue;const e=it.fx;
-  if(e.norm)fx.norm.push(...e.norm);if(e.dmg)fx.dmg*=e.dmg;if(e.dodge)fx.dodge+=e.dodge;if(e.enc)fx.enc=true;if(e.kill)fx.kill+=e.kill;if(e.self&&ownerName!==it.own.split(' ')[0]&&ownerName!==it.own)fx.self+=e.self;}return fx;}
+  if(e.norm)fx.norm.push(...e.norm);if(e.dmg)fx.dmg*=e.dmg;if(e.dodge)fx.dodge+=e.dodge;if(e.enc)fx.enc=true;if(e.kill)fx.kill+=e.kill;if(e.alien)fx.alien=(fx.alien||1)*e.alien;if(e.self&&ownerName!==it.own.split(' ')[0]&&ownerName!==it.own)fx.self+=e.self;}return fx;}
 
 // o item de personagem fica preso ao dono: ele nunca joga fora nem troca o próprio item
 const isBound=(T,i,id)=>!!CARDS[i]&&ITEMS[id]&&ITEMS[id].k==='sig'&&sigOf(T,CARDS[i].n)===id;
 // carma de quem pega um item que não é dele (armas malditas puxam para o mal, escudos sagrados para o bem)
-function sigKarma(T,i,id){const it=ITEMS[id];if(!it||!it.karma||!CARDS[i]||it.own===CARDS[i].n||T.fmt==='torre')return;addKarma(T,i,it.karma);
+function sigKarma(T,i,id){const it=ITEMS[id];if(!it||!it.karma||!CARDS[i]||it.own===CARDS[i].n||T.fmt==='torre')return;T.kwhy='pegou '+it.n;addKarma(T,i,it.karma);T.kwhy=null;
   T.msgs.push(`${CARDS[i].n} pega ${it.n}: ${it.karma>0?'+':''}${it.karma} de carma (${it.karma<0?'a arma maldita puxa para o mal':'o escudo sagrado puxa para o bem'}).`);}
 // ===================== TORNEIO (regras) =====================
 // Formatos: 'copa' (sorteio de grupos de 4 a cada fase, passam 2), 'mata' (chave fixa), 'rei' (Rei do Morro).
@@ -1090,7 +1115,8 @@ const GL='ABCDEFGHIJKLMNOP';
 const isAlien=i=>!!CARDS[i].alien,isPred=i=>!!CARDS[i].pred;
 function koName(n){return {2:'Final',4:'Semifinal',8:'Quartas de final',16:'Oitavas de final',32:'16 avos de final'}[n]||`Fase de ${n}`;}
 function bracketOrder(n){let o=[0];while(o.length<n){const m=o.length*2;o=o.flatMap(x=>[x,m-1-x]);}return o;}
-function newTourState(rand,fmt,ids,opt){rand=rand||Math.random;fmt=fmt||'mata';opt=opt||{};ids=ids?[...ids]:drawIds(8,rand);
+function newTourState(rand,fmt,ids,opt){const T=newTourState0(rand,fmt,ids,opt);T.k0={...T.karma};return T;}
+function newTourState0(rand,fmt,ids,opt){rand=rand||Math.random;fmt=fmt||'mata';opt=opt||{};ids=ids?[...ids]:drawIds(8,rand);
   if(opt.cacador&&(fmt==='mata'||fmt==='copa')){const H=BH_NAMES.map(n=>CARDS.findIndex(c=>c.n===n));for(let k=0;k<ids.length;k++)if(H.includes(ids[k])&&ids[k]!==opt.player){const pool=poolIds(opt.diff||'normal').filter(x=>!ids.includes(x)&&!H.includes(x));if(pool.length)ids[k]=pool[Math.floor(rand()*pool.length)];}}
   CARDS.length=NB;
   const keep=new Set();const force=i=>{keep.add(i);if(!ids.includes(i)){const k=ids.findIndex(x=>!keep.has(x));ids[k]=i;}};
@@ -1292,7 +1318,7 @@ const roleNext=(r,k)=>r==='v'?(k>=5?'a':'v'):r==='h'?(k<=5?'a':'h'):(k>=10?'h':k
 const kOwner=c=>typeof c.i==='number'?c.i:c.i==='vken'?KEN.i:c.i==='kbee'?CAMMY.i:null;
 const fixedRole=i=>i==null||i>=NB||FIXED_ROLE.has(CARDS[i].n)||!!CARDS[i].alien;
 function roleOf(T,c){if(typeof c.i!=='number')return c.role||'v';if(fixedRole(c.i)||T.karma[c.i]==null)return c.role||'h';return roleNow(T,c.i);}
-function addKarma(T,i,d){if(i==null||fixedRole(i)||!d)return;const k0=T.karma[i]??KARMA0[CARDS[i].role],before=roleNow(T,i);
+function addKarma(T,i,d){if(i==null||fixedRole(i)||!d)return;{const ph=T.phases&&T.phases.length?curPhase(T):null,r=T.lastRes,o=r&&r.w&&r.l?(r.w.i===i?r.l:r.l.i===i?r.w:null):null;(T.klog=T.klog||[]).push({i,d,ph:ph?ph.name:'Início',why:T.kwhy||(o?(r.w.i===i?(T.dead.has(o.i)?'matou ':'venceu ')+o.n:'perdeu para '+o.n):'')});}const k0=T.karma[i]??KARMA0[CARDS[i].role],before=roleNow(T,i);
   T.karma[i]=k0+d;const after=roleNext(roleNext(before,T.karma[i]),T.karma[i]);T.role[i]=after;
   if(after!==before){const down={h:0,a:1,v:2};T.msgs.push(down[after]>down[before]?`${CARDS[i].n} mergulha na escuridão: agora é ${ROLE_N[after]} (carma ${T.karma[i]}).`:`${CARDS[i].n} busca a redenção: agora é ${ROLE_N[after]} (carma ${T.karma[i]}).`);}
   if(d>0)ecoRedeem(T,i);}
@@ -1300,7 +1326,7 @@ function addKarma(T,i,d){if(i==null||fixedRole(i)||!d)return;const k0=T.karma[i]
 function finisher(T,w,l){const vr=roleOf(T,l),rv=rival(w.n,l.n),li0=typeof l.i==='number'&&CARDS[l.i]===l?l.i:null,pre=T.eco&&li0!=null&&T.eco.post[li0]?{...T.eco.post[li0],v:T.eco.bty[li0]}:null;
   T.lastOut=null;T.prA=false;const kill=finisher0(T,w,l),own=kOwner(w),vi=kOwner(l),ph=curPhase(T).name,res=T.lastRes||{};
   const host=kill&&T.alienMode&&w.alien&&T.spawn.some(s=>s.host===vi);
-  if(kill){T.deaths.push({vi,v:l.n,by:w.n,byI:own,phase:ph,how:host?'virou hospedeiro':l.alien?'Alien derrotado':pre?'cabeça a prêmio':rv&&rv.k!=='paz'?'rivalidade':''});if(own!=null)T.killCount[own]=(T.killCount[own]||0)+1;}
+  if(kill){T.deaths.push({vi,il:(T.ilog||[]).length,items:T.eco&&T.eco.bag[vi]?[...T.eco.bag[vi]]:[],v:l.n,by:w.n,byI:own,phase:ph,how:host?'virou hospedeiro':l.alien?'Alien derrotado':pre?'cabeça a prêmio':rv&&rv.k!=='paz'?'rivalidade':''});if(own!=null)T.killCount[own]=(T.killCount[own]||0)+1;}
   else T.kos.push({vi,v:l.n,by:w.n,phase:ph,how:T.lastOut||'nocaute'});
   if(own!=null&&!l.alien&&T.fmt!=='torre')addKarma(T,own,karmaDelta(T,w,l,kill,vr,rv,res,pre));
   ecoAfter(T,w,l,kill,pre,vr);
@@ -1337,7 +1363,8 @@ function freeCaptive(T,k,killed){const c=k==='vken'?KEN:CAMMY;
   if(T.fmt==='rei')T.queue.push(c.i);else T.returning.push(c.i);}
 // Modo Amuleto de Shinnok: o amuleto passa para quem vence o portador; o Quan Chi o pega e sai do torneio
 function amuletOk(T,i){return typeof i==='number'&&!T.out.has(i)&&i!==QUAN.i&&!isAlien(i)&&!isPred(i);}
-function giveAmulet(T,to,why){if(to==null){const all=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>amuletOk(T,i));if(!all.length){T.amulet=null;return;}to=all[Math.floor(T.rand()*all.length)];}
+function giveAmulet(T,to,why){const prev=T.amulet;giveAmulet0(T,to,why);if(T.amulet!=null&&T.amulet!==prev)ilog(T,{k:prev==null?'start':'amu',w:T.amulet,from:prev,id:'amuleto'});}
+function giveAmulet0(T,to,why){if(to==null){const all=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>amuletOk(T,i));if(!all.length){T.amulet=null;return;}to=all[Math.floor(T.rand()*all.length)];}
   T.amulet=to;T.msgs.push(`${why}: ${CARDS[to].n} está com o Amuleto de Shinnok (+6 Poder Mágico, +6 Res. Mágica).`);if(T.eco)ecoAmuletFit(T,to);}
 function handleAmulet(T,wCard,l,pend){if(!T.amuletoMode||T.amulet!==l||T.quanDone)return;
   if(wCard.i===QUAN.i){T.quanDone=true;T.amulet=null;T.conquest=T.conquest||'quanchi';
@@ -1369,7 +1396,8 @@ function redraw(T){const ph=curPhase(T);if(!ph||T.done)return;
   if(s.length%2){ph.direct=[...(ph.direct||[]),s[s.length-1]];T.msgs.push(`${CARDS[s[s.length-1]].n} sobra no novo sorteio e passa para a próxima fase.`);}
   ph.redrawn=true;T.msgs.push('O Uno refaz o sorteio das lutas que faltam nesta fase.');if(!curMatch(T)&&!T.done)closePhase(T);}
 // registra o resultado de UMA luta; devolve escolhas pendentes do jogador (lista)
-function applyResult(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[];T.msgs=T.preMsgs||[];T.preMsgs=[];T.lastWhp=res.whp;T.lastRes=res;(res.forms||[]).forEach(k=>T.ev.forms.add(k));
+function applyResult(T,res){if(T.done)return [];const ph=curPhase(T),r=applyResult0(T,res);(T.hist=T.hist||[]).push({ph:ph?ph.name:'',msgs:T.msgs});return r;}
+function applyResult0(T,res){if(T.done)return [];const b=curBout(T),m=b.m,pend=[];T.msgs=T.preMsgs||[];T.preMsgs=[];T.lastWhp=res.whp;T.lastRes=res;(res.forms||[]).forEach(k=>T.ev.forms.add(k));
   const wi=res.w.i,li=res.l.i;if(![b.A.i,b.B.i].includes(wi)||![b.A.i,b.B.i].includes(li)||wi===li)throw new Error('resultado não pertence à luta atual');
   ecoUsed(T,b,res);twUsed(T,b,res);
   if(m.stage==='cap'){const opp=m.a===BISON.i?m.b:m.a,k=m.capQ[0],cp=CAPT[k];
@@ -1455,7 +1483,9 @@ const CONQ=[['aliens','Conquista dos Aliens','Modo Alien: só sobram Aliens vivo
  ['horaCacada','Hora da Caçada','Modo Caçador: os caçadores de recompensa entram no torneio.'],['atrasGrades','Atrás das Grades','6 ou mais presos no mesmo torneio.'],
  ['fugaFortaleza','Fuga da Fortaleza','Alguém foge da Prisão.'],['renegado','O Renegado','Um renegado vence a emboscada contra o alvo dele.'],
  ['cacadaColmeia','Caçada à Colmeia','O Predador Caçador entra no torneio.'],['camuflagem','Camuflagem','Alguém acha a Armadura de Camuflagem do Predador Caçador.'],
- ['arsenal','Arsenal Roubado','Um campeão termina o torneio com 4 ou mais itens de personagem de outros donos.']];
+ ['arsenal','Arsenal Roubado','Um campeão termina o torneio com 4 ou mais itens de personagem de outros donos.'],
+ ['lancaSelvagem','Lança Selvagem','Alguém que não é o Super Predador termina o torneio vivo com a Lança Selvagem.'],['trocaMaos','Troca de Mãos','O mesmo item de personagem passa por 5 donos no mesmo torneio.'],
+ ['ovelhaNegra','Ovelha Negra','Um campeão que começou herói perde o posto e termina o torneio como anti-herói ou vilão.']];
 function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
   ok('aliens',T.conquest==='aliens');ok('predador',e.pred);ok('quanchi',T.quanDone);ok('omega',T.omega);ok('trueDevil',Object.values(T.demon).some(v=>v>=T.demonMax));
   ok('angel',e.forms.has('angelJin'));ok('evil',e.forms.has('evilRyu'));ok('lavagem',e.captured);ok('libKen',e.lib.has('vken'));ok('libCammy',e.lib.has('kbee'));ok('libTotal',e.lib.has('vken')&&e.lib.has('kbee'));
@@ -1469,7 +1499,10 @@ function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
   const tw=T.tw,tc=T.fmt==='torre'&&T.champ!=null&&tw;ok('escEquipado',!!tc&&tw.bag.filter(id=>ITEMS[id].k==='eq').length>=3);ok('maosVazias',!!tc&&!tw.log.some(l=>l.id));
   ok('fugitivo',(T.fleeCount||0)>0);ok('covarde',!!e.covarde);
   if(E){const st=E.st;ok('horaCacada',(st.waves||0)>0);ok('atrasGrades',E.prison.size+(st.escape||0)>=6);ok('fugaFortaleza',(st.escape||0)>0);ok('renegado',(st.renWin||0)>0);ok('cacadaColmeia',(st.pcIn||0)>0);ok('camuflagem',(st.armorFound||0)>0);
-    ok('arsenal',Object.entries(E.bag).some(([k,b])=>!T.dead.has(+k)&&b.filter(id=>ITEMS[id].k==='sig'&&!isBound(T,+k,id)).length>=4));}
+    ok('arsenal',Object.entries(E.bag).some(([k,b])=>!T.dead.has(+k)&&b.filter(id=>ITEMS[id].k==='sig'&&!isBound(T,+k,id)).length>=4));
+    ok('lancaSelvagem',Object.entries(E.bag).some(([k,b])=>!T.dead.has(+k)&&CARDS[+k]&&CARDS[+k].n!=='Super Predador'&&b.includes('lancaSelvagem')));
+    {const mv={};for(const x of T.ilog||[])if((x.k==='take'||x.k==='loot')&&ITEMS[x.id]&&ITEMS[x.id].k==='sig')mv[x.id]=(mv[x.id]||0)+1;ok('trocaMaos',Object.values(mv).some(n=>n>=4));}}
+  ok('ovelhaNegra',Object.keys(T.karma).map(Number).some(i=>CARDS[i]&&(T.startRole[i]||CARDS[i].role)==='h'&&roleNow(T,i)!=='h'));
   return got;}
 function finishPend(T,pend){return pend.filter(p=>p.opts.length&&!(T.done&&p.kind==='rugal'));}
 function choosePending(T,p,id){if(p.kind==='rugal')T.rugal=id;else(T.bonus[p.who]=T.bonus[p.who]||[]).push(id);}
@@ -1522,8 +1555,8 @@ function ecoInit(T){if(!(T.fmt==='mata'||T.fmt==='copa')||T.natal)return;
     st:{buy:{},use:{},spent:0,loot:0,lootItems:0,bounty:0,bountyN:0,surv:0,find:0,findN:0,hunt:0,flee:0,fleeLocked:0,prison:0,posters:0,waves:0,hunters:0,hunts:0,huntWin:0,huntLose:0,redeem:0,orfanato:0,swap:0}};
   for(const i of T.ids)ecoAdd(T,i);}
 function ecoAdd(T,i){const E=T.eco;if(!E||i==null||E.m[i]!=null||!CARDS[i])return;const c=CARDS[i];
-  E.m[i]=trait(c,'selvagem')?0:trait(c,'rico')?200:trait(c,'humilde')?50:100;E.bag[i]=[];E.cap[i]=3;E.eq[i]=null;E.kills[i]=0;
-  E.bty[i]=c.tit==='Chefe'?50:c.tit==='Sub-chefe'?25:(T.eco.bh&&c.role==='v'?25:0);if(sigOf(T,c.n))E.bag[i].push(sigOf(T,c.n));
+  E.m[i]=trait(c,'selvagem')?0:trait(c,'rico')?200:trait(c,'humilde')?50:100;E.bag[i]=[];E.cap[i]=3;(E.m0=E.m0||{})[i]=E.m[i];E.eq[i]=null;E.kills[i]=0;
+  E.bty[i]=c.tit==='Chefe'?50:c.tit==='Sub-chefe'?25:(T.eco.bh&&c.role==='v'?25:0);if(sigOf(T,c.n)){E.bag[i].push(sigOf(T,c.n));ilog(T,{k:'start',w:i,id:sigOf(T,c.n)});}
   if(T.eco.bh&&(c.tit==='Chefe'||c.role==='v')&&!c.alien&&!isKramp(c)&&!(T.eco.bhReady&&T.eco.bhReady.has(i)))ecoPoster(T,i,posterType(T,i),true);}
 // Amuleto de Shinnok: quem segura o amuleto tem 1 espaço a menos na bolsa
 const hasAmulet=(T,i)=>!!T.amuletoMode&&!T.quanDone&&T.amulet===i;
@@ -1546,11 +1579,12 @@ const cardSpd=(T,c)=>combatSt(c.st).spd+(typeof c.i==='number'?(eqBonus(bagOf(T,
 function ecoPrice(T,id,i){const it=ITEMS[id];let p=it.p*((T.eco&&T.eco.mult[id])||1);if(i!=null&&CARDS[i]&&trait(CARDS[i],'medico')&&(id==='vida'||id==='grande'))p*=.75;return Math.max(1,Math.round(p));}
 function ecoAlive(T){const all=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter((i,k,a)=>a.indexOf(i)===k&&!T.out.has(i));for(const i of all)ecoAdd(T,i);return all;}
 // compra (o jogador e a IA usam a mesma função)
+function ilog(T,o){const ph=T.phases&&T.phases.length?curPhase(T):null;(T.ilog=T.ilog||[]).push({ph:ph?ph.name:'Início',...o});}
 function ecoBuy(T,i,id){const E=T.eco,it=ITEMS[id],bag=E.bag[i];if(!E.offer.includes(id))return 'O item não está no mercado nesta fase.';const pr=ecoPrice(T,id,i);
   if(trait(CARDS[i],'selvagem'))return 'Selvagem não usa o mercado.';if(E.m[i]<pr)return 'Moedas insuficientes.';
   if(it.k==='bag'){if(it.slots<=E.cap[i])return 'Você já tem uma bolsa igual ou maior.';E.cap[i]=it.slots;}
   else{if(bag.length>=ecoCap(T,i))return 'A bolsa está cheia.';if(it.k==='eq'){E.offer=E.offer.filter(x=>x!==id);}bag.push(id);if(it.k==='eq'&&!E.eq[i])E.eq[i]=id;}
-  E.m[i]-=pr;E.mult[id]=(E.mult[id]||1)*1.05;if(ecoPrice(T,id)>100&&T.ev)T.ev.infl=true;E.bought[id]=1;E.st.buy[id]=(E.st.buy[id]||0)+1;E.st.spent+=pr;return null;}
+  E.m[i]-=pr;E.mult[id]=(E.mult[id]||1)*1.05;if(ecoPrice(T,id)>100&&T.ev)T.ev.infl=true;E.bought[id]=1;E.st.buy[id]=(E.st.buy[id]||0)+1;E.st.spent+=pr;(E.spentBy=E.spentBy||{})[i]=(E.spentBy[i]||0)+pr;ilog(T,{k:'buy',w:i,id,p:pr});return null;}
 function ecoEquip(T,i,id){const E=T.eco;if(id==null){E.eq[i]=null;return;}if(E.bag[i].includes(id)&&ITEMS[id].k==='eq')E.eq[i]=id;}
 function ecoDrop(T,i,id){const E=T.eco,k=E.bag[i].indexOf(id);if(k<0)return;E.bag[i].splice(k,1);if(E.eq[i]===id&&!E.bag[i].includes(id))E.eq[i]=E.bag[i].find(x=>ITEMS[x].k==='eq')||null;}
 function ecoPrefEq(T,i){const c=CARDS[i],s=combatSt(c.st);const o=[s.sat>s.atk?'pergaminho':'luvas'];if((SORTE[c.n]??3)<5)o.push('trevo');o.push(s.def<s.sdef?'armadura':'manto','botas',s.sat>s.atk?'luvas':'pergaminho');return o;}
@@ -1622,13 +1656,15 @@ function karmaDelta(T,w,l,kill,vr,rv,res,pre){const out=T.lastOut;if(isKramp(w))
   if(rv&&rv.k!=='paz')return -1;
   return -2;}
 // itens que entram na bolsa (se encher, troca pelos mais baratos)
-function ecoTake(T,wi,ids){const E=T.eco,bag=E.bag[wi];let n=0;
+function ecoTake(T,wi,ids){const E=T.eco,from=T._from;T._from=null;const cnt=b=>{const o={};for(const x of b)o[x]=(o[x]||0)+1;return o;},b0=cnt(E.bag[wi]);const n=ecoTake0(T,wi,ids),b1=cnt(E.bag[wi]);
+  for(const id in b1)for(let k=b0[id]||0;k<b1[id];k++)ilog(T,{k:from==null?'find':'take',w:wi,from,id});return n;}
+function ecoTake0(T,wi,ids){const E=T.eco,bag=E.bag[wi];let n=0;
   for(const id of [...ids].sort((x,y)=>ITEMS[y].p-ITEMS[x].p)){
     if(bag.length<ecoCap(T,wi)){bag.push(id);n++;sigKarma(T,wi,id);}
     else{const ch=bag.filter(x=>x!==E.eq[wi]&&!isBound(T,wi,x)).sort((x,y)=>ITEMS[x].p-ITEMS[y].p)[0];if(ch&&ITEMS[ch].p<ITEMS[id].p){bag.splice(bag.indexOf(ch),1);bag.push(id);n++;E.st.swap++;sigKarma(T,wi,id);}}
     if(ITEMS[id].k==='eq'&&!E.eq[wi]&&bag.includes(id))E.eq[wi]=id;}
   return n;}
-function ecoGain(T,wi,v,why){const E=T.eco;if(v<=0)return;if(trait(CARDS[wi],'caridoso')){const h=Math.floor(v/2);E.m[wi]+=v-h;E.st.orfanato+=h;addKarma(T,wi,1);T.msgs.push(`${CARDS[wi].n} ganha ${v} moedas ${why} e doa ${h} ao orfanato (+1 de carma).`);}
+function ecoGain(T,wi,v,why){const E=T.eco;if(v<=0)return;if(trait(CARDS[wi],'caridoso')){const h=Math.floor(v/2);E.m[wi]+=v-h;E.st.orfanato+=h;T.kwhy='doou ao orfanato';addKarma(T,wi,1);T.kwhy=null;T.msgs.push(`${CARDS[wi].n} ganha ${v} moedas ${why} e doa ${h} ao orfanato (+1 de carma).`);}
   else{E.m[wi]+=v;T.msgs.push(`${CARDS[wi].n} ganha ${v} moedas ${why}.`);}}
 function ecoAfter(T,w,l,kill,pre,vr){const E=T.eco;if(!E)return;const out=T.lastOut,li=typeof l.i==='number'&&CARDS[l.i]===l?l.i:null;
   const wi=typeof w.i==='number'&&CARDS[w.i]===w?w.i:(kOwner(w)!=null?BISON.i:null);if(wi==null)return;ecoAdd(T,wi);if(li!=null)ecoAdd(T,li);
@@ -1641,12 +1677,12 @@ function ecoAfter(T,w,l,kill,pre,vr){const E=T.eco;if(!E)return;const out=T.last
   E.m[li]-=coins;E.m[wi]+=coins;E.st.loot+=coins;
   let items=[];if(out==='prison'){E.jailer[li]=wi;items=[...E.bag[li]];E.bag[li]=[];E.eq[li]=null;if(wi===T.player&&items.length){E.lootChoice={from:li,items};items=[];}}else if(kill){items=[...E.bag[li]];E.bag[li]=[];E.eq[li]=null;}
   else{const k=Math.min(E.bag[li].length,1+(T.rand()<.5?1:0));for(let j=0;j<k;j++){const id=E.bag[li][Math.floor(T.rand()*E.bag[li].length)];ecoDrop(T,li,id);items.push(id);}}
-  const got=items.length?ecoTake(T,wi,items):0;E.st.lootItems+=got;if(out==='prison'&&E.gone){for(const id of items)if(ITEMS[id].k==='sig'&&!Object.values(E.bag).some(b=>b.includes(id))){E.gone.add(id);T.msgs.push(`${ITEMS[id].n} some do jogo.`);}}
+  T._from=li;const got=items.length?ecoTake(T,wi,items):0;T._from=null;E.st.lootItems+=got;if(out==='prison'&&E.gone){for(const id of items)if(ITEMS[id].k==='sig'&&!Object.values(E.bag).some(b=>b.includes(id))){E.gone.add(id);ilog(T,{k:'gone',from:li,id});T.msgs.push(`${ITEMS[id].n} some do jogo.`);}}
   if(coins||got)T.msgs.push(`${w.n} pega ${coins} moeda${coins===1?'':'s'}${got?` e ${got} ite${got>1?'ns':'m'}`:''} de ${l.n}.`);
-  if(trait(CARDS[wi],'caridoso')&&coins){const h=Math.floor(coins/2);E.m[wi]-=h;E.st.orfanato+=h;addKarma(T,wi,1);T.msgs.push(`${CARDS[wi].n} doa ${h} moedas ao orfanato (+1 de carma).`);}
+  if(trait(CARDS[wi],'caridoso')&&coins){const h=Math.floor(coins/2);E.m[wi]-=h;E.st.orfanato+=h;T.kwhy='doou ao orfanato';addKarma(T,wi,1);T.kwhy=null;T.msgs.push(`${CARDS[wi].n} doa ${h} moedas ao orfanato (+1 de carma).`);}
   ecoFind(T,wi);bhArmor(T,wi);}
 function ecoFind(T,wi){const E=T.eco;if(!E||E.bag[wi].length>=ecoCap(T,wi)||trait(CARDS[wi],'selvagem'))return;if(T.rand()<.03*ecoLuck(T,wi)){const pool=Object.keys(ITEMS).filter(id=>ITEMS[id].k==='pot');const id=pool[Math.floor(T.rand()*pool.length)];
-  E.bag[wi].push(id);E.st.findN++;T.msgs.push(`Sorte! ${CARDS[wi].n} encontra ${ITEMS[id].n} depois da luta.`);}}
+  E.bag[wi].push(id);E.st.findN++;ilog(T,{k:'find',w:wi,id});T.msgs.push(`Sorte! ${CARDS[wi].n} encontra ${ITEMS[id].n} depois da luta.`);}}
 // Copa: na fase de grupos ninguém morre, mas quem perde entrega metade das moedas
 function ecoGroup(T,wi,li){const E=T.eco;if(!E)return;ecoAdd(T,wi);ecoAdd(T,li);if(trait(CARDS[wi],'selvagem'))return;
   const coins=trait(CARDS[wi],'ganancioso')||trait(CARDS[wi],'saqueador')?E.m[li]:Math.floor(E.m[li]/2);E.m[li]-=coins;E.st.loot+=coins;if(coins){E.m[wi]+=coins;T.msgs.push(`${CARDS[wi].n} pega ${coins} moedas de ${CARDS[li].n}.`);}if(T.lastArena==='lanternas'){E.m[wi]+=ARENAS.lanternas.coins;E.st.lantern=(E.st.lantern||0)+ARENAS.lanternas.coins;T.msgs.push(`Mercado das Lanternas: ${CARDS[wi].n} ganha +${ARENAS.lanternas.coins} moedas pela vitória.`);}ecoFind(T,wi);}
@@ -1681,7 +1717,7 @@ function bhAmbush(T,ph,inPh){const E=T.eco;if(!E||!E.bh||ph.kind!=='ko'||ph.name
     busy.add(r);busy.add(tg.to);ph.matches.unshift({a:r,b:tg.to,res:null,inv:true,hunt:true,ren:true,why:tg.k,tag:'Renegado (não oficial)'});E.st.renAmb++;added=true;
     T.msgs.push(`O renegado ${CARDS[r].n} embosca ${CARDS[tg.to].n} (${tg.k==='item'?'quer o item de volta':tg.k==='vinganca'?'vingança: foi quem o prendeu':'rival'}).`);}
   // Caçada à Colmeia: Modo Alien + Caçador; o Predador Caçador chega quando a colmeia já converteu 3
-  if(T.alienMode){if(E.pc==null&&!E.pcGone&&T.aliens>=3){const c={...PRED,i:CARDS.length,temp:true,n:'Predador Caçador',img:'predador-cacador',orig:'Caçada à Colmeia',pred:true,pc:true};CARDS.push(c);E.pc=c.i;E.pcB={hp:0,atk:0};ecoAdd(T,c.i);E.st.pcIn++;
+  if(T.alienMode){if(E.pc==null&&!E.pcGone&&T.aliens>=3){const c={...PRED,i:CARDS.length,temp:true,key:'predCac',n:'Predador Caçador',img:'predador-cacador',orig:'Caçada à Colmeia',pred:true,pc:true};CARDS.push(c);E.pc=c.i;E.pcB={hp:0,atk:0};ecoAdd(T,c.i);E.st.pcIn++;
       T.msgs.push('CAÇADA À COLMEIA! A colmeia já converteu 3: chega o PREDADOR CAÇADOR, que só caça Aliens.');}
     if(E.pc!=null&&!T.dead.has(E.pc)&&!T.out.has(E.pc)&&!busy.has(E.pc)){const al=shuffle([...inPh].filter(i=>CARDS[i]&&CARDS[i].alien&&!busy.has(i)&&(CARDS[i].bornPh==null||CARDS[i].bornPh<E.phaseN)),T.rand)[0];
       if(al!=null){busy.add(al);ph.matches.unshift({a:E.pc,b:al,res:null,inv:true,hunt:true,pcHunt:true,tag:'Caçada à Colmeia (não oficial)'});added=true;T.msgs.push(`O Predador Caçador vai atrás de ${CARDS[al].n}.`);}}}
@@ -1691,7 +1727,7 @@ function bhAfterHunt(T,m,w,l){const E=T.eco;if(!E)return;
   if(m.pcHunt){if(w===m.a){E.st.pcKills++;E.pcB.hp+=15;E.pcB.atk+=1;T.msgs.push(`O Predador Caçador abate ${CARDS[l].n}: +15 de Vida e +1 de Ataque até o fim do torneio (total +${E.pcB.hp} e +${E.pcB.atk}).`);}
     else{E.armorAt=T.lastArena;ecoDrop(T,m.a,'camuflagem');E.pc=null;E.pcGone=true;T.msgs.push(`O Predador Caçador cai na arena ${ARENAS[T.lastArena]?ARENAS[T.lastArena].n:''}: a Armadura de Camuflagem fica lá. Quem tiver sorte numa luta nessa arena pode achar.`);}
     return true;}
-  if(m.ren){if(w===m.a){E.st.renWin++;const sig=sigOf(T,CARDS[w].n);if(sig&&E.bag[l]&&E.bag[l].includes(sig)){ecoDrop(T,l,sig);ecoTake(T,w,[sig]);T.msgs.push(`${CARDS[w].n} recupera ${ITEMS[sig].n}.`);}
+  if(m.ren){if(w===m.a){E.st.renWin++;const sig=sigOf(T,CARDS[w].n);if(sig&&E.bag[l]&&E.bag[l].includes(sig)){ecoDrop(T,l,sig);T._from=l;ecoTake(T,w,[sig]);T.msgs.push(`${CARDS[w].n} recupera ${ITEMS[sig].n}.`);}
       if(m.why==='item'&&CARDS[w].n==='Quan Chi'&&T.amuletoMode&&T.amulet===w){}
       if(ambitious(CARDS[w])&&!T.dead.has(w)){replaceSlot(curPhase(T),l,w);T.out.delete(w);T.ko.delete(w);T.left.delete(w);E.ren.delete(w);E.st.renSlot++;T.msgs.push(`${CARDS[w].n} quer o título: toma a vaga de ${CARDS[l].n} e volta a disputar o torneio!`);}
       else if(!renTargets(T,w).length){E.ren.delete(w);T.msgs.push(`${CARDS[w].n} cumpriu a missão de renegado e vai embora.`);}
@@ -1815,7 +1851,9 @@ function renderBracket(){$('#bhBoard').innerHTML=T?bhBoardHTML():'';if(!T){$('#b
     if(ph.kind==='grupos'&&ph.pts)h+=`<div class="groups">${ph.groups.map((g,gi)=>{const o=grpOrder(ph,gi),done=!ph.matches.some(m=>m.g===gi&&!m.res);return `<div class="bround"><h4>Grupo ${GL[gi]}</h4><table class="stand"><tr><th>#</th><th>Campeão</th><th>Pts</th></tr>${o.map((i,k)=>`<tr class="${done&&k<2&&!T.gout.has(i)?'q':''}"><td>${k+1}</td><td>${CARDS[i].n}</td><td>${ph.pts[i]||0}${(ph.tbr[gi]||[]).some(r=>r.mem.includes(i))?' <span class="note">(desempate)</span>':''}</td></tr>`).join('')}</table>${ph.matches.filter(m=>m.g===gi).map(m=>matchHtml({...m,tag:m.tb!=null?'desempate':null},cur,m)).join('')}</div>`;}).join('')}</div>`;
     else if(ph.kind==='grupos')h+=`<div class="groups">${ph.groups.map((g,gi)=>`<div class="bround"><h4>Grupo ${GL[gi]}</h4>${ph.matches.filter(m=>m.g===gi).map(m=>matchHtml({...m,tag:null},cur,m)).join('')}</div>`).join('')}</div>`;
     else if(ph.kind==='torre')h+=`<div class="tower">${T.floors.map((x,k)=>{const m=ph.matches[k],st=m&&m.res?(m.res.w===T.climber?'won':'lost'):(k===T.floor&&!T.done?'now':'');return `<div class="fl ${st}${k===9?' top':''}"><b>${floorTag(k).replace(' · ','<br><small>')}${k>=7?'</small>':''}</b>${k===9?topName(T):pname(x)}${m&&m.res?` <span class="note">${m.res.w===T.climber?'vencido':'perdeu aqui'} (${m.res.round} rodadas)</span>`:''}</div>`;}).join('')}</div>`;
-    else h+=`<div class="groups">${ph.matches.map(m=>matchHtml(m,cur,m)).join('')}</div>`;}
+    else{const hu=ph.matches.filter(m=>m.hunt),of=ph.matches.filter(m=>!m.hunt);
+      if(hu.length)h+=`<details class="huntbox"${hu.some(m=>!m.res)?' open':''}><summary>🎯 Caçadas e emboscadas (${hu.length}) · fora da chave</summary><div class="groups">${hu.map(m=>matchHtml(m,cur,m)).join('')}</div></details>`;
+      h+=`<div class="groups">${of.map(m=>matchHtml(m,cur,m)).join('')}</div>`;}}
   if(T.fmt==='torre')h=`<p class="note">Escalador: <b>${CARDS[T.climber].n}</b> · ${T.diff==='divina'?'Divindade':'Normal'} · a Vida volta cheia a cada andar.${T.kr!=null&&T.saco.length?` O Krampus chega com ${T.saco.map(id=>AB[id].n).join(' e ')} roubado${T.saco.length>1?'s':''} dos andares de baixo.`:''}</p>`+h;
   if(T.done){onTourEnd(T);h=reportHtml(T)+h;}
   $('#bracket').innerHTML=h;
@@ -1825,7 +1863,7 @@ function renderBracket(){$('#bhBoard').innerHTML=T?bhBoardHTML():'';if(!T){$('#b
     ...Object.entries(T.demon).filter(([i,n])=>n>0).map(([i,n])=>`<span class="st weak">Pontos do demônio: ${Math.min(n,T.demonMax)}/${T.demonMax}${n>=T.demonMax?' · True Devil Kazuya':''}</span>`),
     T.alienMode?`<span class="st ${T.alienOver?'':'weak'}">Modo Alien${T.alienOver?' (acabou)':''}: ${[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter(i=>!T.out.has(i)&&isAlien(i)).length} Alien(s) vivo(s)</span>`:'',
     ...Object.entries(T.bonus).map(([i,a])=>`<span class="st buff">${CARDS[i].n}: ${a.map(id=>AB[id].n).join(', ')}</span>`)].join(' ');
-  const lists=`${dead.length?`<div class="note">✝ Mortos (${dead.length}): ${dead.join(', ')}</div>`:''}${ko.length?`<div class="note">Nocauteados, vivos (${ko.length}): ${ko.join(', ')}</div>`:''}${T.left.size?`<div class="note">Foram embora: ${[...T.left].map(i=>CARDS[i].n).join(', ')}</div>`:''}`;
+  const lists=dead.length||ko.length||T.left.size?`<details class="huntbox"${window.outOpen?' open':''} ontoggle="window.outOpen=this.open"><summary>Fora do torneio: 💀 ${dead.length} morto${dead.length===1?'':'s'} · 🤕 ${ko.length} nocauteado${ko.length===1?'':'s'}${T.left.size?` · 🚪 ${T.left.size} foi embora`:''}</summary>${dead.length?`<div class="note">💀 ${dead.join(', ')}</div>`:''}${ko.length?`<div class="note">🤕 ${ko.join(', ')}</div>`:''}${T.left.size?`<div class="note">🚪 ${[...T.left].map(i=>CARDS[i].n).join(', ')}</div>`:''}</details>`:'';
   const conq={aliens:'Conquista dos Aliens',predador:'Conquista do Predador',quanchi:'Conquista do Quan Chi'}[T.conquest];const conqH=conq?`<span class="conq">${conq}</span>`:'';
   $('#tnow').innerHTML=(T.done?`<b class="champ">${T.conquest==='aliens'?'Os Aliens tomaram o torneio':T.towerFail?`A Torre venceu: ${CARDS[T.climber].n} caiu no ${floorTag(T.floor)}`:T.fmt==='torre'?'Rei da Torre: '+CARDS[T.champ].n:'Campeão: '+CARDS[T.champ].n}</b>${conqH}`
     :`<b>${curPhase(T).name}</b>${bt?` · próxima luta: ${bt.A.n} vs ${bt.B.n}${cur.tag?` <span class="note">(${cur.tag})</span>`:''}${bt.note?` <span class="note">· ${bt.note}</span>`:''}`:''}`)+(extra?`<div>${extra}</div>`:'')+lists;}
@@ -1837,7 +1875,7 @@ function onTourEnd(T){if(T.endDone)return;T.endDone=true;natalEnd(T);const got=e
   T.conqGot=got;T.conqNew=got.filter(id=>!saved[id]);for(const id of T.conqNew)saved[id]={date:now,fmt:FMT[T.fmt]};saveConq(saved);renderConq();}
 const roleTag=(i)=>{const k=T.karma[i];if(k==null)return `<span class="note">${ROLE_N[CARDS[i].role]||''} (fixo)</span>`;const r=roleNow(T,i),s=T.startRole[i];
   return `<span class="kr kr-${r}">${ROLE_N[r]} (${k>0?'+':''}${k})</span>${s&&s!==r?` <span class="note">começou ${ROLE_N[s]}</span>`:''}`;};
-function reportHtml(T){const P=getPodium(T),nm=i=>i==null?'—':CARDS[i].n;const medal=['1º','2º','3º'];
+function reportHtmlOld(T){const P=getPodium(T),nm=i=>i==null?'—':CARDS[i].n;const medal=['1º','2º','3º'];
   let h=`<div class="report"><h3 class="phase">Fim do Torneio de Uno</h3>`;
   if(T.fmt==='torre')h+=`<p>${T.champ!=null?`<b>${CARDS[T.champ].n}</b> venceu os 10 andares e é o Rei da Torre!`:`<b>${CARDS[T.climber].n}</b> chegou ao ${floorTag(T.floor)} (${T.floor} andar${T.floor===1?'':'es'} vencido${T.floor===1?'':'s'}).`}</p>`;
   else h+=`<div class="podium">${[0,1,2].map(k=>`<div class="pod p${k+1}"><b>${medal[k]}</b><div>${nm(P[k])}</div>${P[k]!=null&&CARDS[P[k]]&&!CARDS[P[k]].temp?roleTag(P[k]):''}</div>`).join('')}</div>`;
@@ -1859,17 +1897,17 @@ function askChoices(list,done){if(!list.length){done();return;}const p=list[0];
   $('#choiceTitle').textContent=p.title;
   $('#choiceOpts').innerHTML=p.opts.map(id=>`<button class="chip" data-id="${id}" title="${AB[id].x.replace(/"/g,'')}">${AB[id].n} (${AB[id].t==='A'?'Ativa':'Passiva'}): ${AB[id].x}</button>`).join('');
   $('#choice').classList.add('on');$('#choiceOpts').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;choosePending(T,p,b.dataset.id);$('#choice').classList.remove('on');
-    $('#tourInfo').textContent+=` ${CARDS[p.who].n} ganhou ${AB[b.dataset.id].n}.`;$('#choiceOpts').onclick=null;renderBracket();askChoices(list.slice(1),done);};}
+    addInfo(`${CARDS[p.who].n} ganhou ${AB[b.dataset.id].n}.`);$('#choiceOpts').onclick=null;renderBracket();askChoices(list.slice(1),done);};}
 function nextMatch(){const bt=T&&curBout(T);if(!bt||busy)return;busy=true;setBtns();$('#tArena').classList.remove('off');showArena(bt.arena);
   const r=fight(bt.A,bt.B,{ta:bt.ta,tb:bt.tb});noteSeen(r,bt.A,bt.B);
-  P2.play(r,bt.A,bt.B,()=>{const pend=applyResult(T,r);renderBracket();$('#tourInfo').textContent=T.msgs.join(' ');
+  P2.play(r,bt.A,bt.B,()=>{const pend=applyResult(T,r);renderBracket();setInfo(T.msgs);
     askChoices(pend,()=>{busy=false;setBtns();});});}
 // simula sem animação; pergunta ao jogador quando ele precisa escolher
 function simulate(untilEnd){if(!T||busy||T.done)return;busy=true;setBtns();const start=T.phases.length;let log=[];
   const loop=()=>{let n=0;while(!T.done&&(untilEnd||T.phases.length===start)&&n<40){const bt=curBout(T);
       const r=fight(bt.A,bt.B,{ta:bt.ta,tb:bt.tb,quiet:true});noteSeen(r,bt.A,bt.B);const pend=applyResult(T,r);n++;log=T.msgs;
-      if(pend.length){renderBracket();$('#tourInfo').textContent=log.join(' ');askChoices(pend,()=>setTimeout(loop,0));return;}}
-    renderBracket();$('#tourInfo').textContent=log.join(' ');
+      if(pend.length){renderBracket();setInfo(log);askChoices(pend,()=>setTimeout(loop,0));return;}}
+    renderBracket();setInfo(log);
     if(!T.done&&(untilEnd||T.phases.length===start))setTimeout(loop,0);else{busy=false;setBtns();}};
   loop();}
 $('#btnTour').onclick=newTour;$('#btnNext').onclick=nextMatch;$('#btnPhase').onclick=()=>simulate(false);$('#btnAll').onclick=()=>simulate(true);
@@ -1958,7 +1996,8 @@ function posterHTML(i){const E=T.eco,p=E.post[i],c=CARDS[i];if(!p||!c)return '';
 function bhBoardHTML(){const E=T&&T.eco;if(!E||!E.bh)return '';
   const W=Object.keys(E.post).map(Number).filter(i=>!T.dead.has(i)&&!E.prison.has(i)&&(!T.out.has(i)||(E.ren&&E.ren.has(i)))).sort((a,b)=>E.bty[b]-E.bty[a]);
   const tot=W.reduce((a,i)=>a+E.bty[i],0),pr=[...E.prison];
-  return `<details class="bhboard" open><summary>Mural dos Procurados · ${W.length} cartaz${W.length===1?'':'es'} · as cabeças somam ${COIN}${tot}${E.wave?' · caçadores no torneio: '+[...E.hunters].map(h=>CARDS[h].n).join(', '):tot>ECO_NUM.hunt?'':` (os caçadores chegam quando passar de ${ECO_NUM.hunt})`}</summary>
+  const top=W.slice(0,3).map(i=>`${CARDS[i].n} ${COIN}${E.bty[i]}`).join(' · ');
+  return `<details class="bhboard"${window.bhOpen?' open':''} ontoggle="window.bhOpen=this.open"><summary>📜 Mural dos Procurados · ${W.length} cartaz${W.length===1?'':'es'}${pr.length?` · ⛓️ ${pr.length} preso${pr.length>1?'s':''}`:''} · cabeças somam ${COIN}${tot}${top?`<br><small>Mais caros: ${top}</small>`:''}${E.wave?' · caçadores no torneio: '+[...E.hunters].map(h=>CARDS[h].n).join(', '):tot>ECO_NUM.hunt?'':` (os caçadores chegam quando passar de ${ECO_NUM.hunt})`}</summary>
     <div class="posters">${W.map(posterHTML).join('')||'<span class="note">Nenhum procurado agora.</span>'}</div>
     ${pr.length?`<div class="prisonrow"><img src="img/cartazes/prisao.jpg" alt=""><div><b>Prisão da Fortaleza de Uno</b><small>${pr.map(i=>`${CARDS[i].n}${E.jailer[i]!=null&&CARDS[E.jailer[i]]?` (preso por ${CARDS[E.jailer[i]].n})`:''}`).join(' · ')}</small><small class="note">Em toda luta na arena Prisão, cada preso rola o dado: Sorte 4 ou 5 foge com 50%, Sorte 3 ou menos com 5%.</small></div></div>`:''}
   </details>`;}
@@ -1968,9 +2007,116 @@ function lootOpen(done){const E=T.eco,L=E.lootChoice;if(!L){done();return;}const
     <div class="mkgrid">${L.items.map((id,k)=>`<div class="mkit${sel.has(k)?' sel':''}"><img src="${ITIMG(id)}" alt=""><b>${ITEMS[id].n}</b><small>${ITEMS[id].x}${ITEMS[id].karma?` Carma ${ITEMS[id].karma>0?'+':''}${ITEMS[id].karma} ao pegar.`:''}</small><button class="mini" data-k="${k}" ${!sel.has(k)&&free()-sel.size<=0?'disabled':''}>${sel.has(k)?'Não pegar':'Pegar'}</button></div>`).join('')}</div>`;};
   render();$('#mLoot').classList.add('on');
   $('#lootBody').onclick=e=>{const b=e.target.closest('[data-k]');if(!b||b.disabled)return;const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);render();};
-  $('#lootGo').onclick=()=>{const take=L.items.filter((_,k)=>sel.has(k)),left=L.items.filter((_,k)=>!sel.has(k));for(const id of take){E.bag[p].push(id);sigKarma(T,p,id);}
-    for(const id of left)if(ITEMS[id].k==='sig'){E.gone.add(id);}E.lootChoice=null;$('#mLoot').classList.remove('on');
-    T.msgs.push(`Você pegou ${take.length?take.map(id=>ITEMS[id].n).join(', '):'nada'}${left.length?`; ${left.map(id=>ITEMS[id].n).join(', ')} some${left.length>1?'m':''} do jogo`:''}.`);$('#tourInfo').textContent=T.msgs.join(' ');vlStatus();renderBracket();done();};}
+  $('#lootGo').onclick=()=>{const take=L.items.filter((_,k)=>sel.has(k)),left=L.items.filter((_,k)=>!sel.has(k));for(const id of take){E.bag[p].push(id);sigKarma(T,p,id);ilog(T,{k:'loot',w:p,from:L.from,id});}
+    for(const id of left){ilog(T,{k:'gone',from:L.from,id});if(ITEMS[id].k==='sig')E.gone.add(id);}E.lootChoice=null;$('#mLoot').classList.remove('on');
+    T.msgs.push(`Você pegou ${take.length?take.map(id=>ITEMS[id].n).join(', '):'nada'}${left.length?`; ${left.map(id=>ITEMS[id].n).join(', ')} some${left.length>1?'m':''} do jogo`:''}.`);setInfo(T.msgs);vlStatus();renderBracket();done();};}
+
+// ===================== 1.6.1: FEED DE EVENTOS E RELATÓRIO EM ABAS =====================
+// cada mensagem vira uma linha com ícone; as de rotina (moedas, vitória na fase de grupos) ficam apagadas
+const FEED_CAT=[
+  ['luta','🥊',/ninguém morre|vitória no desempate|empataram e lutam/],
+  ['esc','🔓',/rola o dado|FUGA DA PRISÃO|escapa e volta|renegado|missão de renegado|foge da Prisão/i],
+  ['pris','⛓️',/fica preso|prisão|prende |presas/i],
+  ['ko','🤕',/nocauteia|não lutam entre si/],
+  ['dead','💀',/\bmata\b|morre\b|mortos|embrião|nenhum campeão vivo/],
+  ['flee','🏃',/fug|foge/],
+  ['hunt','🎯',/caçador|embosca|caçar|recompensa|PROCURADO|cartaz|cabeça|Caçada/i],
+  ['item','🎒',/\bitens?\b|pega [A-ZÀ-Ú]|amuleto|Amuleto|Armadura|encontra|some do jogo|larga|crânio|Você pegou|recupera [A-ZÀ-Ú]/],
+  ['karma','⚖️',/carma|redimiu|redenção|escuridão/],
+  ['money','💰',/moedas?\b/],
+  ['alien','👽',/Alien|colmeia|Predador|Predalien/],
+  ['win','🏆',/campeão|lugar|semifinal|classificados|vence/]];
+const FEED_DIM=new Set(['luta','money']);
+function feedCat(m){for(const [k,ic,re] of FEED_CAT)if(re.test(m))return [k,ic];return ['etc','▸'];}
+let FEED_RE=null,FEED_N=0;
+function feedNames(m){if(!FEED_RE||FEED_N!==CARDS.length){FEED_N=CARDS.length;const ns=[...new Set(CARDS.map(c=>c&&c.n).filter(n=>n&&n.length>2))].sort((a,b)=>b.length-a.length);
+    FEED_RE=new RegExp('('+ns.map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','g');}
+  return m.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(FEED_RE,'<b>$1</b>');}
+function feedLine(m){const [k,ic]=feedCat(m);return `<div class="fline c-${k}${FEED_DIM.has(k)?' dim':''}"><i>${ic}</i><span>${feedNames(m)}</span></div>`;}
+function feedHtml(msgs){msgs=(Array.isArray(msgs)?msgs:[msgs]).filter(Boolean);if(!msgs.length)return '';
+  return `<div class="feed">${msgs.map(feedLine).join('')}</div>`;}
+function setInfo(msgs){$('#tourInfo').innerHTML=feedHtml(msgs);}
+function addInfo(msg){const f=$('#tourInfo .feed');if(f)f.insertAdjacentHTML('beforeend',feedLine(msg));else setInfo([msg]);}
+
+// ---------- abas do relatório final ----------
+let repTab='resumo';
+document.addEventListener('click',e=>{const b=e.target.closest('[data-rtab]');if(!b)return;repTab=b.dataset.rtab;if(T&&T.done){const r=document.querySelector('#bracket .report');if(r)r.outerHTML=reportHtml(T);}});
+const rN=i=>i!=null&&CARDS[i]?CARDS[i].n:'—';
+const itN=id=>ITEMS[id]?ITEMS[id].n:id;
+const itPic=id=>ITEMS[id]?`<img class="ric" src="${ITIMG(id)}" alt="">`:'';
+function histMsgs(T,cat){const out=[];for(const h of T.hist||[])for(const m of h.msgs)if(!cat||cat.includes(feedCat(m)[0]))out.push([h.ph,m]);return out;}
+function histList(T,cats,empty){const L=histMsgs(T,cats);if(!L.length)return `<p class="note">${empty}</p>`;let last=null,h='';
+  for(const [ph,m] of L){if(ph!==last){h+=`<div class="rph">${ph}</div>`;last=ph;}h+=feedLine(m);}return `<div class="feed long">${h}</div>`;}
+const role0=(T,i)=>T.startRole[i]||CARDS[i].role;
+function karma0(T,i){return T.k0&&T.k0[i]!=null?T.k0[i]:KARMA0[role0(T,i)]??0;}
+function reportHtml(T){const P=getPodium(T),E=T.eco,medal=['1º','2º','3º'];
+  let h=`<div class="report"><h3 class="phase">Fim do Torneio de Uno</h3>`;
+  if(T.fmt==='torre')h+=`<p>${T.champ!=null?`<b>${CARDS[T.champ].n}</b> venceu os 10 andares e é o Rei da Torre!`:`<b>${CARDS[T.climber].n}</b> chegou ao ${floorTag(T.floor)} (${T.floor} andar${T.floor===1?'':'es'} vencido${T.floor===1?'':'s'}).`}</p>`;
+  else h+=`<div class="podium">${[0,1,2].map(k=>`<div class="pod p${k+1}"><b>${medal[k]}</b><div>${rN(P[k])}</div>${P[k]!=null&&CARDS[P[k]]&&!CARDS[P[k]].temp?roleTag(P[k]):''}</div>`).join('')}</div>`;
+  if(T.conquest==='aliens')h+=`<p class="note">Os Aliens tomaram o torneio: não há pódio de campeões.</p>`;
+  // dados
+  const surv=T.kos.filter(k=>k.vi!=null&&!T.dead.has(k.vi)&&!T.kos.slice(T.kos.indexOf(k)+1).some(x=>x.vi===k.vi));
+  const kch=Object.keys(T.karma).map(Number).filter(i=>CARDS[i]&&(T.karma[i]!==karma0(T,i)||role0(T,i)!==roleNow(T,i)));
+  const sideCh=kch.filter(i=>role0(T,i)!==roleNow(T,i));
+  const IL=T.ilog||[],moved=IL.filter(x=>x.k==='take'||x.k==='amu');
+  const presos=E&&E.prison?[...E.prison]:[],esc=histMsgs(T,['esc']);
+  const cq=(T.conqGot||[]).map(id=>CONQ.find(c=>c[0]===id)).filter(Boolean);
+  const tabs=[['resumo','Resumo'],['mortes',`💀 Mortes (${T.deaths.length})`],['vivos',`🤕 Saíram vivos (${surv.length})`]];
+  if(E&&(presos.length||esc.length||E.bh))tabs.push(['prisao',`⛓️ Prisão (${presos.length})`]);
+  tabs.push(['carma',`⚖️ Carma (${kch.length})`]);
+  if(E)tabs.push(['itens','🎒 Itens e moedas']);
+  if(E&&E.bh)tabs.push(['caca','🎯 Caçadas']);
+  tabs.push(['conq',`🏆 Conquistas (${cq.length})`]);
+  if(!tabs.some(t=>t[0]===repTab))repTab='resumo';
+  h+=`<div class="rtabs">${tabs.map(([k,n])=>`<button class="mini${repTab===k?' on':''}" data-rtab="${k}">${n}</button>`).join('')}</div><div class="rbody">`;
+  const kc=Object.entries(T.killCount).sort((a,b)=>b[1]-a[1]);
+  if(repTab==='resumo'){
+    const rich=E?Object.keys(E.m).map(Number).filter(i=>CARDS[i]&&!T.dead.has(i)).sort((a,b)=>E.m[b]-E.m[a])[0]:null;
+    const box=(ic,n,t,tab)=>`<button class="rbox" ${tab?`data-rtab="${tab}"`:''}><i>${ic}</i><b>${n}</b><small>${t}</small></button>`;
+    h+=`<div class="rboxes">${box('💀',T.deaths.length,'mortos','mortes')}${box('🤕',surv.length,'saíram vivos','vivos')}${E&&(E.bh||presos.length)?box('⛓️',presos.length,'presos','prisao')+box('🔓',esc.length,'fugas e renegados','prisao'):''}${box('⚖️',sideCh.length,'mudaram de lado','carma')}${E?box('🎒',moved.length,'itens trocaram de dono','itens'):''}${E&&rich!=null?box('💰',COIN+E.m[rich],'mais rico: '+rN(rich),'itens'):''}${box('🏆',cq.length,'conquistas','conq')}</div>`;
+    h+=`<h4>Quem mais matou</h4>${kc.slice(0,5).map(([i,n])=>`<div class="rrow"><b>${rN(+i)}</b> <span>${n} morte${n>1?'s':''}</span> ${roleTag(+i)}</div>`).join('')||'<p class="note">Ninguém matou.</p>'}`;
+    if(T.deaths.length)h+=`<h4>Últimas mortes</h4>${T.deaths.slice(-3).reverse().map(d=>`<div class="rrow">💀 <b>${d.v}</b> <span class="note">por ${d.by} · ${d.phase}</span></div>`).join('')}`;}
+  else if(repTab==='mortes'){
+    h+=T.deaths.length?`<table class="rtab"><tr><th>Quem morreu</th><th>Quem matou</th><th>Fase</th><th>Itens que tinha → ficaram com</th></tr>${T.deaths.map(d=>{const L2=IL.slice(d.il||0),it=L2.filter(x=>x.from===d.vi&&(x.k==='take'||x.k==='amu'));const gone=L2.filter(x=>x.k==='gone'&&x.from===d.vi);
+      const left=[...(d.items||[])];for(const x of [...it,...gone]){const k=left.indexOf(x.id);if(k>=0)left.splice(k,1);}
+      return `<tr><td>💀 <b>${d.v}</b>${d.how?`<br><small class="note">${d.how}</small>`:''}</td><td>${d.by}</td><td>${d.phase}</td><td>${[...it.map(x=>`${itPic(x.id)}${itN(x.id)} → <b>${rN(x.w)}</b>`),...gone.map(x=>`${itN(x.id)} <span class="note">sumiu do jogo</span>`),...left.map(id=>`${itPic(id)}${itN(id)} <span class="note">ninguém pegou (foi junto com ele)</span>`)].join('<br>')||'<span class="note">não tinha itens</span>'}</td></tr>`;}).join('')}</table>`:'<p class="note">Ninguém morreu.</p>';}
+  else if(repTab==='vivos'){
+    const HOW={fled:['🏃','fugiu de'],prison:['⛓️','preso por'],sack:['🎁','levado no saco por'],nocaute:['🤕','nocauteado por']};
+    h+=surv.length?`<table class="rtab"><tr><th>Quem saiu</th><th>Como</th><th>Fase</th><th>Itens perdidos → ficaram com</th></tr>${surv.map(k=>{const H=HOW[k.how]||HOW.nocaute,it=IL.filter(x=>x.from===k.vi&&(x.k==='take'||x.k==='amu'));
+      return `<tr><td><b>${k.v}</b><br>${roleTag(k.vi)}</td><td>${H[0]} ${H[1]} ${k.by}</td><td>${k.phase}</td><td>${it.map(x=>`${itPic(x.id)}${itN(x.id)} → <b>${rN(x.w)}</b>`).join('<br>')||'<span class="note">—</span>'}</td></tr>`;}).join('')}</table>`:'<p class="note">Nenhum.</p>';}
+  else if(repTab==='prisao'){
+    h+=`<h4>Na prisão no fim do torneio (${presos.length})</h4>${presos.map(i=>`<div class="rrow">⛓️ <b>${rN(i)}</b> <span class="note">preso por ${rN(E.jailer&&E.jailer[i])}</span></div>`).join('')||'<p class="note">A prisão terminou vazia.</p>'}`;
+    h+=`<h4>Prisões, fugas e renegados</h4>${histList(T,['pris','esc'],'Ninguém foi preso e ninguém fugiu.')}`;}
+  else if(repTab==='carma'){
+    h+=kch.length?`<table class="rtab"><tr><th>Campeão</th><th>Começou</th><th>Terminou</th><th>Mudança</th><th>Quando e por quê</th></tr>${kch.sort((a,b)=>Math.abs(T.karma[b]-karma0(T,b))-Math.abs(T.karma[a]-karma0(T,a))).map(i=>{const d=T.karma[i]-karma0(T,i),sd=role0(T,i)!==roleNow(T,i);
+      return `<tr${sd?' class="q"':''}><td><b>${rN(i)}</b></td><td>${ROLE_N[role0(T,i)]} (${karma0(T,i)})</td><td>${roleTag(i)} (${T.karma[i]})</td><td><span class="st ${d>0?'buff':'weak'}">${d>0?'+':''}${d}</span>${sd?' <b>mudou de lado</b>':''}</td><td><small>${(T.klog||[]).filter(x=>x.i===i).map(x=>`<span class="st ${x.d>0?'buff':'weak'}">${x.d>0?'+':''}${x.d}</span> ${x.why} <span class="note">(${x.ph})</span>`).join('<br>')}</small></td></tr>`;}).join('')}</table>`:'<p class="note">O carma de ninguém mudou.</p>';}
+  else if(repTab==='itens'){
+    const KN={buy:'🛒 comprou',take:'🤲 tomou de',amu:'🔮 amuleto de',find:'🍀 achou',start:'⭐ começou com',gone:'🕳️ sumiu',loot:'⛓️ pegou do preso'};
+    const imp=IL.filter(x=>x.k!=='buy'||(ITEMS[x.id]&&ITEMS[x.id].k!=='pot'));
+    h+=`<h4>Itens que mudaram de dono</h4>${imp.filter(x=>x.k!=='start').length?`<table class="rtab"><tr><th>Fase</th><th>Quem</th><th>O quê</th><th>Item</th></tr>${imp.filter(x=>x.k!=='start').map(x=>`<tr><td>${x.ph}</td><td><b>${x.k==='gone'?rN(x.from):rN(x.w)}</b></td><td>${KN[x.k]||x.k}${x.k==='take'||x.k==='amu'||x.k==='loot'?' '+rN(x.from):''}${x.k==='buy'?` <span class="note">por ${COIN}${x.p}</span>`:''}</td><td>${itPic(x.id)}${itN(x.id)}</td></tr>`).join('')}</table>`:'<p class="note">Nenhum item mudou de dono.</p>'}`;
+    const ids=Object.keys(E.m).map(Number).filter(i=>CARDS[i]).sort((a,b)=>(T.dead.has(a)-T.dead.has(b))||E.m[b]-E.m[a]);
+    h+=`<details class="huntbox"><summary>💰 Moedas e bolsa de cada campeão no fim (${ids.length})</summary><table class="rtab"><tr><th>Campeão</th><th>Moedas (início → fim)</th><th>Gastou</th><th>Bolsa no fim</th></tr>${ids.map(i=>{const b=(E.bag[i]||[]),cnt={};b.forEach(id=>cnt[id]=(cnt[id]||0)+1);
+      return `<tr class="${T.dead.has(i)?'dead':''}"><td><b>${rN(i)}</b>${T.dead.has(i)?' 💀':E.prison&&E.prison.has(i)?' ⛓️':''}</td><td>${COIN}${(E.m0&&E.m0[i])??'?'} → ${COIN}${E.m[i]}</td><td>${E.spentBy&&E.spentBy[i]?COIN+E.spentBy[i]:'—'}</td><td>${Object.entries(cnt).map(([id,n])=>`${itN(id)}${n>1?' ×'+n:''}`).join(', ')||'<span class="note">vazia</span>'}</td></tr>`;}).join('')}</table></details>`;}
+  else if(repTab==='caca'){h+=histList(T,['hunt'],'Não houve caçadas.');}
+  else if(repTab==='conq'){h+=cq.map(c=>`<div class="rrow">🏆 <b>${c[1]}</b>${T.conqNew.includes(c[0])?' <span class="st buff">nova!</span>':''} <span class="note">${c[2]}</span></div>`).join('')||'<p class="note">Nenhuma.</p>';}
+  return h+'</div></div>';}
+
+// ===================== 1.6.1: GALERIAS DE ARENAS E ITENS =====================
+const ARENA_ONDE={coliseu:'Copa, Mata-mata e Torre',olimpo:'Copa e Mata-mata',lanternas:'Copa e Mata-mata',cemiterio:'Copa e Mata-mata',chuva:'Copa e Mata-mata',ponte:'Copa e Mata-mata',
+  prisao:'Copa e Mata-mata (sempre no baralho)',krampus:'Só no evento Natal Sombrio',colmeia:'Só com o Modo Alien'};
+function renderArenas(){$('#arenaList').innerHTML=ARENA_IDS.map(id=>{const a=ARENAS[id],lock=a.kr&&!krOk(),fx=!/^(A arena[^.]*\. )?Sem efeito\.?$/.test(a.x);
+  return lock?`<article class="agal lock"><div class="aimg"><span class="qq">???</span></div><div><h3>???</h3><p class="note">Arena bloqueada: libera junto com um campeão secreto.</p></div></article>`
+   :`<article class="agal"><div class="aimg"><img src="img/arenas/${a.img}.jpg" alt="" loading="lazy"></div><div><h3>${a.n}</h3><span class="st ${fx?'buff':''}">${fx?'Tem modificador':'Sem modificador'}</span> <span class="note">· ${ARENA_ONDE[id]||''}</span><p>${a.x}</p></div></article>`;}).join('');}
+const ITEM_GRUPOS=[['bag','Bolsas','Compradas no mercado. Aumentam o espaço da bolsa.'],['pot','Poções','Compradas no mercado. Usadas durante a luta pelo botão Abrir bolsa.'],
+  ['eq','Equipamentos','Comprados no mercado. Existe só um de cada no torneio; o bônus é automático e soma com os outros.'],['sig','Itens de personagem','O dono começa com o item. Quem vence o dono pode pegar.']];
+const SIG_FORM={'Super Predador':'superPred','Predador Caçador':'predCac'};
+function renderItens(){const seen=loadSeen();
+  $('#itemList').innerHTML=`<p class="note">Os itens valem na Copa e no Mata-mata (na Torre você escolhe entre 3 antes de cada andar). Não entram no evento Natal Sombrio. Os Aliens nunca usam itens.</p>`+ITEM_GRUPOS.map(([k,t,d])=>{const ids=Object.keys(ITEMS).filter(id=>ITEMS[id].k===k);
+   return `<h3 class="phase">${t} (${ids.length})</h3><p class="note">${d}</p><div class="igal">${ids.map(id=>{const it=ITEMS[id],f=SIG_FORM[it.own],lock=f&&!seen.has(f);
+     if(lock)return `<div class="iitem lock"><div class="iimg"><span class="qq">???</span></div><b>???</b><small>Item de uma forma especial bloqueada.</small></div>`;
+     const tags=[k==='sig'?`Dono: ${it.own}`:it.p?`${COIN}${it.p} no mercado`:'Todo campeão começa com ela',it.karma?`<span class="st ${it.karma>0?'buff':'weak'}">${it.karma>0?'+':''}${it.karma} de carma a quem pega</span>`:'',
+       id==='camuflagem'?'Fica na arena quando o Predador Caçador cai':'',id==='amuletoQC'?'Só fora do Modo Amuleto':''].filter(Boolean);
+     return `<div class="iitem"><div class="iimg"><img src="${ITIMG(id)}" alt="" loading="lazy"></div><b>${it.n}</b><small>${it.x}</small><small class="note">${tags.join(' · ')}</small></div>`;}).join('')}</div>`;}).join('');}
 
 // ===================== EQUILÍBRIO =====================
 $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=new Array(NB).fill(0),games=new Array(NB).fill(0);let i=0;const N=20;
@@ -1983,11 +2129,11 @@ $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=ne
 
 
 // ===================== v1.2: TELAS NOVAS =====================
-const VERSION='1.6.0';
-const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
+const VERSION='1.6.1';
+const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',arenas:'Arenas',itens:'Itens',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
 function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
-  if(v==='menu')$('#btnCont').hidden=!(T&&!T.done);if(v==='personagens')renderPers();if(v==='cartas')renderForms();if(v==='criar'){fillSizes();renderMe();}if(v==='eventos')renderEventos();window.scrollTo(0,0);}
+  if(v==='menu')$('#btnCont').hidden=!(T&&!T.done);if(v==='personagens')renderPers();if(v==='cartas')renderForms();if(v==='criar'){fillSizes();renderMe();}if(v==='eventos')renderEventos();if(v==='arenas')renderArenas();if(v==='itens')renderItens();window.scrollTo(0,0);}
 $('#verTxt').textContent='versão '+VERSION;
 $('#btnPlay').onclick=()=>show('menu');
 $('#btnBack').onclick=()=>show('menu');
@@ -2004,6 +2150,11 @@ function noteSeen(res,A,B){const s=loadSeen(),n=s.size;(res&&res.forms||[]).forE
 // ---------- sininho ----------
 const NEWS_KEY='convergencia_novidades';
 const NEWS={novas:[
+  ['Arenas e Itens no menu (1.6.1)','Dois botões novos no menu: Arenas (cada arena, se tem modificador e onde aparece) e Itens (bolsas, poções, equipamentos e itens de personagem, com preço, dono e carma).'],
+  ['Lança Selvagem (1.6.1)','O Super Predador agora chega com a Lança Selvagem: +2 Ataque, +15% de chance de Sangrando e +10% de dano contra Aliens. Quem vencer o Super Predador pode pegar.'],
+  ['Conquistas novas (1.6.1)','Lança Selvagem, Troca de Mãos e Ovelha Negra.'],
+  ['Telas mais organizadas (1.6.1)','O que acontece em cada luta aparece em linhas com ícone (💀 morte, ⛓️ prisão, 🔓 fuga, 🎯 caçada, 🎒 item, ⚖️ carma, 💰 moedas). O relatório final tem abas: Mortes (com os itens de quem morreu e para quem foram), Saíram vivos, Prisão, Carma, Itens e moedas, Caçadas e Conquistas. O Mural dos Procurados fica fechado e menor, e as caçadas aparecem separadas da chave. O Predador Caçador entrou na galeria.'],
+  ['Krampus com os modos (1.6.1)','Agora o Krampus pode ser o seu campeão com o Modo Alien, o Modo Amuleto e o Modo Caçador ligados. Quem ele vence vai para o saco, até um Alien; se ele ensacar quem está com o amuleto, o amuleto fica com ele.'],
   ['Modo Caçador de Recompensas (1.6)','Copa e Mata-mata. Todo vilão já começa procurado; quem mata vira procurado (herói SÓ VIVO, anti-herói VIVO OU MORTO, vilão MORTO). Quando as cabeças somam mais de 100 moedas chegam os caçadores. Botão Prender, Mural dos Procurados e a Prisão com fugas e renegados. Com o Modo Alien: a Caçada à Colmeia e o Predador Caçador.'],
   ['3 campeões novos','Erron Black (Mortal Kombat), Sol Badguy (Guilty Gear) e Bayman (Dead or Alive): caçadores de recompensa e Mercenários.'],
   ['Itens de personagem','13 campeões começam com o item deles (Pistolas, Fuuenken, Faca de Combate, Martelo da Ira, Lâminas do Caos, Luva de Lâminas, Leques, Bastão de Jade, Porrete do Eyedol, Escudos, Amuleto do Quan Chi). Quem vence o dono pode pegar. Algumas armas mudam o carma de quem pega.'],
@@ -2099,7 +2250,7 @@ function openDetail(c){const [tn,tc]=tierOf(c.forca),u=UNI[c.u];
 // ---------- criar torneio ----------
 var PLAY='livre',DIFF='normal',ME='rand';
 const alienOn=()=>$('#tAlien').checked&&!$('#tAlien').disabled;
-function meBlock(i){if(i==='K')return !krOk()?'Libere no evento Natal Sombrio':DIFF!=='divina'?'Sub-chefe: só na Divindade':(alienOn()||amuOn())?'O Krampus não joga com os modos do Uno':'';const c=CARDS[i];if(DIFF==='normal'&&isDivine(c))return `${c.tit||'Divino'}: só na Divindade`;if(alienOn()&&(c.alien||c.pred))return 'No Modo Alien você não pode ser o Alien nem o Predador';if(amuOn()&&(c.alien||c.pred))return 'No Modo Amuleto você carrega o amuleto (ou é o Quan Chi), e o Alien e o Predador não podem carregá-lo';return '';}
+function meBlock(i){if(i==='K')return !krOk()?'Libere no evento Natal Sombrio':DIFF!=='divina'?'Sub-chefe: só na Divindade':'';const c=CARDS[i];if(DIFF==='normal'&&isDivine(c))return `${c.tit||'Divino'}: só na Divindade`;if(alienOn()&&(c.alien||c.pred))return 'No Modo Alien você não pode ser o Alien nem o Predador';if(amuOn()&&(c.alien||c.pred))return 'No Modo Amuleto você carrega o amuleto (ou é o Quan Chi), e o Alien e o Predador não podem carregá-lo';return '';}
 const amuOn=()=>$('#tAmuleto').checked&&!$('#tAmuleto').disabled;
 function renderMe(){$('#voceBox').hidden=PLAY!=='voce';document.querySelectorAll('[data-play]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.play===PLAY));
   document.querySelectorAll('[data-diff]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.diff===DIFF));
@@ -2181,7 +2332,7 @@ function vlFight(bt,side){busy=true;setBtns();renderBracket();vlFast=false;$('#t
     flush(r.value.frames,()=>{vlFast=false;vlActions(r.value,go);});};
   go();}
 function vlAfter(bt,side,res){noteSeen(res,bt.A,bt.B);const won=res.w.i===T.player;$('#tresult').textContent=`${res.w.n} vence em ${res.round} rodadas.`;
-  const apply=ch=>{$('#actions').innerHTML='';T.playerChoice=ch||null;const pend=applyResult(T,res);T.playerChoice=null;renderBracket();$('#tourInfo').textContent=T.msgs.join(' ');vlStatus();
+  const apply=ch=>{$('#actions').innerHTML='';T.playerChoice=ch||null;const pend=applyResult(T,res);T.playerChoice=null;renderBracket();setInfo(T.msgs);vlStatus();
     const mine=pend.filter(p=>p.who===T.player);for(const p of pend)if(p.who!==T.player)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
     askChoices(mine,()=>lootOpen(()=>{busy=false;setBtns();vlCheckEnd();}));};
   if(!won||res.fled||curPhase(T).kind==='grupos'){apply(null);return;}
