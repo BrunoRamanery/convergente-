@@ -1394,14 +1394,24 @@ const CONQ=[['aliens','Conquista dos Aliens','Modo Alien: só sobram Aliens vivo
  ['angel','A Luz dos Kazama','O Angel Jin aparece.'],['evil','Satsui no Hado','O Ryu vira Evil Ryu.'],['lavagem','Lavagem Cerebral','O M. Bison captura o Ken ou a Cammy.'],
  ['libKen','Libertação do Ken','Alguém derrota o Violent Ken e liberta o Ken.'],['libCammy','Libertação da Cammy','Alguém derrota a Killer Bee e liberta a Cammy.'],['libTotal','Libertação Total','Ken e Cammy libertados no mesmo torneio.'],
  ['deuses','Matador de Deuses','O Kratos mata um deus.'],['colmeia','Colmeia','4 ou mais Aliens vivos ao mesmo tempo.'],['queda','Queda','Um herói termina o torneio como vilão.'],
- ['redencao','Redenção','Um vilão termina o torneio como herói.'],['natalSombrio','Natal Sombrio','Evento Natal Sombrio: vença o Krampus pela primeira vez.'],['presente','Presente de Grego','Evento Natal Sombrio: seja levado no saco do Krampus.'],['castigoLib','O Castigo Liberado','Libere o Krampus.'],['coracao','Coração Puro','Vença o Natal Sombrio sem matar ninguém.'],['torreRei','Rei da Torre','Vença os 10 andares do Rei da Torre.'],['sangrento','Torneio Sangrento','Mais da metade dos campeões morre.'],['paz','Torneio da Paz','Ninguém morre no torneio.']];
+ ['redencao','Redenção','Um vilão termina o torneio como herói.'],['natalSombrio','Natal Sombrio','Evento Natal Sombrio: vença o Krampus pela primeira vez.'],['presente','Presente de Grego','Evento Natal Sombrio: seja levado no saco do Krampus.'],['castigoLib','O Castigo Liberado','Libere o Krampus.'],['coracao','Coração Puro','Vença o Natal Sombrio sem matar ninguém.'],['torreRei','Rei da Torre','Vença os 10 andares do Rei da Torre.'],['sangrento','Torneio Sangrento','Mais da metade dos campeões morre.'],['paz','Torneio da Paz','Ninguém morre no torneio.'],
+ ['magnata','Magnata','O campeão termina o torneio com 250 moedas ou mais.'],['peRapado','Pé-Rapado','Alguém vence o torneio com 0 moedas.'],['humildeRico','De Humilde a Rico','Um Humilde (Ryu, Dhalsim ou King) termina como o mais rico do torneio.'],
+ ['inflacao','Inflação','Um item passa de 100 moedas no mercado.'],['coracaoOuro','Coração de Ouro','O King doa 50 moedas ou mais ao orfanato num torneio.'],['sorteGrande','Sorte Grande','Alguém acha uma poção no fim da luta.'],
+ ['donoCasa','Dono da Casa','Um Alien vence uma luta na Colmeia Xenomorfa.'],['respAcido','Respirando Ácido','Alguém vence o Alien dentro da Colmeia Xenomorfa.'],
+ ['escEquipado','Escalador Equipado','Vença a Torre com 3 equipamentos na bolsa.'],['maosVazias','Mãos Vazias','Vença a Torre sem pegar nenhum item.'],
+ ['fugitivo','Fugitivo','Alguém foge no fim da luta.'],['covarde','Covarde Assumido','O Homelander foge de uma luta.']];
 function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
   ok('aliens',T.conquest==='aliens');ok('predador',e.pred);ok('quanchi',T.quanDone);ok('omega',T.omega);ok('trueDevil',Object.values(T.demon).some(v=>v>=T.demonMax));
   ok('angel',e.forms.has('angelJin'));ok('evil',e.forms.has('evilRyu'));ok('lavagem',e.captured);ok('libKen',e.lib.has('vken'));ok('libCammy',e.lib.has('kbee'));ok('libTotal',e.lib.has('vken')&&e.lib.has('kbee'));
   ok('deuses',e.godkill);ok('colmeia',e.colmeia);
   const ch=Object.keys(T.karma).map(Number);ok('queda',ch.some(i=>T.startRole[i]==='h'&&roleNow(T,i)==='v'));ok('redencao',ch.some(i=>T.startRole[i]==='v'&&roleNow(T,i)==='h'));
   ok('sangrento',T.fmt!=='torre'&&T.dead.size>T.ids.length/2);ok('paz',T.fmt!=='torre'&&!T.natal&&T.dead.size===0);
-  const pw=T.natal&&T.champ===T.player;ok('natalSombrio',pw);ok('presente',T.natal&&T.sacked.has(T.player));ok('castigoLib',!!T.krUnlocked);ok('coracao',pw&&!(T.killCount[T.player]>0));ok('torreRei',T.fmt==='torre'&&T.champ!=null);return got;}
+  const pw=T.natal&&T.champ===T.player;ok('natalSombrio',pw);ok('presente',T.natal&&T.sacked.has(T.player));ok('castigoLib',!!T.krUnlocked);ok('coracao',pw&&!(T.killCount[T.player]>0));ok('torreRei',T.fmt==='torre'&&T.champ!=null);
+  const E=T.eco;if(E){const fin=T.champ!=null&&E.m[T.champ]!=null;ok('magnata',fin&&E.m[T.champ]>=250);ok('peRapado',fin&&E.m[T.champ]===0);
+    const top=Object.entries(E.m).sort((a,b)=>b[1]-a[1])[0];ok('humildeRico',!!top&&trait(CARDS[top[0]],'humilde'));ok('inflacao',!!e.infl);ok('coracaoOuro',E.st.orfanato>=50);ok('sorteGrande',E.st.findN>0);}
+  ok('donoCasa',!!e.donoCasa);ok('respAcido',!!e.respAcido);
+  const tw=T.tw,tc=T.fmt==='torre'&&T.champ!=null&&tw;ok('escEquipado',!!tc&&tw.bag.filter(id=>ITEMS[id].k==='eq').length>=3);ok('maosVazias',!!tc&&!tw.log.some(l=>l.id));
+  ok('fugitivo',(T.fleeCount||0)>0);ok('covarde',!!e.covarde);return got;}
 function finishPend(T,pend){return pend.filter(p=>p.opts.length&&!(T.done&&p.kind==='rugal'));}
 function choosePending(T,p,id){if(p.kind==='rugal')T.rugal=id;else(T.bonus[p.who]=T.bonus[p.who]||[]).push(id);}
 function closePhase(T){const ph=curPhase(T),winners=ph.matches.filter(m=>!m.inv&&!m.third).flatMap(m=>m.res.hive?[m.res.w,m.res.l]:[m.res.w]),next=[...(ph.direct||[]),...winners,...T.returning].filter((i,k,a)=>!T.out.has(i)&&a.indexOf(i)===k);T.returning=[];
@@ -1481,7 +1491,7 @@ function ecoBuy(T,i,id){const E=T.eco,it=ITEMS[id],bag=E.bag[i];if(!E.offer.incl
   if(trait(CARDS[i],'selvagem'))return 'Selvagem não usa o mercado.';if(E.m[i]<pr)return 'Moedas insuficientes.';
   if(it.k==='bag'){if(it.slots<=E.cap[i])return 'Você já tem uma bolsa igual ou maior.';E.cap[i]=it.slots;}
   else{if(bag.length>=ecoCap(T,i))return 'A bolsa está cheia.';if(it.k==='eq'){E.offer=E.offer.filter(x=>x!==id);}bag.push(id);if(it.k==='eq'&&!E.eq[i])E.eq[i]=id;}
-  E.m[i]-=pr;E.mult[id]=(E.mult[id]||1)*1.05;E.bought[id]=1;E.st.buy[id]=(E.st.buy[id]||0)+1;E.st.spent+=pr;return null;}
+  E.m[i]-=pr;E.mult[id]=(E.mult[id]||1)*1.05;if(ecoPrice(T,id)>100&&T.ev)T.ev.infl=true;E.bought[id]=1;E.st.buy[id]=(E.st.buy[id]||0)+1;E.st.spent+=pr;return null;}
 function ecoEquip(T,i,id){const E=T.eco;if(id==null){E.eq[i]=null;return;}if(E.bag[i].includes(id)&&ITEMS[id].k==='eq')E.eq[i]=id;}
 function ecoDrop(T,i,id){const E=T.eco,k=E.bag[i].indexOf(id);if(k<0)return;E.bag[i].splice(k,1);if(E.eq[i]===id&&!E.bag[i].includes(id))E.eq[i]=E.bag[i].find(x=>ITEMS[x].k==='eq')||null;}
 function ecoPrefEq(T,i){const c=CARDS[i],s=combatSt(c.st);const o=[s.sat>s.atk?'pergaminho':'luvas'];if((SORTE[c.n]??3)<5)o.push('trevo');o.push(s.def<s.sdef?'armadura':'manto','botas',s.sat>s.atk?'luvas':'pergaminho');return o;}
@@ -1532,7 +1542,7 @@ function ecoFlee(T,w,l){if(T.fmt==='torre'||T.natal||typeof l.i!=='number'||CARD
   const cov=l.ab.includes('covarde');
   if(lock||(!cov&&(l.tit==='Chefe'||l.ab.includes('arrogante')))){if(T.eco)T.eco.st.fleeLocked++;return false;}
   let ch=.10+.04*(cardLuck(T,l)-cardLuck(T,w))+(cardSpd(T,l)>cardSpd(T,w)?.10:0)+(cov?.20:0);ch=Math.max(0,Math.min(.4,ch));
-  const ok=T.rand()<ch;if(ok&&T.eco)T.eco.st.flee++;if(ok)T.fleeCount=(T.fleeCount||0)+1;return ok;}
+  const ok=T.rand()<ch;if(ok&&l.n==='Homelander'&&T.ev)T.ev.covarde=true;if(ok&&T.eco)T.eco.st.flee++;if(ok)T.fleeCount=(T.fleeCount||0)+1;return ok;}
 // decisão da IA quando o perdedor tem cartaz
 function ecoPosterDecide(T,w,l){const E=T.eco;if(!E||typeof l.i!=='number')return null;const p=E.post[l.i];if(!p||trait(w,'selvagem'))return null;const r=roleOf(T,w),R=T.rand;
   if(p.t==='vivo'){if(r==='v'&&R()<KILL.v)return {kill:true,why:' (Vilão: mata mesmo o procurado SOMENTE VIVO)'};return {kill:false,prison:true,why:''};}
@@ -1580,7 +1590,7 @@ function ecoFind(T,wi){const E=T.eco;if(!E||E.bag[wi].length>=ecoCap(T,wi)||trai
 function ecoGroup(T,wi,li){const E=T.eco;if(!E)return;ecoAdd(T,wi);ecoAdd(T,li);if(trait(CARDS[wi],'selvagem'))return;
   const coins=trait(CARDS[wi],'ganancioso')||trait(CARDS[wi],'saqueador')?E.m[li]:Math.floor(E.m[li]/2);E.m[li]-=coins;E.st.loot+=coins;if(coins){E.m[wi]+=coins;T.msgs.push(`${CARDS[wi].n} pega ${coins} moedas de ${CARDS[li].n}.`);}if(T.lastArena==='lanternas'){E.m[wi]+=ARENAS.lanternas.coins;E.st.lantern=(E.st.lantern||0)+ARENAS.lanternas.coins;T.msgs.push(`Mercado das Lanternas: ${CARDS[wi].n} ganha +${ARENAS.lanternas.coins} moedas pela vitória.`);}ecoFind(T,wi);}
 // tira da bolsa o que foi usado na luta
-function ecoUsed(T,b,res){T.lastArena=b.arena||(b.m&&b.m.arena)||null;const E=T.eco;if(!E)return;for(const [card,used] of [[b.A,res.usedA],[b.B,res.usedB]]){if(!used||!used.length||typeof card.i!=='number'||!E.bag[card.i])continue;
+function ecoUsed(T,b,res){T.lastArena=b.arena||(b.m&&b.m.arena)||null;const ev=T.ev||{};if(T.lastArena==='colmeia'&&res.w&&res.l){if(res.w.alien)ev.donoCasa=true;else if(res.l.alien)ev.respAcido=true;}if(res.fled&&res.l&&res.l.n==='Homelander')ev.covarde=true;const E=T.eco;if(!E)return;for(const [card,used] of [[b.A,res.usedA],[b.B,res.usedB]]){if(!used||!used.length||typeof card.i!=='number'||!E.bag[card.i])continue;
   for(const id of used){ecoDrop(T,card.i,id);E.st.use[id]=(E.st.use[id]||0)+1;}}}
 // ===================== INTERFACE =====================
 const $=s=>document.querySelector(s);
@@ -1841,7 +1851,7 @@ $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=ne
 
 
 // ===================== v1.2: TELAS NOVAS =====================
-const VERSION='1.5.0';
+const VERSION='1.5.1';
 const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
 function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
@@ -1862,6 +1872,7 @@ function noteSeen(res,A,B){const s=loadSeen(),n=s.size;(res&&res.forms||[]).forE
 // ---------- sininho ----------
 const NEWS_KEY='convergencia_novidades';
 const NEWS={novas:[
+  ['Conquistas novas (1.5.1)','Magnata, Pé-Rapado, De Humilde a Rico, Inflação, Coração de Ouro, Sorte Grande, Dono da Casa, Respirando Ácido, Escalador Equipado, Mãos Vazias, Fugitivo e Covarde Assumido.'],
   ['Economia (1.5)','Moedas de Uno, mercado antes do torneio e a cada fase (preço sobe com a procura), bolsas, 9 poções e 6 equipamentos que somam (só existe 1 de cada). Na luta, o botão "Abrir bolsa". Quem mata leva tudo do derrotado; quem poupa leva metade das moedas e 1 ou 2 itens.'],
   ['Sorte de 1 a 5 e fuga','Cada campeão tem a sua Sorte. No fim da luta, quem perde pode fugir e sai vivo com tudo. O Freddy sempre mata quem termina Dormindo.'],
   ['Carma novo','Herói começa com +10, anti-herói +5, vilão −5. Matar −2, poupar +1, e o papel muda com folga.'],
