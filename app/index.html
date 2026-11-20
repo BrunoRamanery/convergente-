@@ -523,7 +523,7 @@ td.wr{width:40%}
 
 <script>
 // ===================== DADOS =====================
-const UNI={MK:{n:'Mortal Kombat',c:'#b8322a'},SF:{n:'Street Fighter',c:'#2b62c4'},TK:{n:'Tekken',c:'#7c46c2'},KOF:{n:'The King of Fighters',c:'#d06d17'},DOA:{n:'Dead or Alive',c:'#c23a80'},SC:{n:'Soulcalibur',c:'#b48f1f'},GG:{n:'Guilty Gear',c:'#1a958c'},KI:{n:'Killer Instinct',c:'#378f33'},VF:{n:'Virtua Fighter',c:'#3a9bd6'},GST:{n:'Convidados',c:'#6b7286'}};
+const UNI={MK:{n:'Mortal Kombat',c:'#b8322a'},SF:{n:'Street Fighter',c:'#2b62c4'},TK:{n:'Tekken',c:'#7c46c2'},KOF:{n:'The King of Fighters',c:'#d06d17'},DOA:{n:'Dead or Alive',c:'#c23a80'},SC:{n:'Soulcalibur',c:'#b48f1f'},GG:{n:'Guilty Gear',c:'#1a958c'},KI:{n:'Killer Instinct',c:'#378f33'},VF:{n:'Virtua Fighter',c:'#3a9bd6'},TB:{n:'The Boys',c:'#1f4fa3'},AVP:{n:'Alien vs. Predador',c:'#4f6b2c'},GST:{n:'Convidados',c:'#6b7286'}};
 // nome|uni|origem|classe|subclasse|raça|família|patamar|título|vida|energia|atq|def|atqEsp|defEsp|pMag|resMag|vel|habilidades
 const RAW=`Scorpion|MK||Assassino|Ninja|Espectro (ex-humano)|Espectro|Mortal||180|100|11|9|13|9|9|18|17|venha,fogoInf
 Sub-Zero|MK||Atirador|Controlador|Criomante|Humano|Mortal||200|120|10|11|17|10|9|15|10|congela,clone
@@ -561,10 +561,10 @@ Fulgore|KI||Tanque|Máquina|Ciborgue Ultratech|Ciborgue|Mortal||200|100|18|21|11
 Gargos|KI||Tanque|Colosso|Demônio do Reino das Sombras|Demônio|Semideus|Chefe|300|110|18|20|14|13|16|10|7|gargulas,senhor
 Kratos|GST|God of War|Guerreiro|Berserker|Espartano, filho de Zeus|Humano|Deus||260|120|21|15|14|12|11|16|11|furia,laminas,matadorDeuses
 Freddy Krueger|GST|A Hora do Pesadelo|Mago|Sombrio|Demônio dos sonhos|Demônio|Mortal||240|100|10|8|10|9|23|12|8|pesadelo,mundoSonhos
-Predador|GST|Predador|Atirador|Soldado|Yautja|Alienígena|Mortal||200|100|17|13|19|10|3|12|10|camo,cacador
-Alien (Xenomorfo)|GST|Alien|Assassino|Fera|Xenomorfo|Alienígena|Mortal||200|100|13|12|10|9|2|17|21|acido,mandibula,colmeia
+Predador|AVP|Predador|Atirador|Soldado|Yautja|Alienígena|Mortal||200|100|17|13|19|10|3|12|10|camo,cacador
+Alien (Xenomorfo)|AVP|Alien|Assassino|Fera|Xenomorfo|Alienígena|Mortal||200|100|13|12|10|9|2|17|21|acido,mandibula,colmeia
 Omni-Man|GST|Invencível|Tanque|Colosso|Viltrumita|Alienígena|Mortal||230|100|18|20|9|12|4|12|12|investida,resistV
-Homelander|GST|The Boys|Atirador|Artilheiro|Super-humano (Composto V)|Humano|Mortal||200|135|16|14|24|12|4|13|12|laser,ego
+Homelander|TB|The Boys|Atirador|Artilheiro|Super-humano (Composto V)|Humano|Mortal||200|135|16|14|24|12|4|13|12|laser,ego
 Quan Chi|MK||Mago|Sombrio|Osh-Tekk (feiticeiro do Netherrealm)|Raça de outro reino|Mortal|Sub-chefe|240|120|6|11|14|12|24|16|9|caveiraVerde,buscaAmuleto
 Mileena|MK||Assassino|Fera|Clone edeniana-tarkatana|Raça de outro reino|Mortal||200|110|17|10|12|9|5|11|18|mordida,sangueTark
 Baraka|MK||Guerreiro|Berserker|Tarkatano|Raça de outro reino|Mortal||230|100|17|13|8|9|3|11|13|laminasTark,lealMileena,sangueTark
@@ -578,8 +578,8 @@ Helena Douglas|DOA||Assassino|Agente|Humana|Humano|Mortal||205|120|16|11|13|11|6
 Ghostface|GST|Pânico|Assassino|Ninja|Humano (assassino mascarado)|Humano|Mortal||175|110|15|9|8|9|3|10|16|facaPanico,sempreVolta
 Riptor|KI||Assassino|Fera|Velociraptor ciborgue|Fera|Mortal||200|110|18|10|12|9|2|10|18|cuspeAcido,instintoCaca
 Eyedol|KI||Tanque|Colosso|Ciclope de duas cabeças|Demônio|Semideus|Chefe|265|120|17|15|8|12|12|12|8|clavaGuerra,cabecaFeit
-Soldier Boy|GST|The Boys|Guerreiro|Lutador|Super-soldado (Composto V)|Humano|Mortal||230|120|19|16|20|12|3|13|12|rajadaNoPeito
-Stormfront|GST|The Boys|Atirador|Artilheiro|Super-humana (Composto V)|Humano|Mortal||210|125|17|13|22|12|4|12|14|raio
+Soldier Boy|TB|The Boys|Guerreiro|Lutador|Super-soldado (Composto V)|Humano|Mortal||230|120|19|16|20|12|3|13|12|rajadaNoPeito
+Stormfront|TB|The Boys|Atirador|Artilheiro|Super-humana (Composto V)|Humano|Mortal||210|125|17|13|22|12|4|12|14|raio
 `;
 function parseCard(l,i){const p=l.split('|');const n=v=>+v;
   const c={i,n:p[0],u:p[1],orig:p[2]||UNI[p[1]].n,cls:p[3],sub:p[4],race:p[5],fam:p[6],pat:p[7],tit:p[8],hp:n(p[9]),en:n(p[10]),
@@ -595,10 +595,10 @@ devilKaz|devil-kazuya|Kazuya usa Despertar do Demônio (paga metade da Vida, só
 omegaRugal|omega-rugal|Rugal vence o Orochi no torneio e absorve o poder dele. Fica assim até o fim do torneio.|Omega Rugal|KOF|The King of Fighters (poder de Orochi)|Atirador|Artilheiro|Humano com o poder de Orochi|Humano|Semideus|Chefe|260|145|21|20|28|18|15|20|7|barreira,poderOrochi,corpoOmega
 trueDevilKaz|true-devil-kazuya|Kazuya junta os pontos do demônio no torneio (3 em torneios de 8, 4 em 16, 5 em 32 e na Copa; na Torre não vale ponto). Cada vitória vale 1 ponto, vencer o Jin vale 2, e vitória com Despertar do Demônio não vale ponto. Fica assim até o fim do torneio.|True Devil Kazuya|TK|Tekken (forma demoníaca máxima)|Guerreiro|Berserker|Demônio absoluto do Gene Demoníaco|Meio-demônio|Semideus|Chefe|265|120|29|14|14|12|19|15|10|punho,semMis,laserDevil,asasDemonio
 angelJin|angel-jin|Só quando o Jin enfrenta o True Devil Kazuya: em vez do demônio, desperta o anjo (a luz da mãe, Jun Kazama).|Angel Jin|TK|Tekken (a luz dos Kazama)|Guerreiro|Lutador|Anjo que venceu o Gene Demoníaco|Meio-demônio|Semideus|Sub-chefe|275|120|27|15|18|14|20|18|12|punho,luzKazama,purificacao
-superPred|super-predador|Modo Alien: só chega se o primeiro Alien vencer uma luta. Invade o torneio caçando um Alien.|Super Predador|GST|Predadores (os caçadores de elite)|Atirador|Soldado|Yautja de elite (Super Predador)|Alienígena|Mortal|Sub-chefe|250|110|20|15|21|12|3|13|13|camo,cacador,cacadaElite
+superPred|super-predador|Modo Alien: só chega se o primeiro Alien vencer uma luta. Invade o torneio caçando um Alien.|Super Predador|AVP|Predadores (os caçadores de elite)|Atirador|Soldado|Yautja de elite (Super Predador)|Alienígena|Mortal|Sub-chefe|250|110|20|15|21|12|3|13|13|camo,cacador,cacadaElite
 killerBee|killer-bee|M. Bison vence a Cammy: ele nunca a mata, a captura e a transforma de volta em boneca da Shadaloo. Luta pelo Bison, antes dele.|Killer Bee|SF|Street Fighter (boneca da Shadaloo)|Assassino|Agente|Clone sob controle da Shadaloo|Humano|Mortal||200|120|20|11|13|9|4|13|17|spiral,bonecaShadaloo
 vken|violent-ken|M. Bison vence o Ken sem matar e o captura. Luta primeiro nas lutas do Bison.|Violent Ken|SF|Street Fighter (controlado pelo M. Bison)|Guerreiro|Berserker|Humano sob lavagem cerebral|Humano|Mortal||220|120|18|11|12|9|5|16|13|shoryuF,psychoKen
-predalien|predalien|Modo Alien: um Alien vence um Predador sem matar. O Predador vira hospedeiro e nasce o Predalien, um sub-chefe.|Predalien|GST|Alien vs. Predador|Assassino|Fera|Xenomorfo nascido de um Predador|Alienígena|Mortal|Sub-chefe|220|100|18|14|10|10|2|15|18|acido,mandibula,urro,colmeia`;
+predalien|predalien|Modo Alien: um Alien vence um Predador sem matar. O Predador vira hospedeiro e nasce o Predalien, um sub-chefe.|Predalien|AVP|Alien vs. Predador|Assassino|Fera|Xenomorfo nascido de um Predador|Alienígena|Mortal|Sub-chefe|220|100|18|14|10|10|2|15|18|acido,mandibula,urro,colmeia`;
 const FORMS={};FORM_RAW.trim().split('\n').forEach(l=>{const p=l.split('|');const c=parseCard(p.slice(3).join('|'),'f_'+p[0]);c.key=p[0];c.img=p[1];c.how=p[2];c.form=true;FORMS[p[0]]=c;});
 FORMS.predalien.alien=true;FORMS.superPred.pred=true;CARDS.find(c=>c.n==='Predador').pred=true;
 const tierOf=f=>f>=104?['Lendário','L']:f>=94?['Elite','E']:f>=88?['Forte','F']:['Comum','C'];
@@ -1456,7 +1456,7 @@ $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=ne
 
 
 // ===================== v1.2: TELAS NOVAS =====================
-const VERSION='1.4.0';
+const VERSION='1.4.1';
 const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
 function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
@@ -1477,6 +1477,7 @@ function noteSeen(res,A,B){const s=loadSeen(),n=s.size;(res&&res.forms||[]).forE
 // ---------- sininho ----------
 const NEWS_KEY='convergencia_novidades';
 const NEWS={novas:[
+  ['Universos novos (1.4.1)','The Boys (Homelander, Soldier Boy e Stormfront) e Alien vs. Predador (Alien, Predador, Super Predador e Predalien) saíram dos Convidados e viraram universos próprios.'],
   ['Reforma das Habilidades (1.4.0)','O combate mudou inteiro. Cada campeão luta com o ataque normal e os golpes com nome dele (sem os botões físico, especial e mágico). Golpes físicos, agarrões e especiais; elementos com "É super efetivo!"; golpe crítico; Sorte; e estados novos: Sangrando, Corroído, Paralisado, Confuso, Amaldiçoado, Fraturado, Dormindo, Provocado, Silenciado, Encantado e mais.'],
   ['Traços','Encantadora, Voar, Levitar, Graça, Arrogante, Covarde, Fanatismo e outros. Veja na ficha de cada campeão: elemento, raça, traços e contra quem ele é forte ou fraco.'],
   ['Equilíbrio entre universos','Todos os universos testados um por um e depois juntos (cerca de 1,5 milhão de lutas simuladas). Os comuns agora ficam entre 43% e 60% de vitórias (a Mileena, de propósito, um pouco acima). Scorpion com Ataque 14.'],
