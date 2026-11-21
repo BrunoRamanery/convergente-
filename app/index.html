@@ -546,7 +546,7 @@ td.wr{width:40%}
     <li><b>Estados de dano (no máximo 2 juntos):</b> Queimado −8 por turno · Sangrando −7 por turno e −5 quando age · Corroído −5 por turno e tira Defesa.</li>
     <li><b>Perde a vez:</b> Atordoado e Congelado (1 turno; ao descongelar fica Lento e gelado) · Dormindo (2 turnos; um golpe acorda). Depois de perder a vez, fica imune no turno seguinte.</li>
     <li><b>Outros estados:</b> Lento (−3 Velocidade) · Enfraquecido (−3 Defesa) · Fraturado (só de agarrão: Lento e −3 Defesa) · Amaldiçoado (−2 em tudo) · Paralisado (50% de não agir) · Confuso (30% de errar ou se acertar) · Provocado (+20% de dano, −3 Defesa) · Escorregadio (pode tropeçar) · Silenciado (só ataque normal) · Encantado (causa 20% menos de dano em quem encantou). Os estados duram até o fim da luta.</li>
-    <li><b>Sorte (1 a 5):</b> quase todos têm 3. Sorte 5: Ghostface, Faust e Kasumi. Sorte 4: Taki, Mai, Orchid, Cammy e Predador. Sorte 2: Shao Kahn, M. Bison, Rugal e Homelander. Sorte 1: Spinal e Freddy. Cada ponto dá +1% de crítico (base 5%), +3% de resistir a um estado (até 15%), +3% de achar uma poção no fim da luta e ajuda a fugir. O Trevo dá +1.</li>
+    <li><b>Sorte (1 a 5):</b> quase todos têm 3. Sorte 5: Ghostface, Faust e Kasumi. Sorte 4: Taki, Mai, Orchid, Cammy e Predador. Sorte 2: Shao Kahn, M. Bison, Rugal e Homelander. Sorte 1: Spinal e Freddy. Cada ponto dá +1% de crítico (base 5%), +3% de resistir a um estado (até 15%), +5% de achar algo na arena depois de vencer (moedas largadas a partir da 2ª luta, ou poções; as armas escondidas têm chance própria) e ajuda a fugir. Cada Trevo dá +1 (o mercado tem 2).</li>
     <li><b>Fuga:</b> o Homelander é Covarde: perdendo e com menos de 25% de Vida, pode fugir no meio da luta. No fim de toda luta, quem perdeu ainda pode fugir: 10% + 4% por ponto de Sorte a mais que o vencedor + 10% se for mais rápido (Covarde +20%), de 0% a 40%. Chefes e Arrogantes nunca fogem. Não dá para fugir de rivalidade mortal, do Freddy (se terminou Dormindo), do Alien, do Krampus, do Shao Kahn e do Kratos contra deuses. Quem foge sai do torneio vivo, com tudo o que tinha. Não vale no Natal Sombrio nem na Torre.</li>
   </ul>
   <h3 class="phase">Torneio</h3>
@@ -737,7 +737,7 @@ function* fightG(cA,cB,opt){
   opt=opt||{};const quiet=!!opt.quiet;const frames=[];const R=Math.random;const AR=ARENAS[opt.arena||(opt.ta&&opt.ta.arena)||(opt.tb&&opt.tb.arena)]||{};
   const mk=(c,t)=>{t=t||{};const ph=t.plusHp||0,pe=t.plusEn||0;const f={c,name:c.n,k:kitOf(c),maxhp:c.hp+ph,hp:(t.hp!=null?t.hp:c.hp+ph),maxen:c.en+pe,en:c.en+pe,
     abs:[...c.ab,...(t.extras||[]),...(t.extra?[t.extra]:[])].filter((x,i,a)=>AB[x]&&a.indexOf(x)===i),s:{},dots:[],fl:{},t,form:null,last:null,perm:{atk:0,def:0,sat:0,sdef:0,spd:0},ryuW:t.ryuW||0};
-    f.lk=Math.max(1,Math.min(5,t.luck!=null?t.luck:(SORTE[c.n]??3)));f.b=combatSt(c.st,t.bonusSt);f.b.luck=f.lk;f.inv=[...(t.items||[])];f.pot=0;f.used=[];f.ifx=t.ifx||{norm:[],dmg:1,dodge:0,self:0};f.abs0=[...f.abs];return f;};
+    f.lk=Math.max(1,Math.min(5,t.luck!=null?t.luck:(SORTE[c.n]??3)));f.b=combatSt(c.st,t.bonusSt);f.b.luck=f.lk;f.inv=AR.noBag?[]:[...(t.items||[])];if(t.halfHp)f.hp=Math.max(1,Math.min(f.hp,Math.round(f.maxhp*.5)));f.pot=0;f.used=[];f.ifx=t.ifx||{norm:[],dmg:1,dodge:0,self:0};f.abs0=[...f.abs];return f;};
   const A=mk(cA,opt.ta),B=mk(cB,opt.tb);A.o=B;B.o=A;let evilBy=null;
   const has=(f,id)=>f.abs.includes(id);
   const isAlienF=f=>!!(f.c.alien||(f.form&&f.form.alien)||f.c.n==='Predalien');
@@ -752,7 +752,7 @@ function* fightG(cA,cB,opt){
     for(const k of ['slow','weak','curse','confuse','para','fract','slip'])if(f.s[k])L.push([STN[k],k==='slow'||k==='weak'?k:'weak']);
     if(f.s.provoke)L.push(['Provocado','weak']);if(f.s.silence)L.push(['Silenciado','weak']);if(f.fl.enc)L.push(['Encantado','weak']);if(f.s.frio)L.push(['Gelado','slow']);
     if(f.s.prot)L.push([{counter:'Contra-golpe',gi:'Guard Impact',combo:'Combo Breaker'}[f.s.prot]||'Protegido','buff']);if(f.s.barrier)L.push(['Barreira','buff']);
-    if(f.s.strong||f.s.boost)L.push(['Fortalecido','buff']);if(f.s.furia)L.push(['Fúria Espartana','buff']);if(f.fl.blind)L.push(['Blindado','buff']);if(f.s.garg)L.push(['Gárgulas','burn']);return L;};
+    if(f.s.strong||f.s.boost)L.push(['Fortalecido','buff']);if(f.s.furia)L.push(['Fúria Espartana','buff']);if(f.fl.blind)L.push(['Blindado','buff']);if(f.s.garg)L.push(['Gárgulas','burn']);if(AR.rain)L.push(['Ensopado','slow']);return L;};
   const snap=f=>({nm:f.name,fc:f.form,abs:[...f.abs],hp:Math.max(0,f.hp),maxhp:f.maxhp,en:f.en,maxen:f.maxen,sts:stList(f)});
   const L=quiet?()=>{}:(t,k)=>frames.push({t,k:k||'',s:[snap(A),snap(B)]});
   function stat(f,s){let v=f.b[s]+(f.perm[s]||0);
@@ -826,7 +826,7 @@ function* fightG(cA,cB,opt){
     if(has(a,'spiral')&&stat(a,'spd')>stat(d,'spd'))dmg*=1.3;
     if(has(a,'pernas')&&o.kick)dmg*=1.15;
     if(has(d,'mascara')&&!d.fl.msc)dmg*=.85;
-    const em=emult(o.el,d);dmg*=em;if(a.ifx&&a.ifx.dmg&&a.ifx.dmg!==1)dmg*=a.ifx.dmg;if(a.ifx&&a.ifx.alien&&isAlienF(d))dmg*=a.ifx.alien;if(a.t&&a.t.huntBonus)dmg*=a.t.huntBonus;if(AR.el&&o.el&&AR.el[o.el])dmg*=AR.el[o.el];
+    const em=emult(o.el,d);dmg*=em;if(a.ifx&&a.ifx.dmg&&a.ifx.dmg!==1)dmg*=a.ifx.dmg;if(a.ifx&&a.ifx.alien&&isAlienF(d))dmg*=a.ifx.alien;if(a.t&&a.t.huntBonus)dmg*=a.t.huntBonus;if(AR.el&&o.el&&AR.el[o.el])dmg*=AR.el[o.el];if(AR.phys&&!esp)dmg*=AR.phys;
     if(a.s.strong)dmg*=1+NUM.strong;if(a.s.provoke)dmg*=1+NUM.provDmg;if(d.s.slip&&!esp)dmg*=1-NUM.slipPhys;
     if(has(a,'ego')&&d.hp<d.maxhp*.15)dmg*=2;if(has(a,'lobo')&&a.hp<a.maxhp*.5)dmg*=1.2;if(a.s.furia&&!esp)dmg*=1.5;
     if(has(a,'mundoSonhos')&&d.s.skip==='sleep')dmg*=1.3;if(has(d,'resistV')&&!esp)dmg*=.8;if(o.dblWeak&&d.s.weak)dmg*=2;
@@ -848,6 +848,8 @@ function* fightG(cA,cB,opt){
     if(dmg>0&&!esp&&has(a,'chamaShoryu')&&d.hp>0&&R()<.25)status(d,'burn');
     if(dmg>0&&has(a,'caminho')&&(a.fl.cam||0)<3){a.fl.cam=(a.fl.cam||0)+1;a.perm.atk++;L(`Caminho do Guerreiro: ${a.name} fica +1 de Ataque nesta luta.`,'skill');}
     if(dmg>0&&o.cat==='fis'&&has(d,'acido')&&!has(a,'cacadaElite')&&!has(a,'sobrevivente')&&a.hp>0&&d.hp>0){L(`Sangue Ácido! ${a.name} leva 10.`,'skill');hurt(a,10);}
+    if(dmg>0&&a.ifx&&a.ifx.all)for(const [q,pp] of a.ifx.all)if(d.hp>0&&R()<pp)status(d,q==='rnd'?LAMINA_ST[Math.floor(R()*LAMINA_ST.length)]:q);
+    if(dmg>0&&a.ifx&&a.ifx.steal&&a.hp>0){const h=heal(a,Math.max(1,Math.round(dmg*a.ifx.steal)));if(h)L(`O Cajado da Floresta Viva suga ${h} de Vida de ${d.name}.`,'buff');}
     return {dmg,ok:dmg>0,crit};}
   const P=id=>(AB[id]&&AB[id].p)||{};
   function normal(f,o){L(`${f.name} usa o ataque normal (${f.k.norm==='cort'?'cortante':'contundente'}).`,'');
@@ -903,6 +905,8 @@ function* fightG(cA,cB,opt){
   const BADC=f=>{const b=[];if(f.dots.includes('bleed')||(f.dots.includes('acid')&&!f.permAcid))b.push('bandagem');if(f.dots.includes('burn'))b.push('pomada');if(f.s.curse||f.s.confuse)b.push('agua');
     if(f.s.para||f.s.skip==='sleep'||f.s.skip==='stun')b.push('energetico');if(f.s.slow||f.s.frio||f.s.skip==='freeze')b.push('aquecedor');return b;};
   function useItem(f,id){const it=ITEMS[id],k=f.inv.indexOf(id);if(!it||k<0)return;f.inv.splice(k,1);f.pot++;f.used.push(id);let x='';
+    if(it.thr){const o=f.o;let ch=(has(o,'voar')?.5:has(o,'levitar')?.3:.15)+.03*(stat(o,'spd')-stat(f,'spd'));ch=Math.max(.05,Math.min(.75,ch));
+      L(`${f.name} arremessa ${it.n} em ${o.name}!`,'skill');if(R()<ch){L(`${o.name} esquiva do frasco (${Math.round(ch*100)}% de chance).`,'miss');return;}status(o,it.thr);return;}
     if(it.hp){const h=heal(f,it.hp);x=`recupera ${h} de Vida`;}
     if(it.en){const b=f.en;f.en=Math.min(f.maxen,f.en+it.en);x=`recupera ${f.en-b} de Energia`;}
     const cl=it.cure||[],all=cl.includes('all');
@@ -924,6 +928,7 @@ function* fightG(cA,cB,opt){
     if(hv('elixir')&&f.en<25&&p>.35&&f.abs.some(id=>AB[id]&&AB[id].t==='A'&&AB[id].c>f.en))return 'elixir';
     if(hv('furia')&&!f.s.strong&&o.hp>o.maxhp*.5&&p>.5)return 'furia';
     if(hv('pedra')&&!f.s.fort&&p>.4&&p<.85)return 'pedra';
+    {const ok={fogoT:!o.dots.includes('burn')&&!o.k.imm.includes('Fogo'),acidoT:!o.dots.includes('acid'),raioT:!o.s.para,geloT:!o.s.skip&&!o.s.imm};const c=Object.keys(ok).filter(id=>hv(id)&&ok[id]);if(c.length&&o.hp>o.maxhp*.3&&R()<.45)return c[Math.floor(R()*c.length)];}
     return null;}
   const itemChoices=f=>[...new Set(f.inv)].filter(id=>ITEMS[id]&&ITEMS[id].k==='pot').map(id=>{const q=f.inv.filter(x=>x===id).length;
     return {t:'i',id,ok:f.pot<2,cost:0,n:ITEMS[id].n+(q>1?` (×${q})`:''),x:ITEMS[id].x+` Usar gasta o turno (${2-f.pot} de 2 itens nesta luta).`,est:null};});
@@ -999,7 +1004,19 @@ const ITEMS={
  pergaminho:{n:'Pergaminho Antigo',k:'eq',p:90,st:{sat:2,mag:2},img:'pergaminho-antigo',x:'Equipamento: +2 de Ataque Especial.'},
  manto:{n:'Manto Encantado',k:'eq',p:90,st:{sdef:2,res:2},img:'manto-encantado',x:'Equipamento: +2 de Defesa Especial.'},
  botas:{n:'Botas Velozes',k:'eq',p:90,st:{spd:2},img:'botas-velozes',x:'Equipamento: +2 de Velocidade.'},
- trevo:{n:'Trevo de Quatro Folhas',k:'eq',p:70,luck:1,img:'trevo-de-quatro-folhas',x:'Equipamento: +1 de Sorte (máximo 5).'}};
+ trevo:{n:'Trevo de Quatro Folhas',k:'eq',p:70,luck:1,img:'trevo-de-quatro-folhas',x:'Equipamento: +1 de Sorte (máximo 5). O mercado tem 2.'},
+ trevo2:{n:'Trevo de Quatro Folhas',k:'eq',p:70,luck:1,img:'trevo-de-quatro-folhas',x:'Equipamento: +1 de Sorte (máximo 5). O mercado tem 2.'},
+ fogoT:{n:'Frasco de Fogo',k:'pot',p:35,thr:'burn',img:'frasco-de-fogo',x:'Arremesso: deixa o rival Queimado (ele pode esquivar).'},
+ raioT:{n:'Frasco de Raio',k:'pot',p:35,thr:'para',img:'frasco-de-raio',x:'Arremesso: deixa o rival Paralisado (ele pode esquivar).'},
+ geloT:{n:'Frasco de Gelo',k:'pot',p:35,thr:'freeze',img:'frasco-de-gelo',x:'Arremesso: deixa o rival Congelado (ele pode esquivar).'},
+ acidoT:{n:'Frasco de Ácido',k:'pot',p:35,thr:'acid',img:'frasco-de-acido',x:'Arremesso: deixa o rival Corroído (ele pode esquivar).'},
+ lanterna:{n:'Lanterna das Almas',k:'eq',p:120,special:true,img:'lanterna-das-almas',x:'+4 de Vida máxima para cada morte que já aconteceu no torneio (até +40). Só aparece à venda depois de 4 mortes. Só existe 1.'},
+ chave:{n:'Chave da Prisão',k:'eq',p:250,special:true,img:'chave-da-prisao',x:'Se quem carrega for preso, foge na hora (a chave se gasta). Só existe 1 e só é vendida no Modo Caçador.'},
+ fumaca:{n:'Bomba de Fumaça',k:'esc',p:50,img:'bomba-de-fumaca',x:'Quando você ia morrer, foge da luta e sai vivo (a bomba se gasta), até de um Alien ou do Krampus. Não existe no evento Natal Sombrio. O mercado põe 1 à venda a cada 3 aberturas, e o preço dobra a cada venda.'},
+ lamina:{n:'Lâmina do Olimpo',k:'arm',p:300,img:'lamina-do-olimpo',st:{atk:14,sat:14},fx:{all:[['rnd',.40]],half:true},arena:'olimpo',x:'A arma que mais dá dano no jogo: +14 Ataque e +14 Atq. Esp., e cada golpe tem 40% de chance de um estado ruim sorteado. O preço: quem usa começa toda luta com metade da Vida (só poção recupera).'},
+ coroa:{n:'Coroa do Eclipse',k:'arm',p:250,img:'coroa-do-eclipse',st:{mag:3,atk:3},arena:'eclipse',x:'+3 Poder Mágico e +3 Ataque.'},
+ katana:{n:'Katana da Tempestade',k:'arm',p:200,img:'katana-da-tempestade',fx:{all:[['para',.10]]},arena:'dojo',x:'Todos os seus golpes têm 10% de chance de deixar o rival Paralisado.'},
+ cajado:{n:'Cajado da Floresta Viva',k:'arm',p:200,img:'cajado-da-floresta-viva',fx:{steal:.15},arena:'floresta',x:'Suga a vida do rival: você recupera 15% do dano que causa.'}};
 const SORTE={'Erron Black':4,'Ghostface':5,'Faust':5,'Kasumi':5,'Taki':4,'Mai Shiranui':4,'Orchid':4,'Cammy White':4,'Predador':4,'Shao Kahn':2,'M. Bison':2,'Rugal Bernstein':2,'Homelander':2,'Spinal':1,'Freddy Krueger':1};
 const ECO={rico:['Ken Masters','Heihachi Mishima','Kazuya Mishima','Rugal Bernstein','M. Bison','Shao Kahn','Homelander','Helena Douglas','Vega'],humilde:['Ryu','Dhalsim','King'],
  ganancioso:['Balrog'],caridoso:['King'],saqueador:['Spinal'],selvagem:['Alien (Xenomorfo)','Predalien','Riptor'],medico:['Faust'],
@@ -1007,14 +1024,24 @@ const ECO={rico:['Ken Masters','Heihachi Mishima','Kazuya Mishima','Rugal Bernst
 // ---------- ARENAS (v1.5) ----------
 const ARENAS={
  coliseu:{n:'Coliseu de Uno',img:'coliseu',x:'A arena do Uno. Sem efeito.'},
- olimpo:{n:'Templo do Olimpo',img:'templo-do-olimpo',x:'Sem efeito.'},
+ olimpo:{n:'Templo do Olimpo',img:'templo-do-olimpo',x:'Sem efeito. Quem tem muita Sorte pode achar a Lâmina do Olimpo escondida aqui.',hidden:'lamina'},
  lanternas:{n:'Mercado das Lanternas',img:'mercado-das-lanternas',x:'Quem vence ganha +20 moedas (Copa e Mata-mata).',coins:20},
  cemiterio:{n:'Cemitério das Almas Errantes',img:'cemiterio',x:'Mortos-vivos e Espectros (Spinal, Scorpion) começam com +10 de Vida.',undeadHp:10},
- chuva:{n:'Distrito da Chuva Eterna',img:'chuva-eterna',x:'Sempre chove: golpes Elétricos +10%, golpes de Fogo −10%, e o Queimado apaga depois de 1 rodada.',el:{'Elétrico':1.1,'Fogo':.9},rain:true},
- ponte:{n:'Ponte Entre Reinos',img:'ponte-entre-reinos',x:'Golpes de Fogo e de Gelo +20%. Estados negativos: +10% de chance de acontecer e queimadura, sangramento e ácido tiram 50% a mais.',el:{'Fogo':1.2,'Gelo':1.2},st:.10,dot:1.5},
+ chuva:{n:'Distrito da Chuva Eterna',img:'chuva-eterna',x:'Sempre chove: os dois lutadores ficam Ensopados. Golpes Elétricos +10%, golpes de Fogo −10%, e o Queimado apaga depois de 1 rodada.',el:{'Elétrico':1.1,'Fogo':.9},rain:true},
+ ponte:{n:'Ponte Entre Reinos',img:'ponte-entre-reinos',x:'Estados negativos: +10% de chance de acontecer, e queimadura, sangramento e ácido tiram 50% a mais. MORTE NA ARENA: o perdedor é jogado no abismo entre os reinos e leva tudo junto (quem mata não fica com nada).',st:.10,dot:1.5,
+   stage:true,stageN:'jogado no abismo entre os reinos',stageCoins:0,stageItems:0,stageMsg:'{w} joga {l} no abismo entre os reinos! MORTE NA ARENA: {l} cai com tudo o que tinha.'},
  prisao:{n:'Prisão da Fortaleza de Uno',img:'prisao',x:'Quem perde aqui não morre: fica preso, e o vencedor leva tudo o que ele tinha (até o Alien fica preso). No Modo Caçador de Recompensas, em toda luta aqui cada preso rola o dado: Sorte 4 ou 5 foge com 50% (e volta como renegado); Sorte 3 ou menos, 5%.',bh:true},
  krampus:{n:'Campanário do Krampus',img:'campanario-do-krampus',x:'A arena do Natal Sombrio. Sem efeito.',kr:true},
  colmeia:{n:'Colmeia Xenomorfa',img:'colmeia',x:'Quem não é Alien fica Corroído a luta inteira (5 de Vida por rodada, nada cura). Alien e Predalien ganham a Brutalidade: +1 Ataque e +1 Atq. Esp.',acid:true}};
+Object.assign(ARENAS,{
+ eclipse:{n:'Salão do Eclipse',img:'salao-do-eclipse',x:'Sem efeito. Quem tem Sorte pode achar a Coroa do Eclipse escondida na sala do trono.',hidden:'coroa'},
+ dojo:{n:'Dojo da Tempestade',img:'dojo-da-tempestade',x:'Sempre chove: os dois lutadores ficam Ensopados. Golpes Elétricos +10%, golpes de Fogo −10%, e o Queimado apaga depois de 1 rodada. Quem tem Sorte pode achar a Katana da Tempestade.',el:{'Elétrico':1.1,'Fogo':.9},rain:true,hidden:'katana'},
+ fenda:{n:'Fortaleza da Fenda',img:'fortaleza-da-fenda',x:'Sem efeito. Aqui nunca se acha dinheiro: só poções (inclusive as de arremesso), e com mais chance que nas outras arenas.',rift:true},
+ ringue:{n:'Ringue Clandestino',img:'ringue-clandestino',x:'Luta de rua: golpes físicos +10% e ninguém pode abrir a bolsa. Quem vence ganha +15 moedas.',phys:1.1,noBag:true,coins:15},
+ patio:{n:'Pátio Ferroviário',img:'patio-ferroviario',x:'Sem efeito. MORTE NA ARENA: o perdedor é empurrado no trilho e o trem passa (quem mata fica com 20% das moedas e 1 item; o resto é destruído).',
+   stage:true,stageN:'atropelado pelo trem',stageCoins:.2,stageItems:1,stageMsg:'{w} empurra {l} no trilho... e o trem passa. MORTE NA ARENA!'},
+ floresta:{n:'Floresta Viva',img:'floresta-viva',x:'Sem efeito. MORTE NA ARENA: o perdedor é jogado na árvore viva, que o devora (quem mata fica com todas as moedas e 1 item; o resto é destruído). Quem tem Sorte pode achar o Cajado da Floresta Viva.',
+   stage:true,stageN:'devorado pela árvore',stageCoins:1,stageItems:1,stageMsg:'{w} joga {l} na árvore viva: o rosto na casca abre a boca e o devora. MORTE NA ARENA!',hidden:'cajado'}});
 const ARENA_IDS=Object.keys(ARENAS);
 // ---------- ITENS DE PERSONAGEM (v1.6): o dono começa com o item; quem vence o dono pode pegar ----------
 Object.assign(ITEMS,{
@@ -1038,9 +1065,10 @@ const SIG_OF={};for(const id in ITEMS)if(ITEMS[id].k==='sig')SIG_OF[ITEMS[id].ow
 const sigOf=(T,n)=>n==='Quan Chi'&&T.amuletoMode?null:(SIG_OF[n]||null);
 // efeitos especiais dos itens de uma bolsa (somam)
 function sigFx(bag,ownerName){const fx={norm:[],dmg:1,dodge:0,enc:false,self:0,kill:0};for(const id of bag||[]){const it=ITEMS[id];if(!it||!it.fx)continue;const e=it.fx;
-  if(e.norm)fx.norm.push(...e.norm);if(e.dmg)fx.dmg*=e.dmg;if(e.dodge)fx.dodge+=e.dodge;if(e.enc)fx.enc=true;if(e.kill)fx.kill+=e.kill;if(e.alien)fx.alien=(fx.alien||1)*e.alien;if(e.self&&ownerName!==it.own.split(' ')[0]&&ownerName!==it.own)fx.self+=e.self;}return fx;}
+  if(e.norm)fx.norm.push(...e.norm);if(e.dmg)fx.dmg*=e.dmg;if(e.dodge)fx.dodge+=e.dodge;if(e.enc)fx.enc=true;if(e.kill)fx.kill+=e.kill;if(e.alien)fx.alien=(fx.alien||1)*e.alien;if(e.all)fx.all=[...(fx.all||[]),...e.all];if(e.steal)fx.steal=(fx.steal||0)+e.steal;if(e.self&&ownerName!==it.own.split(' ')[0]&&ownerName!==it.own)fx.self+=e.self;}return fx;}
 
 // o item de personagem fica preso ao dono: ele nunca joga fora nem troca o próprio item
+const LAMINA_ST=['bleed','freeze','burn','curse','para','confuse'];
 const isBound=(T,i,id)=>!!CARDS[i]&&ITEMS[id]&&ITEMS[id].k==='sig'&&sigOf(T,CARDS[i].n)===id;
 // carma de quem pega um item que não é dele (armas malditas puxam para o mal, escudos sagrados para o bem)
 function sigKarma(T,i,id){const it=ITEMS[id];if(!it||!it.karma||!CARDS[i]||it.own===CARDS[i].n||T.fmt==='torre')return;T.kwhy='pegou '+it.n;addKarma(T,i,it.karma);T.kwhy=null;
@@ -1238,7 +1266,7 @@ function tourOpts(T,i){const c=CARDS[i],t={};if(c.n==='Ryu'){t.ryu=T.ryu[i]||0;t
   if(T.natal&&i===T.player){const bl=NATAL_BLESS[c.n],pc=bl?(bl.st??bl):0,ph=bl?(bl.hp??pc):0;if(pc||ph){const b={...(t.bonusSt||{})};for(const k in c.st)b[k]=(b[k]||0)+Math.round(c.st[k]*pc*(k==='spd'?.5:1));t.bonusSt=b;t.plusHp=(t.plusHp||0)+Math.round(c.hp*ph);}}
   if(T.fmt==='torre'){delete t.trueDevil;if(T.topForm&&i===T.floors[9]){if(T.topForm==='omega')t.omega=true;else t.trueDevil=true;}}
   if((T.eco&&T.eco.m[i]!=null)||(T.tw&&i===T.climber)||bagOf(T,i).length){const bag=bagOf(T,i),eb=eqBonus(bag);t.items=bag.filter(id=>ITEMS[id].k==='pot');t.ifx=sigFx(bag,c.n);if(t.ifx.enc&&!(kitOf(c).ab||c.ab).includes('encanta'))t.extras=[...(t.extras||[]),'encanta'];
-    if(Object.keys(eb.st).length){const b={...(t.bonusSt||{})};for(const k in eb.st)b[k]=(b[k]||0)+eb.st[k];t.bonusSt=b;}t.luck=ecoLuck(T,i);if(T.eco&&trait(c,'selvagem'))t.plusHp=(t.plusHp||0)+Math.round(c.hp*.1);}
+    if(Object.keys(eb.st).length){const b={...(t.bonusSt||{})};for(const k in eb.st)b[k]=(b[k]||0)+eb.st[k];t.bonusSt=b;}t.luck=ecoLuck(T,i);if(bag.includes('lamina'))t.halfHp=true;if(bag.includes('lanterna'))t.plusHp=(t.plusHp||0)+Math.min(40,4*T.deaths.length);if(T.eco&&trait(c,'selvagem'))t.plusHp=(t.plusHp||0)+Math.round(c.hp*.1);}
   if(T.nextHp[i]!=null)t.hp=T.nextHp[i];
   return t;}
 // lutas sem adversário: quem foi embora (Predadores) dá W.O.
@@ -1281,16 +1309,28 @@ if(T.lastArena==='prisao'&&T.eco&&li!=null){out(false);T.lastOut='prison';T.prA=
   if(isKramp(l)){kill=true;why=' Quem vence o Krampus sempre o mata.';}
   else if(isPlayer(T,l)){kill=true;why=' No Modo Você Luta, perder é morrer.';}
   else if(w.n==='Freddy Krueger'&&T.lastRes&&T.lastRes.sleepL&&T.lastRes.l===l){kill=true;why=' O Freddy sempre mata quem termina a luta dormindo.';}
-  else if(isPlayer(T,w)&&!lock&&T.playerChoice){kill=T.playerChoice==='kill';pris=T.playerChoice==='prison'&&!!T.eco&&li!=null;why=kill?' Foi a sua escolha.':'';}
+  else if(isPlayer(T,w)&&!lock&&T.playerChoice){kill=T.playerChoice==='kill'||T.playerChoice==='arena';pris=T.playerChoice==='prison'&&!!T.eco&&li!=null;why=kill?' Foi a sua escolha.':'';}
   else if(w.n==='Kratos'&&GOD_PAT.includes(l.pat)){kill=true;why=' O Matador de Deuses nunca poupa um deus.';}
   else if(ALWAYS_KILL[w.n]&&!(rv&&rv.k==='paz')){kill=true;why=` ${ALWAYS_KILL[w.n]} (100%).`;}
   else if(rv&&rv.k==='chance'){kill=T.rand()<rv.p;why=` Rivalidade: ${rv.x} (${Math.round(rv.p*100)}% de chance).`;}
   else if(rv){kill=rv.k==='morte';why=kill?` Rivalidade mortal: ${rv.x}.`:` ${rv.x}: um nunca mata o outro.`;}
   else{const pd=ecoPosterDecide(T,w,l);if(pd){kill=pd.kill;pris=!!pd.prison;why=pd.why;}else{const ch=Math.min(.95,KILL[roleOf(T,w)]+(typeof w.i==='number'&&T.bonus[w.i]&&T.bonus[w.i].includes('intencao')?.25:0));const lv=typeof w.i==='number'?sigFx(bagOf(T,w.i)).kill:0;const ch2=Math.min(.95,ch+lv);kill=T.rand()<ch2;why=` (${ROLE_N[roleOf(T,w)]}: ${Math.round(ch2*100)}% de chance${lv?', a Luva de Lâminas corrompe':''})`;}}
   if(!kill&&T.alienMode&&w.alien&&li!=null){out(true);T.spawn.push({host:li});T.msgs.push(`${w.n} não mata ${l.n}: implanta um embrião. ${l.n} vira hospedeiro e morre quando o novo Alien nasce.`);return true;}
+  if((kill||(T.alienMode&&w.alien&&li!=null))&&smokeUse(T,w,l)){out(false);T.lastOut='fled';return false;}
+  if(kill)T.akill=arenaKillPick(T,w,l);
   if(pris&&!kill&&T.eco){out(false);T.lastOut='prison';T.eco.prison.add(li);T.msgs.push(`${w.n} prende ${l.n} e entrega ao Uno: ${l.n} vai para a prisão da Fortaleza de Uno.${why}`);return false;}
   out(kill);if(kill&&w.n==='Predador'&&typeof w.i==='number'){T.preyKills[w.i]=(T.preyKills[w.i]||0)+1;T.msgs.push(`O Predador leva o crânio de ${l.n}: +1 de Ataque (total +${T.preyKills[w.i]}).`);}
-  T.msgs.push(kill?`${w.n} mata ${l.n}!${why}`:`${w.n} nocauteia ${l.n}, que sai do torneio vivo.${rv?why:''}`);return kill;}
+  T.msgs.push(kill&&T.akill?ARENAS[T.akill].stageMsg.replace(/\{w\}/g,w.n).replace(/\{l\}/g,l.n)+why:kill?`${w.n} mata ${l.n}!${why}`:`${w.n} nocauteia ${l.n}, que sai do torneio vivo.${rv?why:''}`);return kill;}
+// Morte na Arena: só em algumas arenas; o jogador escolhe no botão, a IA usa em 30% das mortes
+function arenaKillPick(T,w,l){const A=ARENAS[T.lastArena];if(!A||!A.stage||T.natal||T.fmt==='torre'||w.alien||isKramp(w)||isKramp(l))return null;
+  if(isPlayer(T,w))return T.playerChoice==='arena'?T.lastArena:null;return T.rand()<.3?T.lastArena:null;}
+// Bomba de Fumaça: quem ia morrer foge e sai vivo (vale contra Alien e Krampus; não existe no Natal Sombrio)
+function smokeUse(T,w,l){const E=T.eco,li=typeof l.i==='number'&&CARDS[l.i]===l?l.i:null;if(!E||li==null||T.natal||T.fmt==='torre'||!(E.bag[li]||[]).includes('fumaca'))return false;
+  ecoDrop(T,li,'fumaca');E.st.smokeUse=(E.st.smokeUse||0)+1;T.fleeCount=(T.fleeCount||0)+1;T.msgs.push(`${l.n} joga a Bomba de Fumaça e some na fumaça! Sai do torneio vivo.`);return true;}
+// Chave da Prisão: quem é preso com ela foge na hora
+function chaveCheck(T,w,l){const E=T.eco,li=typeof l.i==='number'&&CARDS[l.i]===l?l.i:null;if(!E||li==null||T.lastOut!=='prison'||!(E.bag[li]||[]).includes('chave'))return;
+  E.prison.delete(li);ecoDrop(T,li,'chave');E.gone=E.gone||new Set();E.gone.add('chave');ilog(T,{k:'gone',from:li,id:'chave'});T.lastOut='fled';T.prA=false;E.st.keyUse=(E.st.keyUse||0)+1;
+  T.msgs.push(`${l.n} usa a Chave da Prisão e foge antes de a cela fechar! Sai do torneio vivo, com tudo o que tinha.`);}
 // ---------- MODO VOCÊ LUTA ----------
 const isPlayer=(T,c)=>T.player!=null&&typeof c.i==='number'&&c.i===T.player;
 // a escolha de matar ou poupar fica travada em alguns casos (o motivo vem junto)
@@ -1324,9 +1364,9 @@ function addKarma(T,i,d){if(i==null||fixedRole(i)||!d)return;{const ph=T.phases&
   if(d>0)ecoRedeem(T,i);}
 // morte ou nocaute + carma + registro para o relatório final
 function finisher(T,w,l){const vr=roleOf(T,l),rv=rival(w.n,l.n),li0=typeof l.i==='number'&&CARDS[l.i]===l?l.i:null,pre=T.eco&&li0!=null&&T.eco.post[li0]?{...T.eco.post[li0],v:T.eco.bty[li0]}:null;
-  T.lastOut=null;T.prA=false;const kill=finisher0(T,w,l),own=kOwner(w),vi=kOwner(l),ph=curPhase(T).name,res=T.lastRes||{};
+  T.lastOut=null;T.prA=false;T.akill=null;const kill=finisher0(T,w,l),_ck=chaveCheck(T,w,l),own=kOwner(w),vi=kOwner(l),ph=curPhase(T).name,res=T.lastRes||{};
   const host=kill&&T.alienMode&&w.alien&&T.spawn.some(s=>s.host===vi);
-  if(kill){T.deaths.push({vi,il:(T.ilog||[]).length,items:T.eco&&T.eco.bag[vi]?[...T.eco.bag[vi]]:[],v:l.n,by:w.n,byI:own,phase:ph,how:host?'virou hospedeiro':l.alien?'Alien derrotado':pre?'cabeça a prêmio':rv&&rv.k!=='paz'?'rivalidade':''});if(own!=null)T.killCount[own]=(T.killCount[own]||0)+1;}
+  if(kill){T.deaths.push({vi,il:(T.ilog||[]).length,items:T.eco&&T.eco.bag[vi]?[...T.eco.bag[vi]]:[],v:l.n,by:w.n,byI:own,phase:ph,ak:T.akill||null,how:T.akill?'Morte na Arena: '+ARENAS[T.akill].stageN:host?'virou hospedeiro':l.alien?'Alien derrotado':pre?'cabeça a prêmio':rv&&rv.k!=='paz'?'rivalidade':''});if(own!=null)T.killCount[own]=(T.killCount[own]||0)+1;}
   else T.kos.push({vi,v:l.n,by:w.n,phase:ph,how:T.lastOut||'nocaute'});
   if(own!=null&&!l.alien&&T.fmt!=='torre')addKarma(T,own,karmaDelta(T,w,l,kill,vr,rv,res,pre));
   ecoAfter(T,w,l,kill,pre,vr);
@@ -1485,6 +1525,8 @@ const CONQ=[['aliens','Conquista dos Aliens','Modo Alien: só sobram Aliens vivo
  ['cacadaColmeia','Caçada à Colmeia','O Predador Caçador entra no torneio.'],['camuflagem','Camuflagem','Alguém acha a Armadura de Camuflagem do Predador Caçador.'],
  ['arsenal','Arsenal Roubado','Um campeão termina o torneio com 4 ou mais itens de personagem de outros donos.'],
  ['lancaSelvagem','Lança Selvagem','Alguém que não é o Super Predador termina o torneio vivo com a Lança Selvagem.'],['trocaMaos','Troca de Mãos','O mesmo item de personagem passa por 5 donos no mesmo torneio.'],
+ ['tremPassou','O Trem Passou','Alguém morre atropelado pelo trem no Pátio Ferroviário.'],['adubando','Adubando a Árvore','Alguém é devorado pela árvore da Floresta Viva.'],
+ ['alguemCaiu','Alguém Caiu','Alguém é jogado no abismo da Ponte Entre Reinos.'],['tesouroOlimpo','Tesouro do Olimpo','Alguém encontra a Lâmina do Olimpo.'],['pagouPreco','Pagou o Preço','O campeão do torneio termina com a Lâmina do Olimpo.'],
  ['ovelhaNegra','Ovelha Negra','Um campeão que começou herói perde o posto e termina o torneio como anti-herói ou vilão.']];
 function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
   ok('aliens',T.conquest==='aliens');ok('predador',e.pred);ok('quanchi',T.quanDone);ok('omega',T.omega);ok('trueDevil',Object.values(T.demon).some(v=>v>=T.demonMax));
@@ -1502,6 +1544,8 @@ function evalConquests(T){const e=T.ev,got=[],ok=(id,c)=>{if(c)got.push(id);};
     ok('arsenal',Object.entries(E.bag).some(([k,b])=>!T.dead.has(+k)&&b.filter(id=>ITEMS[id].k==='sig'&&!isBound(T,+k,id)).length>=4));
     ok('lancaSelvagem',Object.entries(E.bag).some(([k,b])=>!T.dead.has(+k)&&CARDS[+k]&&CARDS[+k].n!=='Super Predador'&&b.includes('lancaSelvagem')));
     {const mv={};for(const x of T.ilog||[])if((x.k==='take'||x.k==='loot')&&ITEMS[x.id]&&ITEMS[x.id].k==='sig')mv[x.id]=(mv[x.id]||0)+1;ok('trocaMaos',Object.values(mv).some(n=>n>=4));}}
+  ok('tremPassou',T.deaths.some(d=>d.ak==='patio'));ok('adubando',T.deaths.some(d=>d.ak==='floresta'));ok('alguemCaiu',T.deaths.some(d=>d.ak==='ponte'));
+  ok('tesouroOlimpo',(T.armFound||[]).includes('lamina'));{const P0=T.fmt!=='torre'&&T.eco?getPodium(T)[0]:null;ok('pagouPreco',P0!=null&&(T.eco.bag[P0]||[]).includes('lamina'));}
   ok('ovelhaNegra',Object.keys(T.karma).map(Number).some(i=>CARDS[i]&&(T.startRole[i]||CARDS[i].role)==='h'&&roleNow(T,i)!=='h'));
   return got;}
 function finishPend(T,pend){return pend.filter(p=>p.opts.length&&!(T.done&&p.kind==='rugal'));}
@@ -1530,7 +1574,7 @@ function twInit(T){T.tw={sigNext:null,bag:[],cap:T.diff==='divina'?5:3,offer:nul
 // sorteia 3 diferentes; do 7º andar em diante, Grande, Panaceia e equipamentos aparecem mais
 function twDraw(T){const W=T.tw,hi=T.floor>=6,owned=new Set(W.bag);const pool=[];
   for(const id of TW_BASIC)pool.push([id,hi?2:4]);for(const id of TW_RARE)pool.push([id,hi?4:1]);
-  for(const id of Object.keys(ITEMS))if(ITEMS[id].k==='eq'&&!owned.has(id))pool.push([id,hi?3:1]);
+  for(const id of Object.keys(ITEMS))if(ITEMS[id].k==='eq'&&!ITEMS[id].special&&!owned.has(id))pool.push([id,hi?3:1]);
   const out=[];while(out.length<3&&pool.length){const tot=pool.reduce((a,b)=>a+b[1],0);let r=T.rand()*tot,k=0;for(;k<pool.length;k++){r-=pool[k][1];if(r<=0)break;}k=Math.min(k,pool.length-1);out.push(pool[k][0]);pool.splice(k,1);}
   if(W.sigNext&&!W.bag.includes(W.sigNext))out.push(W.sigNext);W.sigNext=null;W.offer=out;W.drawn=T.floor;}
 // valor para a IA escolher: equipamento > Poção Grande > Panaceia > Poção de Vida > o resto
@@ -1551,7 +1595,7 @@ const ECO_NUM={hunt:100,surv:15,huntBonus:50,kill:20,killHero:10};
 const trait=(c,k)=>!!c&&(ECO[k].includes(c.n)||((k==='selvagem'||k==='nunca')&&!!c.alien));
 const roleNow=(T,i)=>(T.role&&T.role[i])||karmaRole(T.karma[i]);
 function ecoInit(T){if(!(T.fmt==='mata'||T.fmt==='copa')||T.natal)return;
-  T.eco={bh:!!T.cacador,jailer:{},gone:new Set(),m:{},bag:{},cap:{},eq:{},mult:{},bty:{},post:{},kills:{},prison:new Set(),hunters:new Set(),huntDone:new Set(),wave:false,lastPh:null,phaseN:0,bought:{},offer:[],
+  T.eco={bh:!!T.cacador,smoke:{stock:0,sold:0},jailer:{},gone:new Set(),m:{},bag:{},cap:{},eq:{},mult:{},bty:{},post:{},kills:{},prison:new Set(),hunters:new Set(),huntDone:new Set(),wave:false,lastPh:null,phaseN:0,bought:{},offer:[],
     st:{buy:{},use:{},spent:0,loot:0,lootItems:0,bounty:0,bountyN:0,surv:0,find:0,findN:0,hunt:0,flee:0,fleeLocked:0,prison:0,posters:0,waves:0,hunters:0,hunts:0,huntWin:0,huntLose:0,redeem:0,orfanato:0,swap:0}};
   for(const i of T.ids)ecoAdd(T,i);}
 function ecoAdd(T,i){const E=T.eco;if(!E||i==null||E.m[i]!=null||!CARDS[i])return;const c=CARDS[i];
@@ -1571,19 +1615,19 @@ function ecoCheckPoster(T,i){const E=T.eco,c=CARDS[i];if(!E||!E.bh||E.post[i]||!
 // redenção: o cartaz cai se o carma volta ao carma do começo antes da captura (os chefes são sempre procurados)
 function ecoRedeem(T,i){const E=T.eco;if(!E||!E.post[i]||E.post[i].ch)return;if(T.karma[i]>=(E.post[i].born?5:KARMA0[T.startRole[i]])){delete E.post[i];E.st.redeem++;T.msgs.push(`${CARDS[i].n} se redimiu: o Uno rasga o cartaz de procurado.`);}}
 // equipamentos somam: todos os da bolsa valem ao mesmo tempo (combo)
-function eqBonus(bag){const st={};let luck=0;for(const id of bag||[]){const it=ITEMS[id];if(!it||(it.k!=='eq'&&it.k!=='sig'))continue;if(it.st)for(const k in it.st)st[k]=(st[k]||0)+it.st[k];if(it.luck)luck+=it.luck;}return {st,luck};}
+function eqBonus(bag){const st={};let luck=0;for(const id of bag||[]){const it=ITEMS[id];if(!it||(it.k!=='eq'&&it.k!=='sig'&&it.k!=='arm'))continue;if(it.st)for(const k in it.st)st[k]=(st[k]||0)+it.st[k];if(it.luck)luck+=it.luck;}return {st,luck};}
 const bagOf=(T,i)=>T.tw&&i===T.climber?T.tw.bag:T.eco&&T.eco.bag[i]?T.eco.bag[i]:(!T.natal&&!T.eco&&CARDS[i]&&sigOf(T,CARDS[i].n)&&!(T.sigGone&&T.sigGone.has(sigOf(T,CARDS[i].n)))?[sigOf(T,CARDS[i].n)]:[]);
 const ecoLuck=(T,i)=>Math.min(5,(SORTE[CARDS[i].n]??3)+eqBonus(bagOf(T,i)).luck);
 const cardLuck=(T,c)=>typeof c.i==='number'&&CARDS[c.i]===c?ecoLuck(T,c.i):(SORTE[c.n]??3);
 const cardSpd=(T,c)=>combatSt(c.st).spd+(typeof c.i==='number'?(eqBonus(bagOf(T,c.i)).st.spd||0):0);
-function ecoPrice(T,id,i){const it=ITEMS[id];let p=it.p*((T.eco&&T.eco.mult[id])||1);if(i!=null&&CARDS[i]&&trait(CARDS[i],'medico')&&(id==='vida'||id==='grande'))p*=.75;return Math.max(1,Math.round(p));}
+function ecoPrice(T,id,i){const it=ITEMS[id];if(id==='fumaca')return 50*Math.pow(2,(T.eco&&T.eco.smoke?T.eco.smoke.sold:0));let p=it.p*((T.eco&&T.eco.mult[id])||1);if(i!=null&&CARDS[i]&&trait(CARDS[i],'medico')&&(id==='vida'||id==='grande'))p*=.75;return Math.max(1,Math.round(p));}
 function ecoAlive(T){const all=[...T.ids,...CARDS.slice(NB).map(c=>c.i)].filter((i,k,a)=>a.indexOf(i)===k&&!T.out.has(i));for(const i of all)ecoAdd(T,i);return all;}
 // compra (o jogador e a IA usam a mesma função)
 function ilog(T,o){const ph=T.phases&&T.phases.length?curPhase(T):null;(T.ilog=T.ilog||[]).push({ph:ph?ph.name:'Início',...o});}
 function ecoBuy(T,i,id){const E=T.eco,it=ITEMS[id],bag=E.bag[i];if(!E.offer.includes(id))return 'O item não está no mercado nesta fase.';const pr=ecoPrice(T,id,i);
   if(trait(CARDS[i],'selvagem'))return 'Selvagem não usa o mercado.';if(E.m[i]<pr)return 'Moedas insuficientes.';
   if(it.k==='bag'){if(it.slots<=E.cap[i])return 'Você já tem uma bolsa igual ou maior.';E.cap[i]=it.slots;}
-  else{if(bag.length>=ecoCap(T,i))return 'A bolsa está cheia.';if(it.k==='eq'){E.offer=E.offer.filter(x=>x!==id);}bag.push(id);if(it.k==='eq'&&!E.eq[i])E.eq[i]=id;}
+  else{if(bag.length>=ecoCap(T,i))return 'A bolsa está cheia.';if(it.k==='eq'||it.k==='esc'){E.offer=E.offer.filter(x=>x!==id);}if(id==='fumaca'){E.smoke.stock=0;E.smoke.sold++;}bag.push(id);if(it.k==='eq'&&!E.eq[i])E.eq[i]=id;}
   E.m[i]-=pr;E.mult[id]=(E.mult[id]||1)*1.05;if(ecoPrice(T,id)>100&&T.ev)T.ev.infl=true;E.bought[id]=1;E.st.buy[id]=(E.st.buy[id]||0)+1;E.st.spent+=pr;(E.spentBy=E.spentBy||{})[i]=(E.spentBy[i]||0)+pr;ilog(T,{k:'buy',w:i,id,p:pr});return null;}
 function ecoEquip(T,i,id){const E=T.eco;if(id==null){E.eq[i]=null;return;}if(E.bag[i].includes(id)&&ITEMS[id].k==='eq')E.eq[i]=id;}
 function ecoDrop(T,i,id){const E=T.eco,k=E.bag[i].indexOf(id);if(k<0)return;E.bag[i].splice(k,1);if(E.eq[i]===id&&!E.bag[i].includes(id))E.eq[i]=E.bag[i].find(x=>ITEMS[x].k==='eq')||null;}
@@ -1596,14 +1640,20 @@ function ecoShop(T,i){const E=T.eco,c=CARDS[i];if(!c||trait(c,'selvagem'))return
   if(bag.length>=ecoCap(T,i)-1){const nb=E.cap[i]<5?'mochila':E.cap[i]<8?'bau':null;if(nb&&can(nb,40))ecoBuy(T,i,nb);}
   for(const id of ecoPrefEq(T,i))if(!bag.includes(id)&&can(id,20)){if(!ecoBuy(T,i,id))break;}
   if(heal()<2){const id=cura(20);if(id)ecoBuy(T,i,id);}
-  for(const id of shuffle(['bandagem','pomada','energetico','agua','aquecedor','panaceia','elixir'],R))if(bag.length<ecoCap(T,i)&&cnt(id)===0&&can(id,25)&&R()<.45)ecoBuy(T,i,id);}
+  for(const id of shuffle(['bandagem','pomada','energetico','agua','aquecedor','panaceia','elixir'],R))if(bag.length<ecoCap(T,i)&&cnt(id)===0&&can(id,25)&&R()<.45)ecoBuy(T,i,id);
+  {const th=['fogoT','raioT','geloT','acidoT'].filter(id=>can(id,25));if(th.length&&bag.length<ecoCap(T,i)&&R()<.35)ecoBuy(T,i,th[Math.floor(R()*th.length)]);}
+  if(bag.length<ecoCap(T,i)&&can('lanterna',30)&&R()<.5)ecoBuy(T,i,'lanterna');
+  if(bag.length<ecoCap(T,i)&&can('chave',0)&&E.post[i]&&R()<.6)ecoBuy(T,i,'chave');
+  if(bag.length<ecoCap(T,i)&&can('fumaca',40)&&c.tit!=='Chefe'&&!c.ab.includes('arrogante')&&R()<.3)ecoBuy(T,i,'fumaca');}
 // começo de cada fase: dinheiro de sobrevivência, preços, mercado e caçadores
 function ecoPhase(T){const E=T.eco;if(!E||T.done)return false;const ph=curPhase(T);if(!ph||E.lastPh===ph)return false;const keep=T.msgs;T.msgs=[];const r=ecoPhase0(T,E,ph);T.preMsgs=[...(T.preMsgs||[]),...T.msgs];T.msgs=keep;return r;}
 function ecoPhase0(T,E,ph){E.lastPh=ph;E.phaseN++;ecoShopRest(T);
   const alive=ecoAlive(T);
   if(E.phaseN>1){for(const i of alive)if(!trait(CARDS[i],'selvagem')){E.m[i]+=15;E.st.surv+=15;}
     for(const id in E.mult)if(!E.bought[id])E.mult[id]=Math.max(.5,E.mult[id]*.9);}
-  E.bought={};const owned=new Set(Object.values(E.bag).flat());const pool=Object.keys(ITEMS).filter(id=>ITEMS[id].k!=='bag'&&ITEMS[id].k!=='sig'&&id!=='vida'&&!(ITEMS[id].k==='eq'&&(owned.has(id)||E.gone&&E.gone.has(id))));E.offer=['vida','mochila','bau',...shuffle(pool,T.rand).slice(0,6)];
+  E.bought={};const owned=new Set(Object.values(E.bag).flat());const pool=Object.keys(ITEMS).filter(id=>ITEMS[id].k!=='bag'&&ITEMS[id].k!=='sig'&&ITEMS[id].k!=='arm'&&ITEMS[id].k!=='esc'&&!ITEMS[id].special&&id!=='vida'&&!(ITEMS[id].k==='eq'&&(owned.has(id)||E.gone&&E.gone.has(id))));E.offer=['vida','mochila','bau',...shuffle(pool,T.rand).slice(0,6)];
+  if(T.deaths.length>=4&&!ecoExists(T,'lanterna'))E.offer.push('lanterna');if(E.bh&&!ecoExists(T,'chave'))E.offer.push('chave');
+  if((E.phaseN-1)%3===0)E.smoke.stock=1;if(E.smoke.stock>0)E.offer.push('fumaca');
   // todos passam no mercado em ordem sorteada; quem compra antes muda o preço para quem vem depois
   const order=shuffle(alive,T.rand),k=T.player!=null?order.indexOf(T.player):-1;
   if(k<0){for(const i of order)ecoShop(T,i);}
@@ -1669,25 +1719,42 @@ function ecoGain(T,wi,v,why){const E=T.eco;if(v<=0)return;if(trait(CARDS[wi],'ca
 function ecoAfter(T,w,l,kill,pre,vr){const E=T.eco;if(!E)return;const out=T.lastOut,li=typeof l.i==='number'&&CARDS[l.i]===l?l.i:null;
   const wi=typeof w.i==='number'&&CARDS[w.i]===w?w.i:(kOwner(w)!=null?BISON.i:null);if(wi==null)return;ecoAdd(T,wi);if(li!=null)ecoAdd(T,li);
   if(kill&&!w.alien&&!l.alien){E.kills[wi]=(E.kills[wi]||0)+1;E.bty[wi]+=20+(vr==='h'?10:0);ecoCheckPoster(T,wi);}
-  if(T.lastArena==='lanternas'&&!trait(CARDS[wi],'selvagem')){E.m[wi]+=ARENAS.lanternas.coins;E.st.lantern=(E.st.lantern||0)+ARENAS.lanternas.coins;T.msgs.push(`Mercado das Lanternas: ${w.n} ganha +${ARENAS.lanternas.coins} moedas pela vitória.`);}
+  {const AC=ARENAS[T.lastArena];if(AC&&AC.coins&&!trait(CARDS[wi],'selvagem')){E.m[wi]+=AC.coins;E.st.lantern=(E.st.lantern||0)+AC.coins;T.msgs.push(`${AC.n}: ${w.n} ganha +${AC.coins} moedas pela vitória.`);}}
   if(li==null||out==='fled'||trait(CARDS[wi],'selvagem'))return;
   if(pre&&(kill||((out==='prison'||out==='sack')&&pre.t!=='morto'))){delete E.post[li];E.st.bounty+=pre.v;E.st.bountyN++;ecoGain(T,wi,pre.v,`de recompensa pela cabeça de ${l.n}`);if(out==='prison')E.st.prison++;}
   if(out==='sack')return;
+  if(kill&&T.akill){const AK=ARENAS[T.akill],aTot=E.m[li],aCoins=Math.floor(aTot*AK.stageCoins);E.m[li]=0;E.m[wi]+=aCoins;E.st.loot+=aCoins;E.gone=E.gone||new Set();
+    const aIt=[...E.bag[li]];E.bag[li]=[];E.eq[li]=null;let kept=null;
+    if(AK.stageItems&&aIt.length){kept=[...aIt].sort((x,y)=>ITEMS[y].p-ITEMS[x].p)[0];aIt.splice(aIt.indexOf(kept),1);T._from=li;if(!ecoTake(T,wi,[kept]))aIt.push(kept),kept=null;T._from=null;}
+    for(const id of aIt){if(['eq','sig','arm'].includes(ITEMS[id].k))E.gone.add(id);ilog(T,{k:'gone',from:li,id});}
+    T.msgs.push(`${w.n} fica com ${aCoins} moeda${aCoins===1?'':'s'}${kept?` e ${ITEMS[kept].n}`:''}.${aIt.length?` ${aIt.length===1?'O outro item foi destruído':`Os outros ${aIt.length} itens foram destruídos`}.`:''}`);
+    ecoFind(T,wi);bhArmor(T,wi);return;}
   const coins=kill||T.prA||trait(CARDS[wi],'ganancioso')||trait(CARDS[wi],'saqueador')?E.m[li]:Math.floor(E.m[li]/2);
   E.m[li]-=coins;E.m[wi]+=coins;E.st.loot+=coins;
   let items=[];if(out==='prison'){E.jailer[li]=wi;items=[...E.bag[li]];E.bag[li]=[];E.eq[li]=null;if(wi===T.player&&items.length){E.lootChoice={from:li,items};items=[];}}else if(kill){items=[...E.bag[li]];E.bag[li]=[];E.eq[li]=null;}
   else{const k=Math.min(E.bag[li].length,1+(T.rand()<.5?1:0));for(let j=0;j<k;j++){const id=E.bag[li][Math.floor(T.rand()*E.bag[li].length)];ecoDrop(T,li,id);items.push(id);}}
-  T._from=li;const got=items.length?ecoTake(T,wi,items):0;T._from=null;E.st.lootItems+=got;if(out==='prison'&&E.gone){for(const id of items)if(ITEMS[id].k==='sig'&&!Object.values(E.bag).some(b=>b.includes(id))){E.gone.add(id);ilog(T,{k:'gone',from:li,id});T.msgs.push(`${ITEMS[id].n} some do jogo.`);}}
+  T._from=li;const got=items.length?ecoTake(T,wi,items):0;T._from=null;E.st.lootItems+=got;if(out==='prison'&&E.gone){for(const id of items)if(['sig','arm'].includes(ITEMS[id].k)&&!Object.values(E.bag).some(b=>b.includes(id))){E.gone.add(id);ilog(T,{k:'gone',from:li,id});T.msgs.push(`${ITEMS[id].n} some do jogo.`);}}
   if(coins||got)T.msgs.push(`${w.n} pega ${coins} moeda${coins===1?'':'s'}${got?` e ${got} ite${got>1?'ns':'m'}`:''} de ${l.n}.`);
   if(trait(CARDS[wi],'caridoso')&&coins){const h=Math.floor(coins/2);E.m[wi]-=h;E.st.orfanato+=h;T.kwhy='doou ao orfanato';addKarma(T,wi,1);T.kwhy=null;T.msgs.push(`${CARDS[wi].n} doa ${h} moedas ao orfanato (+1 de carma).`);}
   ecoFind(T,wi);bhArmor(T,wi);}
-function ecoFind(T,wi){const E=T.eco;if(!E||E.bag[wi].length>=ecoCap(T,wi)||trait(CARDS[wi],'selvagem'))return;if(T.rand()<.03*ecoLuck(T,wi)){const pool=Object.keys(ITEMS).filter(id=>ITEMS[id].k==='pot');const id=pool[Math.floor(T.rand()*pool.length)];
+const ecoExists=(T,id)=>{const E=T.eco;return Object.values(E.bag).some(b=>b.includes(id))||(E.gone&&E.gone.has(id));};
+const FIND_ARM={lamina:[0,0,.01,.03,.07,.12]},FIND_ARM0=[0,.02,.04,.07,.10,.14],FIND_ANY=[0,.05,.10,.15,.20,.25];
+function ecoFind(T,wi){const E=T.eco;if(!E||trait(CARDS[wi],'selvagem'))return;const A=T.lastArena,AA=ARENAS[A]||{},lk=ecoLuck(T,wi),R=T.rand,nm=CARDS[wi].n;
+  if(AA.hidden&&!ecoExists(T,AA.hidden)&&R()<(FIND_ARM[AA.hidden]||FIND_ARM0)[lk]){T._from=null;if(ecoTake(T,wi,[AA.hidden])){E.st.armFound=(E.st.armFound||0)+1;(T.armFound=T.armFound||[]).push(AA.hidden);
+      T.msgs.push(`TESOURO! ${nm} encontra ${ITEMS[AA.hidden].n} escondida no ${AA.n}!`);return;}}
+  if(R()>=FIND_ANY[lk]+(AA.rift?.05:0))return;
+  const n=(T.arenaN&&T.arenaN[A])||1;
+  if(!AA.rift&&n>=2&&R()<.6){const v=Math.min(30,5*(n-1));E.m[wi]+=v;E.st.coinFind=(E.st.coinFind||0)+v;T.msgs.push(`Sorte! ${nm} acha ${v} moedas largadas no chão da arena.`);return;}
+  if(E.bag[wi].length>=ecoCap(T,wi))return;
+  const pool=Object.keys(ITEMS).filter(id=>ITEMS[id].k==='pot'&&(AA.rift||!ITEMS[id].thr)),id=pool[Math.floor(R()*pool.length)];
+  E.bag[wi].push(id);E.st.findN++;ilog(T,{k:'find',w:wi,id});T.msgs.push(`Sorte! ${nm} encontra ${ITEMS[id].n} na arena.`);}
+function ecoFind0(T,wi){const E=T.eco;if(!E||E.bag[wi].length>=ecoCap(T,wi)||trait(CARDS[wi],'selvagem'))return;if(T.rand()<.03*ecoLuck(T,wi)){const pool=Object.keys(ITEMS).filter(id=>ITEMS[id].k==='pot');const id=pool[Math.floor(T.rand()*pool.length)];
   E.bag[wi].push(id);E.st.findN++;ilog(T,{k:'find',w:wi,id});T.msgs.push(`Sorte! ${CARDS[wi].n} encontra ${ITEMS[id].n} depois da luta.`);}}
 // Copa: na fase de grupos ninguém morre, mas quem perde entrega metade das moedas
 function ecoGroup(T,wi,li){const E=T.eco;if(!E)return;ecoAdd(T,wi);ecoAdd(T,li);if(trait(CARDS[wi],'selvagem'))return;
   const coins=trait(CARDS[wi],'ganancioso')||trait(CARDS[wi],'saqueador')?E.m[li]:Math.floor(E.m[li]/2);E.m[li]-=coins;E.st.loot+=coins;if(coins){E.m[wi]+=coins;T.msgs.push(`${CARDS[wi].n} pega ${coins} moedas de ${CARDS[li].n}.`);}if(T.lastArena==='lanternas'){E.m[wi]+=ARENAS.lanternas.coins;E.st.lantern=(E.st.lantern||0)+ARENAS.lanternas.coins;T.msgs.push(`Mercado das Lanternas: ${CARDS[wi].n} ganha +${ARENAS.lanternas.coins} moedas pela vitória.`);}ecoFind(T,wi);}
 // tira da bolsa o que foi usado na luta
-function ecoUsed(T,b,res){T.lastArena=b.arena||(b.m&&b.m.arena)||null;bhEscape(T);const ev=T.ev||{};if(T.lastArena==='colmeia'&&res.w&&res.l){if(res.w.alien)ev.donoCasa=true;else if(res.l.alien)ev.respAcido=true;}if(res.fled&&res.l&&res.l.n==='Homelander')ev.covarde=true;const E=T.eco;if(!E)return;for(const [card,used] of [[b.A,res.usedA],[b.B,res.usedB]]){if(!used||!used.length||typeof card.i!=='number'||!E.bag[card.i])continue;
+function ecoUsed(T,b,res){T.lastArena=b.arena||(b.m&&b.m.arena)||null;if(T.lastArena)(T.arenaN=T.arenaN||{})[T.lastArena]=(T.arenaN[T.lastArena]||0)+1;bhEscape(T);const ev=T.ev||{};if(T.lastArena==='colmeia'&&res.w&&res.l){if(res.w.alien)ev.donoCasa=true;else if(res.l.alien)ev.respAcido=true;}if(res.fled&&res.l&&res.l.n==='Homelander')ev.covarde=true;const E=T.eco;if(!E)return;for(const [card,used] of [[b.A,res.usedA],[b.B,res.usedB]]){if(!used||!used.length||typeof card.i!=='number'||!E.bag[card.i])continue;
   for(const id of used){ecoDrop(T,card.i,id);E.st.use[id]=(E.st.use[id]||0)+1;}}}
 // ===================== MODO CAÇADOR DE RECOMPENSAS (v1.6) =====================
 const BH_NAMES=['Erron Black','Sol Badguy','Bayman'];
@@ -1922,7 +1989,7 @@ function mkNext(){const i=T.player,ph=curPhase(T);if(!ph)return null;const m=ph.
 function mkRender(){const E=T.eco,i=T.player,bag=E.bag[i],ph=curPhase(T),op=mkNext();
   const owner={};for(const k in E.bag)for(const id of E.bag[k])if(ITEMS[id].k==='eq'&&!T.out.has(+k))owner[id]=+k;
   const arrow=id=>{const m=E.mult[id]||1;return m>1.001?'<span class="up" title="muito procurado: mais caro">▲</span>':m<.999?'<span class="dn" title="pouco procurado: mais barato">▼</span>':'';};
-  const slot=k=>{const id=bag[k];if(id==null)return `<div class="mkslot vazio">vazio</div>`;const it=ITEMS[id],on=it.k==='eq'||it.k==='sig';
+  const slot=k=>{const id=bag[k];if(id==null)return `<div class="mkslot vazio">vazio</div>`;const it=ITEMS[id],on=it.k==='eq'||it.k==='sig'||it.k==='arm';
     return `<div class="mkslot${on?' on':''}"><img src="${ITIMG(id)}" alt=""><b>${it.n}</b>${on?'<span class="tagv">valendo</span>':''}${isBound(T,i,id)?'<span class="tagv">item seu: fica com você</span>':`<button class="mini ghost" data-drop="${k}">Jogar fora</button>`}</div>`;};
   const sale=id=>{const it=ITEMS[id],pr=ecoPrice(T,id,i);let why='';
     if(it.k==='bag'&&it.slots<=E.cap[i])why='você já tem';else if(it.k!=='bag'&&bag.length>=ecoCap(T,i))why='bolsa cheia';else if(E.m[i]<pr)why='moedas insuficientes';
@@ -1943,7 +2010,7 @@ function mkRender(){const E=T.eco,i=T.player,bag=E.bag[i],ph=curPhase(T),op=mkNe
 function vlActions(y,go){const f=y.f,E=T.eco,p=T.player;
   const btn=(o,i)=>`<button class="act" data-i="${i}" ${o.ok?'':'disabled'} title="${(o.x||'').replace(/"/g,'')}">${o.t==='i'?`<img class="aimg" src="${ITIMG(o.id)}" alt="">`:''}${o.n}<small>${o.t==='i'?(ITEMS[o.id].x+' Gasta a vez.'):o.t==='n'?`~${o.est} de dano · sem custo`:`${o.est!=null?`~${o.est} de dano · `:''}${o.cost} de Energia`}</small></button>`;
   const its=y.opts.map((o,i)=>[o,i]).filter(([o])=>o.t==='i'),moves=y.opts.map((o,i)=>[o,i]).filter(([o])=>o.t!=='i');
-  const eqs=bagOf(T,p).filter(id=>ITEMS[id].k==='eq'||ITEMS[id].k==='sig'),nPot=f.inv.length;
+  const eqs=bagOf(T,p).filter(id=>ITEMS[id].k==='eq'||ITEMS[id].k==='sig'||ITEMS[id].k==='arm'),nPot=f.inv.length;
   const main=()=>{$('#actions').innerHTML=`<div class="who">Sua vez: ${f.name} (${Math.max(0,Math.round(f.hp))} de Vida, ${f.en} de Energia)</div>`+moves.map(([o,i])=>btn(o,i)).join('')+
       ((E||T.tw)?`<button class="act bagbtn" data-bag="1"><img class="aimg" src="img/itens/${E&&E.cap[p]>=8?'bau-de-guerra':E&&E.cap[p]>=5?'mochila':'bolsa'}.png" alt="">Abrir bolsa<small>${nPot?`${nPot} ite${nPot>1?'ns':'m'} · ${2-f.pot} de 2 usos nesta luta`:'sem itens para usar'}</small></button>`:'')+
       `<button class="act" data-ai="1">Deixar o jogo escolher<small>a melhor jogada da IA</small></button>`;};
@@ -2008,7 +2075,7 @@ function lootOpen(done){const E=T.eco,L=E.lootChoice;if(!L){done();return;}const
   render();$('#mLoot').classList.add('on');
   $('#lootBody').onclick=e=>{const b=e.target.closest('[data-k]');if(!b||b.disabled)return;const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);render();};
   $('#lootGo').onclick=()=>{const take=L.items.filter((_,k)=>sel.has(k)),left=L.items.filter((_,k)=>!sel.has(k));for(const id of take){E.bag[p].push(id);sigKarma(T,p,id);ilog(T,{k:'loot',w:p,from:L.from,id});}
-    for(const id of left){ilog(T,{k:'gone',from:L.from,id});if(ITEMS[id].k==='sig')E.gone.add(id);}E.lootChoice=null;$('#mLoot').classList.remove('on');
+    for(const id of left){ilog(T,{k:'gone',from:L.from,id});if(['sig','arm'].includes(ITEMS[id].k))E.gone.add(id);}E.lootChoice=null;$('#mLoot').classList.remove('on');
     T.msgs.push(`Você pegou ${take.length?take.map(id=>ITEMS[id].n).join(', '):'nada'}${left.length?`; ${left.map(id=>ITEMS[id].n).join(', ')} some${left.length>1?'m':''} do jogo`:''}.`);setInfo(T.msgs);vlStatus();renderBracket();done();};}
 
 // ===================== 1.6.1: FEED DE EVENTOS E RELATÓRIO EM ABAS =====================
@@ -2103,19 +2170,21 @@ function reportHtml(T){const P=getPodium(T),E=T.eco,medal=['1º','2º','3º'];
 
 // ===================== 1.6.1: GALERIAS DE ARENAS E ITENS =====================
 const ARENA_ONDE={coliseu:'Copa, Mata-mata e Torre',olimpo:'Copa e Mata-mata',lanternas:'Copa e Mata-mata',cemiterio:'Copa e Mata-mata',chuva:'Copa e Mata-mata',ponte:'Copa e Mata-mata',
-  prisao:'Copa e Mata-mata (sempre no baralho)',krampus:'Só no evento Natal Sombrio',colmeia:'Só com o Modo Alien'};
-function renderArenas(){$('#arenaList').innerHTML=ARENA_IDS.map(id=>{const a=ARENAS[id],lock=a.kr&&!krOk(),fx=!/^(A arena[^.]*\. )?Sem efeito\.?$/.test(a.x);
+  prisao:'Copa e Mata-mata (sempre no baralho)',krampus:'Só no evento Natal Sombrio',colmeia:'Copa e Mata-mata',eclipse:'Copa e Mata-mata',dojo:'Copa e Mata-mata',fenda:'Copa e Mata-mata',ringue:'Copa e Mata-mata',patio:'Copa e Mata-mata',floresta:'Copa e Mata-mata'};
+function renderArenas(){$('#arenaList').innerHTML=ARENA_IDS.map(id=>{const a=ARENAS[id],lock=a.kr&&!krOk(),fx=!/^(A arena[^.]*\. )?Sem efeito\./.test(a.x);
   return lock?`<article class="agal lock"><div class="aimg"><span class="qq">???</span></div><div><h3>???</h3><p class="note">Arena bloqueada: libera junto com um campeão secreto.</p></div></article>`
-   :`<article class="agal"><div class="aimg"><img src="img/arenas/${a.img}.jpg" alt="" loading="lazy"></div><div><h3>${a.n}</h3><span class="st ${fx?'buff':''}">${fx?'Tem modificador':'Sem modificador'}</span> <span class="note">· ${ARENA_ONDE[id]||''}</span><p>${a.x}</p></div></article>`;}).join('');}
-const ITEM_GRUPOS=[['bag','Bolsas','Compradas no mercado. Aumentam o espaço da bolsa.'],['pot','Poções','Compradas no mercado. Usadas durante a luta pelo botão Abrir bolsa.'],
-  ['eq','Equipamentos','Comprados no mercado. Existe só um de cada no torneio; o bônus é automático e soma com os outros.'],['sig','Itens de personagem','O dono começa com o item. Quem vence o dono pode pegar.']];
+   :`<article class="agal"><div class="aimg"><img src="img/arenas/${a.img}.jpg" alt="" loading="lazy"></div><div><h3>${a.n}</h3><span class="st ${fx?'buff':''}">${fx?'Tem modificador':'Sem modificador'}</span>${a.stage?' <span class="st weak">💀 Morte na Arena</span>':''}${a.hidden?` <span class="st buff">🎁 ${ITEMS[a.hidden].n}</span>`:''} <span class="note">· ${ARENA_ONDE[id]||''}</span><p>${a.x}</p></div></article>`;}).join('');}
+const ITEM_GRUPOS=[['bag','Bolsas','Compradas no mercado. Aumentam o espaço da bolsa.'],['pot','Poções','Compradas no mercado ou achadas nas arenas. Usadas durante a luta pelo botão Abrir bolsa.'],
+  ['thr','Poções de arremesso','Você joga no rival (gasta a vez). Ele pode esquivar: 15% de base, 30% se flutua, 50% se voa, +3% por ponto de Velocidade a mais que você. Achadas na Fortaleza da Fenda.'],
+  ['eq','Equipamentos e itens especiais','Comprados no mercado. Existe só um de cada no torneio (o Trevo tem 2); o bônus é automático e soma com os outros.'],
+  ['arm','Armas de arena','Escondidas em algumas arenas: só quem vence lá e tem Sorte acha. Existe só uma de cada.'],['sig','Itens de personagem','O dono começa com o item. Quem vence o dono pode pegar.']];
 const SIG_FORM={'Super Predador':'superPred','Predador Caçador':'predCac'};
 function renderItens(){const seen=loadSeen();
-  $('#itemList').innerHTML=`<p class="note">Os itens valem na Copa e no Mata-mata (na Torre você escolhe entre 3 antes de cada andar). Não entram no evento Natal Sombrio. Os Aliens nunca usam itens.</p>`+ITEM_GRUPOS.map(([k,t,d])=>{const ids=Object.keys(ITEMS).filter(id=>ITEMS[id].k===k);
+  $('#itemList').innerHTML=`<p class="note">Os itens valem na Copa e no Mata-mata (na Torre você escolhe entre 3 antes de cada andar). Não entram no evento Natal Sombrio. Os Aliens nunca usam itens.</p>`+ITEM_GRUPOS.map(([k,t,d])=>{const ids=Object.keys(ITEMS).filter(id=>id!=='trevo2'&&(k==='thr'?ITEMS[id].thr:k==='pot'?ITEMS[id].k==='pot'&&!ITEMS[id].thr:k==='eq'?['eq','esc'].includes(ITEMS[id].k):ITEMS[id].k===k));
    return `<h3 class="phase">${t} (${ids.length})</h3><p class="note">${d}</p><div class="igal">${ids.map(id=>{const it=ITEMS[id],f=SIG_FORM[it.own],lock=f&&!seen.has(f);
      if(lock)return `<div class="iitem lock"><div class="iimg"><span class="qq">???</span></div><b>???</b><small>Item de uma forma especial bloqueada.</small></div>`;
-     const tags=[k==='sig'?`Dono: ${it.own}`:it.p?`${COIN}${it.p} no mercado`:'Todo campeão começa com ela',it.karma?`<span class="st ${it.karma>0?'buff':'weak'}">${it.karma>0?'+':''}${it.karma} de carma a quem pega</span>`:'',
-       id==='camuflagem'?'Fica na arena quando o Predador Caçador cai':'',id==='amuletoQC'?'Só fora do Modo Amuleto':''].filter(Boolean);
+     const tags=[k==='sig'?`Dono: ${it.own}`:k==='arm'?'Não é vendida':id==='fumaca'?`${COIN}50, depois o dobro a cada venda`:it.p?`${COIN}${it.p} no mercado`:'Todo campeão começa com ela',it.karma?`<span class="st ${it.karma>0?'buff':'weak'}">${it.karma>0?'+':''}${it.karma} de carma a quem pega</span>`:'',
+       id==='camuflagem'?'Fica na arena quando o Predador Caçador cai':'',it.arena?`Escondida no ${ARENAS[it.arena].n}`:'',id==='amuletoQC'?'Só fora do Modo Amuleto':''].filter(Boolean);
      return `<div class="iitem"><div class="iimg"><img src="${ITIMG(id)}" alt="" loading="lazy"></div><b>${it.n}</b><small>${it.x}</small><small class="note">${tags.join(' · ')}</small></div>`;}).join('')}</div>`;}).join('');}
 
 // ===================== EQUILÍBRIO =====================
@@ -2129,7 +2198,7 @@ $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=ne
 
 
 // ===================== v1.2: TELAS NOVAS =====================
-const VERSION='1.6.1';
+const VERSION='1.7.0';
 const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',arenas:'Arenas',itens:'Itens',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
 function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
@@ -2150,6 +2219,11 @@ function noteSeen(res,A,B){const s=loadSeen(),n=s.size;(res&&res.forms||[]).forE
 // ---------- sininho ----------
 const NEWS_KEY='convergencia_novidades';
 const NEWS={novas:[
+  ['Arenas novas (1.7)','Salão do Eclipse, Dojo da Tempestade (chuva: Ensopado), Fortaleza da Fenda (só poções, nunca dinheiro), Ringue Clandestino (físicos +10%, ninguém abre a bolsa, +15 moedas), Pátio Ferroviário e Floresta Viva. A Ponte Entre Reinos perdeu o bônus de Fogo e Gelo. A chuva agora deixa os dois Ensopados.'],
+  ['Morte na Arena (1.7)','No Pátio Ferroviário (o trem passa), na Floresta Viva (a árvore devora) e na Ponte Entre Reinos (o abismo), quem vai matar pode escolher Matar na arena. Quem morre assim nunca volta, e os itens dele são destruídos.'],
+  ['Armas de arena (1.7)','Lâmina do Olimpo, Coroa do Eclipse, Katana da Tempestade e Cajado da Floresta Viva ficam escondidos nas arenas: só quem vence lá e tem Sorte acha. Ao vencer, a Sorte também pode achar moedas largadas (a partir da 2ª luta na arena) e poções.'],
+  ['Mercado novo (1.7)','4 poções de arremesso (Fogo, Raio, Gelo, Ácido), 2 Trevos de Quatro Folhas, a Lanterna das Almas (depois de 4 mortes), a Chave da Prisão (Modo Caçador, 250 moedas) e a Bomba de Fumaça (1 a cada 3 aberturas do mercado; o preço dobra a cada venda).'],
+  ['Conquistas novas (1.7)','O Trem Passou, Adubando a Árvore, Alguém Caiu, Tesouro do Olimpo e Pagou o Preço.'],
   ['Arenas e Itens no menu (1.6.1)','Dois botões novos no menu: Arenas (cada arena, se tem modificador e onde aparece) e Itens (bolsas, poções, equipamentos e itens de personagem, com preço, dono e carma).'],
   ['Lança Selvagem (1.6.1)','O Super Predador agora chega com a Lança Selvagem: +2 Ataque, +15% de chance de Sangrando e +10% de dano contra Aliens. Quem vencer o Super Predador pode pegar.'],
   ['Conquistas novas (1.6.1)','Lança Selvagem, Troca de Mãos e Ovelha Negra.'],
@@ -2336,12 +2410,13 @@ function vlAfter(bt,side,res){noteSeen(res,bt.A,bt.B);const won=res.w.i===T.play
     const mine=pend.filter(p=>p.who===T.player);for(const p of pend)if(p.who!==T.player)choosePending(T,p,p.opts[Math.floor(Math.random()*p.opts.length)]);
     askChoices(mine,()=>lootOpen(()=>{busy=false;setBtns();vlCheckEnd();}));};
   if(!won||res.fled||curPhase(T).kind==='grupos'){apply(null);return;}
-  const lock=playerLock(T,res.w,res.l),k=T.karma[T.player];
-  if(lock){$('#actions').innerHTML=`<div class="who">Você venceu! ${lock.x}: ${lock.k==='kill'?'você mata':'você poupa'} ${res.l.n}.</div><button class="act ${lock.k==='kill'?'kill':'spare'}" data-go="1">${lock.k==='kill'?'Matar':'Poupar'}<small>escolha travada pela regra</small></button>`;
-    $('#actions').onclick=e=>{if(e.target.closest('[data-go]')){$('#actions').onclick=null;apply(lock.k);}};return;}
+  const lock=playerLock(T,res.w,res.l),k=T.karma[T.player],AKA=ARENAS[bt.arena||(bt.m&&bt.m.arena)],akOk=AKA&&AKA.stage&&!res.l.alien&&!isKramp(res.l)&&T.fmt!=='torre'&&(!lock||lock.k==='kill'),
+    akBtn=akOk?`<button class="act kill" data-c="arena">Matar na arena<small>${AKA.stageN}: ${AKA.stageCoins?`fica com ${AKA.stageCoins===1?'todas as':Math.round(AKA.stageCoins*100)+'% das'} moedas e 1 item, o resto é destruído`:'você não fica com nada'}${T.eco?'':''}</small></button>`:'';
+  if(lock){$('#actions').innerHTML=`<div class="who">Você venceu! ${lock.x}: ${lock.k==='kill'?'você mata':'você poupa'} ${res.l.n}.</div><button class="act ${lock.k==='kill'?'kill':'spare'}" data-go="1">${lock.k==='kill'?'Matar':'Poupar'}<small>escolha travada pela regra</small></button>${lock.k==='kill'?akBtn.replace('data-c=','data-go="1" data-c='):''}`;
+    $('#actions').onclick=e=>{const b=e.target.closest('[data-go]');if(b){$('#actions').onclick=null;apply(b.dataset.c||lock.k);}};return;}
   const vr=roleOf(T,res.l);
   $('#actions').innerHTML=`<div class="who">Você venceu! O que fazer com ${res.l.n}?</div>`+
-    `<button class="act kill" data-c="kill">Matar<small>carma −2${T.eco?' · fica com todas as moedas e itens':''}</small></button>`+
+    akBtn+`<button class="act kill" data-c="kill">Matar<small>carma −2${T.eco?' · fica com todas as moedas e itens':''}</small></button>`+
     (T.eco&&T.eco.post[res.l.i]&&typeof res.l.i==='number'?`<button class="act" data-c="prison">Prender<small>${POSTER_N[T.eco.post[res.l.i].t]}: ${T.eco.post[res.l.i].t!=='morto'?`recompensa de ${T.eco.bty[res.l.i]} moedas · `:'sem recompensa (só a morte paga) · '}vai para a Prisão e você escolhe os itens dele</small></button>`:'')+
     `<button class="act spare" data-c="spare">Poupar<small>carma +1, ${res.l.n} sai vivo${T.eco?' · fica com metade das moedas e 1 ou 2 itens':''}</small></button>`+(k!=null?`<span class="note">Seu carma agora: ${k>0?'+':''}${k} (${ROLE_N[roleNow(T,T.player)]})</span>`:'');
   $('#actions').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;$('#actions').onclick=null;apply(b.dataset.c);};}
