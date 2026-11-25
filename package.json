@@ -33,7 +33,8 @@
       {
         "provider": "github",
         "owner": "BrunoRamanery",
-        "repo": "convergente-"
+        "repo": "convergente-",
+        "releaseType": "release"
       }
     ]
   },
