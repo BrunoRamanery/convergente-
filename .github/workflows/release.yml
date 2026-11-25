@@ -15,6 +15,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm ci
+      - name: Criar a tag da versão (quando rodado pelo botão)
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          git tag "v$v"
+          git push origin "v$v"
       - run: npx electron-builder --win nsis --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
