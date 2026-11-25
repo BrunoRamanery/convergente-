@@ -20,8 +20,9 @@ jobs:
         shell: pwsh
         run: |
           $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          git tag "v$v"
-          git push origin "v$v"
+          git ls-remote --exit-code --tags origin "v$v" | Out-Null
+          if ($LASTEXITCODE -ne 0) { git tag "v$v"; git push origin "v$v" }
+          exit 0
       - run: npx electron-builder --win nsis --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
