@@ -1,5 +1,5 @@
 {
-"version": "2.0.0",
+"version": "2.0.1",
 "files": {
 "img/alien.jpg": "71b116c164eedcc2ea87ab1aac8a7db347ed9c80",
 "img/amuleto-de-shinnok.jpg": "7e08040140ec21424b21bb029ae7d1c743b8f1a0",
@@ -167,6 +167,6 @@
 "img/vega.jpg": "b8da91d33c0e0b42c4faafa985f0fa109252e34c",
 "img/violent-ken.jpg": "fc25ba59b7fa569842812d41d6bb7db4cfe732b8",
 "img/voldo.jpg": "97e553c3269057cda764036a1ed183fd99585dee",
-"index.html": "81fbf09ad00953a6335dd2a8c4be5792235a1da9"
+"index.html": "62261af4ae13612d8186b756417483b0b9699526"
 }
 }

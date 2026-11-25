@@ -314,6 +314,7 @@ td.wr{width:40%}
 @media (max-width:720px){.evcard{grid-template-columns:1fr}}
 .nextbelow{padding:10px 14px;border-top:1px solid var(--line);display:flex;justify-content:center}.nextbelow .btn{min-width:220px}
 .st.para,.st.weak{}.tag.el{background:color-mix(in srgb,var(--accent,#c33) 18%,transparent)}.elg{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.elg b{font-size:13px}
+.newsVer{font-family:var(--display);font-weight:600;color:var(--gold);font-size:22px;letter-spacing:.5px;margin:14px 0 2px}#newsBody{max-height:62vh;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -415,7 +416,7 @@ td.wr{width:40%}
 <div class="modal" id="mDetail" role="dialog" aria-modal="true"><div class="mbox" style="max-width:860px"><button class="mclose" data-close aria-label="Fechar">×</button><div id="detailBody"></div></div></div>
 <div class="modal" id="mNews" role="dialog" aria-modal="true"><div class="mbox"><button class="mclose" data-close aria-label="Fechar">×</button>
   <h2>Novidades</h2>
-  <div class="tabs"><button data-nt="novas" aria-pressed="true">Novidades desta versão</button><button data-nt="breve" aria-pressed="false">Em breve</button></div>
+  <div class="tabs"><button data-nt="novas" aria-pressed="true">Novidades desta versão</button><button data-nt="antes" aria-pressed="false">Versões anteriores</button><button data-nt="breve" aria-pressed="false">Em breve</button></div>
   <div id="newsBody" class="news"></div></div></div>
 <div class="modal" id="mLoot" role="dialog" aria-modal="true"><div class="mbox mkbox"><h2 id="lootTitle">Espólio da luta</h2><div id="lootBody"></div>
   <div class="btns"><button class="btn" id="lootGo">Confirmar</button></div></div></div>
@@ -2450,7 +2451,7 @@ $('#btnBal').onclick=()=>{const btn=$('#btnBal');btn.disabled=true;const wins=ne
 
 
 // ===================== v1.2: TELAS NOVAS =====================
-const VERSION='2.0.0';
+const VERSION='2.0.1';
 const TITLES={eventos:'Eventos',criar:'Criar Torneio',regras:'Regras',personagens:'Campeões',conquistas:'Conquistas',arenas:'Arenas',itens:'Itens',torneio:'Torneio',cartas:'Luta 1 contra 1',luta:'Luta',equilibrio:'Equilíbrio'};
 function show(v){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   const top=v!=='splash'&&v!=='menu';$('#topbar').hidden=!top;$('#scrTitle').textContent=TITLES[v]||'';$('#bell').hidden=v==='splash';
@@ -2531,8 +2532,27 @@ const NEWS={novas:[
   ['Mais arenas','Salão do Eclipse, Dojo da Tempestade, Fortaleza da Fenda, Ringue Clandestino, Pátio Ferroviário de South Town, Bosque dos Anciões, e Torre Vought.'],
   ['Mecânicas de universo','Uma marca própria para cada universo, como o Golpe Fatal no Mortal Kombat.'],
   ['Freddy Krueger','Imagem nova no estilo dos outros campeões.']]};
+{const old=NEWS.novas,antes=[];let tag=null;
+ for(const [t,x] of old){const m=t.match(/\((\d+\.\d+(?:\.\d+)?)\)\s*$/);let v;if(m){v=m[1];tag=v;}else v=(tag==='1.3.1'||tag==='1.3.2')?'1.3.0':tag;
+  if(v==='2.0'||v==='1.9')continue;antes.push([v,t.replace(/\s*\((\d+\.\d+(?:\.\d+)?)\)\s*$/,''),x]);}
+ const get=t=>(old.find(o=>o[0]===t)||[0,''])[1];
+ NEWS.novas=[['Torre do Dragão',get('Torre do Dragão (2.0)')],['Generais e formas Kahn',get('Generais e formas Kahn (2.0)')],
+  ['Mortal Kombat: 5 campeões novos',get('Mortal Kombat: 5 campeões novos (2.0)')],['Arenas novas',get('Arenas novas (2.0)')],
+  ['IA de luta',get('IA de luta (1.9)')],['IA estrategista',get('IA estrategista (1.9)')],['Estilo de luta',get('Estilo de luta (1.9)')],['O que a IA pensou',get('O que a IA pensou (1.9)')],
+  ['The Boys',"O Homelander e o Soldier Boy agora são chefes e a Stormfront é sub-chefe; a Starlight continua comum."],
+  ['Mercado e itens',get('Vender no mercado (1.9)')+' '+get('Pé de Cabra do Butcher (1.9)')],['Modo Temp V',get('Modo Temp V (1.9)')],['Tela de espólio',get('Tela de espólio (1.9)')],
+  ['Equilíbrio',get('Equilíbrio (2.0)')],
+  ['Conquistas novas','Rei Dragão Caído, O Imperador Voltou, O Sol Nasce, A Ira na Mão, Coroa Comprada, Nascido na Forja, O Sol Tem Preço, Elmo do Sol, Enterrado Vivo, Queimado pelo Sol, Roleta Russa, Cara Limpa e Overdose.'],
+  ['Novidades (2.0.1)','A tela de Novidades agora tem três abas: esta versão, versões anteriores e em breve.']];
+ NEWS.antes=antes;
+ NEWS.breve=[['Dolls da Shadaloo','Evento para libertar as bonecas do M. Bison.'],['Forja dos Deuses','As armas de Zeus, Hades, Poseidon e outros deuses.'],
+  ['Universo DC','Superman, Batman e companhia chegam ao torneio.'],['Killer Instinct','A Ultratech e novos campeões.'],
+  ['Invasão Viltrumita','Os viltrumitas querem conquistar o torneio.'],['Roubar itens na luta','Campeões que roubam itens do rival no meio da batalha.'],
+  ['Mecânicas de universo','Uma marca própria para cada universo, como o Golpe Fatal no Mortal Kombat.']];}
 let newsTab='novas';
-function renderNews(){$('#newsBody').innerHTML=(newsTab==='novas'?`<p class="note">Versão ${VERSION}</p>`:'<p class="note">Ideias em andamento: podem mudar.</p>')+'<ul>'+NEWS[newsTab].map(([t,x])=>`<li><b>${t}:</b> ${x}</li>`).join('')+'</ul>';
+function renderNews(){let h;if(newsTab==='antes'){h='';let v=null;for(const [ver,t,x] of NEWS.antes){if(ver!==v){if(v!==null)h+='</ul>';h+=`<h4 class="newsVer">Versão ${ver}</h4><ul>`;v=ver;}h+=`<li><b>${t}:</b> ${x}</li>`;}h+='</ul>';}
+  else h=(newsTab==='novas'?`<p class="note">Versão ${VERSION}</p>`:'<p class="note">Ideias em andamento: podem mudar.</p>')+'<ul>'+NEWS[newsTab].map(([t,x])=>`<li><b>${t}:</b> ${x}</li>`).join('')+'</ul>';
+  $('#newsBody').innerHTML=h;
   document.querySelectorAll('[data-nt]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.nt===newsTab));}
 function bellDot(){let seen='';try{seen=localStorage.getItem(NEWS_KEY)||'';}catch(e){}$('#bellDot').hidden=seen===VERSION;}
 $('#bell').onclick=()=>{newsTab='novas';renderNews();$('#mNews').classList.add('on');try{localStorage.setItem(NEWS_KEY,VERSION);}catch(e){}bellDot();};
